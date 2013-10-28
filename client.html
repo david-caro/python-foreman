@@ -1,0 +1,2552 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Client module documentation &mdash; Foreman API 0.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Foreman API 0.1 documentation" href="index.html" />
+    <link rel="next" title="Tutorial" href="tutorial.html" />
+    <link rel="prev" title="Welcome to Foreman API’s documentation!" href="index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="tutorial.html" title="Tutorial"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Welcome to Foreman API’s documentation!"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Foreman API 0.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-foreman.client">
+<span id="client-module-documentation"></span><h1>Client module documentation<a class="headerlink" href="#module-foreman.client" title="Permalink to this headline">¶</a></h1>
+<p>This module provides acces to the API of a foreman server</p>
+<dl class="class">
+<dt id="foreman.client.Foreman">
+<em class="property">class </em><tt class="descclassname">foreman.client.</tt><tt class="descname">Foreman</tt><big>(</big><em>url='http://localhost:3000'</em>, <em>auth=None</em>, <em>version=None</em><big>)</big><a class="reference internal" href="_modules/foreman/client.html#Foreman"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#foreman.client.Foreman" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="foreman.client.Foreman.bootfiles_operatingsystems">
+<tt class="descname">bootfiles_operatingsystems</tt><big>(</big><em>id</em>, <em>medium=None</em>, <em>architecture=None</em><big>)</big><a class="headerlink" href="#foreman.client.Foreman.bootfiles_operatingsystems" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>medium</strong> &#8211; type String, optional</li>
+<li><strong>id</strong> &#8211; type String, required</li>
+<li><strong>architecture</strong> &#8211; type String, optional</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="foreman.client.Foreman.build_pxe_default_config_templates">
+<tt class="descname">build_pxe_default_config_templates</tt><big>(</big><big>)</big><a class="headerlink" href="#foreman.client.Foreman.build_pxe_default_config_templates" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="foreman.client.Foreman.create_architectures">
+<tt class="descname">create_architectures</tt><big>(</big><em>architecture</em><big>)</big><a class="headerlink" href="#foreman.client.Foreman.create_architectures" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>architecture[name]</strong> &#8211; type String, required</li>
+<li><strong>architecture[operatingsystem_ids]</strong> &#8211; type Array, optional</li>
+<li><strong>architecture</strong> &#8211; type Hash, required</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="foreman.client.Foreman.create_auth_source_ldaps">
+<tt class="descname">create_auth_source_ldaps</tt><big>(</big><em>auth_source_ldap</em><big>)</big><a class="headerlink" href="#foreman.client.Foreman.create_auth_source_ldaps" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>auth_source_ldap[tls]</strong> &#8211; type &#8216;true&#8217; or &#8216;false&#8217;, optional</li>
+<li><strong>auth_source_ldap[attr_login]</strong> &#8211; type String, required</li>
+<li><strong>auth_source_ldap[name]</strong> &#8211; type String, required</li>
+<li><strong>auth_source_ldap[attr_mail]</strong> &#8211; type String, required</li>
+<li><strong>auth_source_ldap[port]</strong> &#8211; type number., optional</li>
+<li><strong>auth_source_ldap[account]</strong> &#8211; type String, optional</li>
+<li><strong>auth_source_ldap[account_password]</strong> &#8211; type String, required</li>
+<li><strong>auth_source_ldap[attr_firstname]</strong> &#8211; type String, required</li>
+<li><strong>auth_source_ldap[attr_lastname]</strong> &#8211; type String, required</li>
+<li><strong>auth_source_ldap[onthefly_register]</strong> &#8211; type &#8216;true&#8217; or &#8216;false&#8217;, optional</li>
+<li><strong>auth_source_ldap</strong> &#8211; type Hash, required</li>
+<li><strong>auth_source_ldap[base_dn]</strong> &#8211; type String, optional</li>
+<li><strong>auth_source_ldap[host]</strong> &#8211; type String, required</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="foreman.client.Foreman.create_bookmarks">
+<tt class="descname">create_bookmarks</tt><big>(</big><em>bookmark</em><big>)</big><a class="headerlink" href="#foreman.client.Foreman.create_bookmarks" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>bookmark</strong> &#8211; type Hash, required</li>
+<li><strong>bookmark[name]</strong> &#8211; type String, required</li>
+<li><strong>bookmark[public]</strong> &#8211; type &#8216;true&#8217; or &#8216;false&#8217;, optional</li>
+<li><strong>bookmark[controller]</strong> &#8211; type String, required</li>
+<li><strong>bookmark[query]</strong> &#8211; type String, required</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="foreman.client.Foreman.create_common_parameters">
+<tt class="descname">create_common_parameters</tt><big>(</big><em>common_parameter</em><big>)</big><a class="headerlink" href="#foreman.client.Foreman.create_common_parameters" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>common_parameter[value]</strong> &#8211; type String, required</li>
+<li><strong>common_parameter[name]</strong> &#8211; type String, required</li>
+<li><strong>common_parameter</strong> &#8211; type Hash, required</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="foreman.client.Foreman.create_compute_resources">
+<tt class="descname">create_compute_resources</tt><big>(</big><em>compute_resource</em><big>)</big><a class="headerlink" href="#foreman.client.Foreman.create_compute_resources" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>compute_resource[password]</strong> &#8211; type String, optional</li>
+<li><strong>compute_resource[name]</strong> &#8211; type String, optional</li>
+<li><strong>compute_resource</strong> &#8211; type Hash, required</li>
+<li><strong>compute_resource[url]</strong> &#8211; type String, required</li>
+<li><strong>compute_resource[description]</strong> &#8211; type String, optional</li>
+<li><strong>compute_resource[server]</strong> &#8211; type String, optional</li>
+<li><strong>compute_resource[uuid]</strong> &#8211; type String, optional</li>
+<li><strong>compute_resource[tenant]</strong> &#8211; type String, optional</li>
+<li><strong>compute_resource[user]</strong> &#8211; type String, optional</li>
+<li><strong>compute_resource[provider]</strong> &#8211; type String, optional</li>
+<li><strong>compute_resource[region]</strong> &#8211; type String, optional</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="foreman.client.Foreman.create_config_templates">
+<tt class="descname">create_config_templates</tt><big>(</big><em>config_template</em><big>)</big><a class="headerlink" href="#foreman.client.Foreman.create_config_templates" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>config_template</strong> &#8211; type Hash, required</li>
+<li><strong>config_template[template_combinations_attributes]</strong> &#8211; type Array, optional</li>
+<li><strong>config_template[template_kind_id]</strong> &#8211; type number., optional</li>
+<li><strong>config_template[name]</strong> &#8211; type String, required</li>
+<li><strong>config_template[operatingsystem_ids]</strong> &#8211; type Array, optional</li>
+<li><strong>config_template[audit_comment]</strong> &#8211; type String, optional</li>
+<li><strong>config_template[snippet]</strong> &#8211; type &#8216;true&#8217; or &#8216;false&#8217;, optional</li>
+<li><strong>config_template[template]</strong> &#8211; type String, required</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="foreman.client.Foreman.create_domains">
+<tt class="descname">create_domains</tt><big>(</big><em>domain</em><big>)</big><a class="headerlink" href="#foreman.client.Foreman.create_domains" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>domain[domain_parameters_attributes]</strong> &#8211; type Array, optional</li>
+<li><strong>domain[name]</strong> &#8211; type String, required</li>
+<li><strong>domain</strong> &#8211; type Hash, required</li>
+<li><strong>domain[dns_id]</strong> &#8211; type number., optional</li>
+<li><strong>domain[fullname]</strong> &#8211; type String, optional</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="foreman.client.Foreman.create_environments">
+<tt class="descname">create_environments</tt><big>(</big><em>environment</em><big>)</big><a class="headerlink" href="#foreman.client.Foreman.create_environments" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>environment[name]</strong> &#8211; type String, required</li>
+<li><strong>environment</strong> &#8211; type Hash, required</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="foreman.client.Foreman.create_hostgroups">
+<tt class="descname">create_hostgroups</tt><big>(</big><em>hostgroup</em><big>)</big><a class="headerlink" href="#foreman.client.Foreman.create_hostgroups" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>hostgroup[operatingsystem_id]</strong> &#8211; type number., optional</li>
+<li><strong>hostgroup[puppet_ca_proxy_id]</strong> &#8211; type number., optional</li>
+<li><strong>hostgroup[ptable_id]</strong> &#8211; type number., optional</li>
+<li><strong>hostgroup[environment_id]</strong> &#8211; type number., optional</li>
+<li><strong>hostgroup[medium_id]</strong> &#8211; type number., optional</li>
+<li><strong>hostgroup</strong> &#8211; type Hash, required</li>
+<li><strong>hostgroup[subnet_id]</strong> &#8211; type number., optional</li>
+<li><strong>hostgroup[architecture_id]</strong> &#8211; type number., optional</li>
+<li><strong>hostgroup[name]</strong> &#8211; type String, required</li>
+<li><strong>hostgroup[puppet_proxy_id]</strong> &#8211; type number., optional</li>
+<li><strong>hostgroup[domain_id]</strong> &#8211; type number., optional</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="foreman.client.Foreman.create_hosts">
+<tt class="descname">create_hosts</tt><big>(</big><em>host</em><big>)</big><a class="headerlink" href="#foreman.client.Foreman.create_hosts" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>host[hostgroup_id]</strong> &#8211; type number., optional</li>
+<li><strong>host[architecture_id]</strong> &#8211; type number., required</li>
+<li><strong>host[sp_subnet_id]</strong> &#8211; type number., optional</li>
+<li><strong>host[subnet_id]</strong> &#8211; type number., optional</li>
+<li><strong>host[owner_id]</strong> &#8211; type number., optional</li>
+<li><strong>host</strong> &#8211; type Hash, required</li>
+<li><strong>host[host_parameters_attributes]</strong> &#8211; type Array, optional</li>
+<li><strong>host[name]</strong> &#8211; type String, required</li>
+<li><strong>host[model_id_id]</strong> &#8211; type number., optional</li>
+<li><strong>host[puppet_ca_proxy_id]</strong> &#8211; type number., optional</li>
+<li><strong>host[domain_id]</strong> &#8211; type number., required</li>
+<li><strong>host[mac]</strong> &#8211; type String, required</li>
+<li><strong>host[ip]</strong> &#8211; type String, required</li>
+<li><strong>host[operatingsystem_id]</strong> &#8211; type String, required</li>
+<li><strong>host[ptable_id]</strong> &#8211; type number., optional</li>
+<li><strong>host[image_id]</strong> &#8211; type number., optional</li>
+<li><strong>host[medium_id]</strong> &#8211; type number., optional</li>
+<li><strong>host[puppet_proxy_id]</strong> &#8211; type number., required</li>
+<li><strong>host[environment_id]</strong> &#8211; type String, required</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="foreman.client.Foreman.create_images">
+<tt class="descname">create_images</tt><big>(</big><em>compute_resource_id</em>, <em>image</em><big>)</big><a class="headerlink" href="#foreman.client.Foreman.create_images" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>image[name]</strong> &#8211; type String, required</li>
+<li><strong>image[username]</strong> &#8211; type String, required</li>
+<li><strong>image[architecture_id]</strong> &#8211; type number., required</li>
+<li><strong>compute_resource_id</strong> &#8211; type identifier, string from 1 to 128 characters containing only alphanumeric characters, space, underscore(_), hypen(-) with no leading or trailing space., required</li>
+<li><strong>image[compute_resource_id]</strong> &#8211; type number., required</li>
+<li><strong>image[operatingsystem_id]</strong> &#8211; type number., required</li>
+<li><strong>image</strong> &#8211; type Hash, required</li>
+<li><strong>image[uuid]</strong> &#8211; type String, required</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="foreman.client.Foreman.create_lookup_keys">
+<tt class="descname">create_lookup_keys</tt><big>(</big><em>lookup_key</em><big>)</big><a class="headerlink" href="#foreman.client.Foreman.create_lookup_keys" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>lookup_key[default_value]</strong> &#8211; type String, optional</li>
+<li><strong>lookup_key[description]</strong> &#8211; type String, optional</li>
+<li><strong>lookup_key[path]</strong> &#8211; type String, optional</li>
+<li><strong>lookup_key[puppetclass_id]</strong> &#8211; type number., optional</li>
+<li><strong>lookup_key</strong> &#8211; type Hash, required</li>
+<li><strong>lookup_key[key]</strong> &#8211; type String, required</li>
+<li><strong>lookup_key[lookup_values_count]</strong> &#8211; type number., optional</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="foreman.client.Foreman.create_media">
+<tt class="descname">create_media</tt><big>(</big><em>medium</em><big>)</big><a class="headerlink" href="#foreman.client.Foreman.create_media" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>medium</strong> &#8211; type Hash, required</li>
+<li><strong>medium[os_family]</strong> &#8211; type String, optional</li>
+<li><strong>medium[name]</strong> &#8211; type String, required</li>
+<li><strong>medium[path]</strong> &#8211; type String, required</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="foreman.client.Foreman.create_models">
+<tt class="descname">create_models</tt><big>(</big><em>model</em><big>)</big><a class="headerlink" href="#foreman.client.Foreman.create_models" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>model[name]</strong> &#8211; type String, required</li>
+<li><strong>model[hardware_model]</strong> &#8211; type String, optional</li>
+<li><strong>model[vendor_class]</strong> &#8211; type String, optional</li>
+<li><strong>model</strong> &#8211; type Hash, required</li>
+<li><strong>model[info]</strong> &#8211; type String, optional</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="foreman.client.Foreman.create_operatingsystems">
+<tt class="descname">create_operatingsystems</tt><big>(</big><em>operatingsystem</em><big>)</big><a class="headerlink" href="#foreman.client.Foreman.create_operatingsystems" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>operatingsystem</strong> &#8211; type Hash, required</li>
+<li><strong>operatingsystem[minor]</strong> &#8211; type String, required</li>
+<li><strong>operatingsystem[family]</strong> &#8211; type String, optional</li>
+<li><strong>operatingsystem[release_name]</strong> &#8211; type String, optional</li>
+<li><strong>operatingsystem[major]</strong> &#8211; type String, required</li>
+<li><strong>operatingsystem[name]</strong> &#8211; type regular expression /A(S+)Z/., required</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="foreman.client.Foreman.create_ptables">
+<tt class="descname">create_ptables</tt><big>(</big><em>ptable</em><big>)</big><a class="headerlink" href="#foreman.client.Foreman.create_ptables" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>ptable[layout]</strong> &#8211; type String, required</li>
+<li><strong>ptable</strong> &#8211; type Hash, required</li>
+<li><strong>ptable[name]</strong> &#8211; type String, required</li>
+<li><strong>ptable[os_family]</strong> &#8211; type String, optional</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="foreman.client.Foreman.create_puppetclasses">
+<tt class="descname">create_puppetclasses</tt><big>(</big><em>puppetclass</em><big>)</big><a class="headerlink" href="#foreman.client.Foreman.create_puppetclasses" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>puppetclass[name]</strong> &#8211; type String, required</li>
+<li><strong>puppetclass</strong> &#8211; type Hash, required</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="foreman.client.Foreman.create_roles">
+<tt class="descname">create_roles</tt><big>(</big><em>role</em><big>)</big><a class="headerlink" href="#foreman.client.Foreman.create_roles" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>role</strong> &#8211; type Hash, required</li>
+<li><strong>role[name]</strong> &#8211; type String, required</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="foreman.client.Foreman.create_smart_proxies">
+<tt class="descname">create_smart_proxies</tt><big>(</big><em>smart_proxy</em><big>)</big><a class="headerlink" href="#foreman.client.Foreman.create_smart_proxies" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>smart_proxy[name]</strong> &#8211; type String, required</li>
+<li><strong>smart_proxy</strong> &#8211; type Hash, required</li>
+<li><strong>smart_proxy[url]</strong> &#8211; type String, required</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="foreman.client.Foreman.create_subnets">
+<tt class="descname">create_subnets</tt><big>(</big><em>subnet</em><big>)</big><a class="headerlink" href="#foreman.client.Foreman.create_subnets" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>subnet[mask]</strong> &#8211; type String, required</li>
+<li><strong>subnet[vlanid]</strong> &#8211; type String, optional</li>
+<li><strong>subnet[dns_primary]</strong> &#8211; type String, optional</li>
+<li><strong>subnet[gateway]</strong> &#8211; type String, optional</li>
+<li><strong>subnet[to]</strong> &#8211; type String, optional</li>
+<li><strong>subnet</strong> &#8211; type Hash, required</li>
+<li><strong>subnet[dns_id]</strong> &#8211; type number., optional</li>
+<li><strong>subnet[dhcp_id]</strong> &#8211; type number., optional</li>
+<li><strong>subnet[from]</strong> &#8211; type String, optional</li>
+<li><strong>subnet[name]</strong> &#8211; type String, required</li>
+<li><strong>subnet[network]</strong> &#8211; type String, required</li>
+<li><strong>subnet[dns_secondary]</strong> &#8211; type String, optional</li>
+<li><strong>subnet[domain_ids]</strong> &#8211; type Array, optional</li>
+<li><strong>subnet[tftp_id]</strong> &#8211; type number., optional</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="foreman.client.Foreman.create_usergroups">
+<tt class="descname">create_usergroups</tt><big>(</big><em>usergroup</em><big>)</big><a class="headerlink" href="#foreman.client.Foreman.create_usergroups" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>usergroup</strong> &#8211; type Hash, required</li>
+<li><strong>usergroup[name]</strong> &#8211; type String, required</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="foreman.client.Foreman.create_users">
+<tt class="descname">create_users</tt><big>(</big><em>user</em><big>)</big><a class="headerlink" href="#foreman.client.Foreman.create_users" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>user[login]</strong> &#8211; type String, required</li>
+<li><strong>user</strong> &#8211; type Hash, required</li>
+<li><strong>user[firstname]</strong> &#8211; type String, optional</li>
+<li><strong>user[admin]</strong> &#8211; type &#8216;true&#8217; or &#8216;false&#8217;, optional</li>
+<li><strong>user[password]</strong> &#8211; type String, required</li>
+<li><strong>user[auth_source_id]</strong> &#8211; type Integer, required</li>
+<li><strong>user[lastname]</strong> &#8211; type String, optional</li>
+<li><strong>user[mail]</strong> &#8211; type String, required</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="foreman.client.Foreman.destroy_architectures">
+<tt class="descname">destroy_architectures</tt><big>(</big><em>id</em><big>)</big><a class="headerlink" href="#foreman.client.Foreman.destroy_architectures" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>id</strong> &#8211; type identifier, string from 1 to 128 characters containing only alphanumeric characters, space, underscore(_), hypen(-) with no leading or trailing space., required</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="foreman.client.Foreman.destroy_auth_source_ldaps">
+<tt class="descname">destroy_auth_source_ldaps</tt><big>(</big><em>id</em><big>)</big><a class="headerlink" href="#foreman.client.Foreman.destroy_auth_source_ldaps" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>id</strong> &#8211; type String, required</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="foreman.client.Foreman.destroy_bookmarks">
+<tt class="descname">destroy_bookmarks</tt><big>(</big><em>id</em><big>)</big><a class="headerlink" href="#foreman.client.Foreman.destroy_bookmarks" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>id</strong> &#8211; type identifier, string from 1 to 128 characters containing only alphanumeric characters, space, underscore(_), hypen(-) with no leading or trailing space., required</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="foreman.client.Foreman.destroy_common_parameters">
+<tt class="descname">destroy_common_parameters</tt><big>(</big><em>id</em><big>)</big><a class="headerlink" href="#foreman.client.Foreman.destroy_common_parameters" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>id</strong> &#8211; type identifier, string from 1 to 128 characters containing only alphanumeric characters, space, underscore(_), hypen(-) with no leading or trailing space., required</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="foreman.client.Foreman.destroy_compute_resources">
+<tt class="descname">destroy_compute_resources</tt><big>(</big><em>id</em><big>)</big><a class="headerlink" href="#foreman.client.Foreman.destroy_compute_resources" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>id</strong> &#8211; type identifier, string from 1 to 128 characters containing only alphanumeric characters, space, underscore(_), hypen(-) with no leading or trailing space., required</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="foreman.client.Foreman.destroy_config_templates">
+<tt class="descname">destroy_config_templates</tt><big>(</big><em>id</em><big>)</big><a class="headerlink" href="#foreman.client.Foreman.destroy_config_templates" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>id</strong> &#8211; type identifier, string from 1 to 128 characters containing only alphanumeric characters, space, underscore(_), hypen(-) with no leading or trailing space., required</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="foreman.client.Foreman.destroy_domains">
+<tt class="descname">destroy_domains</tt><big>(</big><em>id</em><big>)</big><a class="headerlink" href="#foreman.client.Foreman.destroy_domains" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>id</strong> &#8211; type identifier, string from 1 to 128 characters containing only alphanumeric characters, space, underscore(_), hypen(-) with no leading or trailing space., required</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="foreman.client.Foreman.destroy_environments">
+<tt class="descname">destroy_environments</tt><big>(</big><em>id</em><big>)</big><a class="headerlink" href="#foreman.client.Foreman.destroy_environments" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>id</strong> &#8211; type identifier, string from 1 to 128 characters containing only alphanumeric characters, space, underscore(_), hypen(-) with no leading or trailing space., required</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="foreman.client.Foreman.destroy_hostgroups">
+<tt class="descname">destroy_hostgroups</tt><big>(</big><em>id</em><big>)</big><a class="headerlink" href="#foreman.client.Foreman.destroy_hostgroups" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>id</strong> &#8211; type identifier, string from 1 to 128 characters containing only alphanumeric characters, space, underscore(_), hypen(-) with no leading or trailing space., required</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="foreman.client.Foreman.destroy_hosts">
+<tt class="descname">destroy_hosts</tt><big>(</big><em>id</em><big>)</big><a class="headerlink" href="#foreman.client.Foreman.destroy_hosts" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>id</strong> &#8211; type identifier, string from 1 to 128 characters containing only alphanumeric characters, space, underscore(_), hypen(-) with no leading or trailing space., required</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="foreman.client.Foreman.destroy_images">
+<tt class="descname">destroy_images</tt><big>(</big><em>id</em>, <em>compute_resource_id</em><big>)</big><a class="headerlink" href="#foreman.client.Foreman.destroy_images" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>id</strong> &#8211; type identifier, string from 1 to 128 characters containing only alphanumeric characters, space, underscore(_), hypen(-) with no leading or trailing space., required</li>
+<li><strong>compute_resource_id</strong> &#8211; type identifier, string from 1 to 128 characters containing only alphanumeric characters, space, underscore(_), hypen(-) with no leading or trailing space., required</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="foreman.client.Foreman.destroy_lookup_keys">
+<tt class="descname">destroy_lookup_keys</tt><big>(</big><em>id</em><big>)</big><a class="headerlink" href="#foreman.client.Foreman.destroy_lookup_keys" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>id</strong> &#8211; type identifier, string from 1 to 128 characters containing only alphanumeric characters, space, underscore(_), hypen(-) with no leading or trailing space., required</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="foreman.client.Foreman.destroy_media">
+<tt class="descname">destroy_media</tt><big>(</big><em>id</em><big>)</big><a class="headerlink" href="#foreman.client.Foreman.destroy_media" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>id</strong> &#8211; type identifier, string from 1 to 128 characters containing only alphanumeric characters, space, underscore(_), hypen(-) with no leading or trailing space., required</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="foreman.client.Foreman.destroy_models">
+<tt class="descname">destroy_models</tt><big>(</big><em>id</em><big>)</big><a class="headerlink" href="#foreman.client.Foreman.destroy_models" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>id</strong> &#8211; type String, required</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="foreman.client.Foreman.destroy_operatingsystems">
+<tt class="descname">destroy_operatingsystems</tt><big>(</big><em>id</em><big>)</big><a class="headerlink" href="#foreman.client.Foreman.destroy_operatingsystems" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>id</strong> &#8211; type String, required</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="foreman.client.Foreman.destroy_ptables">
+<tt class="descname">destroy_ptables</tt><big>(</big><em>id</em><big>)</big><a class="headerlink" href="#foreman.client.Foreman.destroy_ptables" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>id</strong> &#8211; type String, required</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="foreman.client.Foreman.destroy_puppetclasses">
+<tt class="descname">destroy_puppetclasses</tt><big>(</big><em>id</em><big>)</big><a class="headerlink" href="#foreman.client.Foreman.destroy_puppetclasses" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>id</strong> &#8211; type String, required</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="foreman.client.Foreman.destroy_reports">
+<tt class="descname">destroy_reports</tt><big>(</big><em>id</em><big>)</big><a class="headerlink" href="#foreman.client.Foreman.destroy_reports" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>id</strong> &#8211; type String, required</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="foreman.client.Foreman.destroy_roles">
+<tt class="descname">destroy_roles</tt><big>(</big><em>id</em><big>)</big><a class="headerlink" href="#foreman.client.Foreman.destroy_roles" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>id</strong> &#8211; type String, required</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="foreman.client.Foreman.destroy_smart_proxies">
+<tt class="descname">destroy_smart_proxies</tt><big>(</big><em>id</em><big>)</big><a class="headerlink" href="#foreman.client.Foreman.destroy_smart_proxies" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>id</strong> &#8211; type String, required</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="foreman.client.Foreman.destroy_subnets">
+<tt class="descname">destroy_subnets</tt><big>(</big><em>id</em><big>)</big><a class="headerlink" href="#foreman.client.Foreman.destroy_subnets" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>id</strong> &#8211; type number., required</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="foreman.client.Foreman.destroy_usergroups">
+<tt class="descname">destroy_usergroups</tt><big>(</big><em>id</em><big>)</big><a class="headerlink" href="#foreman.client.Foreman.destroy_usergroups" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>id</strong> &#8211; type String, required</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="foreman.client.Foreman.destroy_users">
+<tt class="descname">destroy_users</tt><big>(</big><em>id</em><big>)</big><a class="headerlink" href="#foreman.client.Foreman.destroy_users" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>id</strong> &#8211; type String, required</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="foreman.client.Foreman.do_delete">
+<tt class="descname">do_delete</tt><big>(</big><em>rtype</em>, <em>mtype</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/foreman/client.html#Foreman.do_delete"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#foreman.client.Foreman.do_delete" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>rtype</strong> &#8211; Request type, one of [&#8216;index&#8217;, &#8216;show&#8217;, &#8216;status&#8217;, &#8216;create&#8217;, &#8216;update&#8217;, &#8216;destroy&#8217;]</li>
+<li><strong>mtype</strong> &#8211; Model type, the data model with wich we are interacting, for example host or environment.</li>
+<li><strong>**kwargs</strong> &#8211; parameters for the api call</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="foreman.client.Foreman.do_get">
+<tt class="descname">do_get</tt><big>(</big><em>rtype</em>, <em>mtype</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/foreman/client.html#Foreman.do_get"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#foreman.client.Foreman.do_get" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>rtype</strong> &#8211; Request type, one of [&#8216;index&#8217;, &#8216;show&#8217;, &#8216;status&#8217;, &#8216;create&#8217;, &#8216;update&#8217;, &#8216;destroy&#8217;]</li>
+<li><strong>mtype</strong> &#8211; Model type, the data model with wich we are interacting, for example host or environment.</li>
+<li><strong>**kwargs</strong> &#8211; parameters for the api call</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="foreman.client.Foreman.do_post">
+<tt class="descname">do_post</tt><big>(</big><em>rtype</em>, <em>mtype</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/foreman/client.html#Foreman.do_post"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#foreman.client.Foreman.do_post" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>rtype</strong> &#8211; Request type, one of [&#8216;index&#8217;, &#8216;show&#8217;, &#8216;status&#8217;, &#8216;create&#8217;, &#8216;update&#8217;, &#8216;destroy&#8217;]</li>
+<li><strong>mtype</strong> &#8211; Model type, the data model with wich we are interacting, for example host or environment.</li>
+<li><strong>**kwargs</strong> &#8211; parameters for the api call</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="foreman.client.Foreman.do_put">
+<tt class="descname">do_put</tt><big>(</big><em>rtype</em>, <em>mtype</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/foreman/client.html#Foreman.do_put"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#foreman.client.Foreman.do_put" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>rtype</strong> &#8211; Request type, one of [&#8216;index&#8217;, &#8216;show&#8217;, &#8216;status&#8217;, &#8216;create&#8217;, &#8216;update&#8217;, &#8216;destroy&#8217;]</li>
+<li><strong>mtype</strong> &#8211; Model type, the data model with wich we are interacting, for example host or environment.</li>
+<li><strong>**kwargs</strong> &#8211; parameters for the api call</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="foreman.client.Foreman.get_foreman_version">
+<tt class="descname">get_foreman_version</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/foreman/client.html#Foreman.get_foreman_version"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#foreman.client.Foreman.get_foreman_version" title="Permalink to this definition">¶</a></dt>
+<dd><p>Even if we have an api method that return the foreman version, we need
+the version first to know it&#8217;s path, so instead of that we get the
+main page and extract the version from the footer.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="foreman.client.Foreman.index_architectures">
+<tt class="descname">index_architectures</tt><big>(</big><em>per_page=None</em>, <em>search=None</em>, <em>page=None</em>, <em>order=None</em><big>)</big><a class="headerlink" href="#foreman.client.Foreman.index_architectures" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>per_page</strong> &#8211; type String, optional</li>
+<li><strong>search</strong> &#8211; type String, optional</li>
+<li><strong>page</strong> &#8211; type String, optional</li>
+<li><strong>order</strong> &#8211; type String, optional</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="foreman.client.Foreman.index_audits">
+<tt class="descname">index_audits</tt><big>(</big><em>per_page=None</em>, <em>search=None</em>, <em>page=None</em>, <em>order=None</em><big>)</big><a class="headerlink" href="#foreman.client.Foreman.index_audits" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>per_page</strong> &#8211; type String, optional</li>
+<li><strong>search</strong> &#8211; type String, optional</li>
+<li><strong>page</strong> &#8211; type String, optional</li>
+<li><strong>order</strong> &#8211; type String, optional</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="foreman.client.Foreman.index_auth_source_ldaps">
+<tt class="descname">index_auth_source_ldaps</tt><big>(</big><em>per_page=None</em>, <em>page=None</em><big>)</big><a class="headerlink" href="#foreman.client.Foreman.index_auth_source_ldaps" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>per_page</strong> &#8211; type String, optional</li>
+<li><strong>page</strong> &#8211; type String, optional</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="foreman.client.Foreman.index_bookmarks">
+<tt class="descname">index_bookmarks</tt><big>(</big><em>per_page=None</em>, <em>page=None</em><big>)</big><a class="headerlink" href="#foreman.client.Foreman.index_bookmarks" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>per_page</strong> &#8211; type String, optional</li>
+<li><strong>page</strong> &#8211; type String, optional</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="foreman.client.Foreman.index_common_parameters">
+<tt class="descname">index_common_parameters</tt><big>(</big><em>per_page=None</em>, <em>search=None</em>, <em>page=None</em>, <em>order=None</em><big>)</big><a class="headerlink" href="#foreman.client.Foreman.index_common_parameters" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>per_page</strong> &#8211; type String, optional</li>
+<li><strong>search</strong> &#8211; type String, optional</li>
+<li><strong>page</strong> &#8211; type String, optional</li>
+<li><strong>order</strong> &#8211; type String, optional</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="foreman.client.Foreman.index_compute_resources">
+<tt class="descname">index_compute_resources</tt><big>(</big><em>per_page=None</em>, <em>search=None</em>, <em>page=None</em>, <em>order=None</em><big>)</big><a class="headerlink" href="#foreman.client.Foreman.index_compute_resources" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>per_page</strong> &#8211; type String, optional</li>
+<li><strong>search</strong> &#8211; type String, optional</li>
+<li><strong>page</strong> &#8211; type String, optional</li>
+<li><strong>order</strong> &#8211; type String, optional</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="foreman.client.Foreman.index_config_templates">
+<tt class="descname">index_config_templates</tt><big>(</big><em>per_page=None</em>, <em>search=None</em>, <em>page=None</em>, <em>order=None</em><big>)</big><a class="headerlink" href="#foreman.client.Foreman.index_config_templates" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>per_page</strong> &#8211; type String, optional</li>
+<li><strong>search</strong> &#8211; type String, optional</li>
+<li><strong>page</strong> &#8211; type String, optional</li>
+<li><strong>order</strong> &#8211; type String, optional</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="foreman.client.Foreman.index_dashboard">
+<tt class="descname">index_dashboard</tt><big>(</big><em>search=None</em><big>)</big><a class="headerlink" href="#foreman.client.Foreman.index_dashboard" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>search</strong> &#8211; type String, optional</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="foreman.client.Foreman.index_domains">
+<tt class="descname">index_domains</tt><big>(</big><em>per_page=None</em>, <em>search=None</em>, <em>page=None</em>, <em>order=None</em><big>)</big><a class="headerlink" href="#foreman.client.Foreman.index_domains" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>per_page</strong> &#8211; type String, optional</li>
+<li><strong>search</strong> &#8211; type String, optional</li>
+<li><strong>page</strong> &#8211; type String, optional</li>
+<li><strong>order</strong> &#8211; type String, optional</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="foreman.client.Foreman.index_environments">
+<tt class="descname">index_environments</tt><big>(</big><em>per_page=None</em>, <em>search=None</em>, <em>page=None</em>, <em>order=None</em><big>)</big><a class="headerlink" href="#foreman.client.Foreman.index_environments" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>per_page</strong> &#8211; type String, optional</li>
+<li><strong>search</strong> &#8211; type String, optional</li>
+<li><strong>page</strong> &#8211; type String, optional</li>
+<li><strong>order</strong> &#8211; type String, optional</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="foreman.client.Foreman.index_fact_values">
+<tt class="descname">index_fact_values</tt><big>(</big><em>per_page=None</em>, <em>search=None</em>, <em>page=None</em>, <em>order=None</em><big>)</big><a class="headerlink" href="#foreman.client.Foreman.index_fact_values" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>per_page</strong> &#8211; type String, optional</li>
+<li><strong>search</strong> &#8211; type String, optional</li>
+<li><strong>page</strong> &#8211; type String, optional</li>
+<li><strong>order</strong> &#8211; type String, optional</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="foreman.client.Foreman.index_home">
+<tt class="descname">index_home</tt><big>(</big><big>)</big><a class="headerlink" href="#foreman.client.Foreman.index_home" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="foreman.client.Foreman.index_hostgroups">
+<tt class="descname">index_hostgroups</tt><big>(</big><em>per_page=None</em>, <em>search=None</em>, <em>page=None</em>, <em>order=None</em><big>)</big><a class="headerlink" href="#foreman.client.Foreman.index_hostgroups" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>per_page</strong> &#8211; type String, optional</li>
+<li><strong>search</strong> &#8211; type String, optional</li>
+<li><strong>page</strong> &#8211; type String, optional</li>
+<li><strong>order</strong> &#8211; type String, optional</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="foreman.client.Foreman.index_hosts">
+<tt class="descname">index_hosts</tt><big>(</big><em>per_page=None</em>, <em>search=None</em>, <em>page=None</em>, <em>order=None</em><big>)</big><a class="headerlink" href="#foreman.client.Foreman.index_hosts" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>per_page</strong> &#8211; type String, optional</li>
+<li><strong>search</strong> &#8211; type String, optional</li>
+<li><strong>page</strong> &#8211; type String, optional</li>
+<li><strong>order</strong> &#8211; type String, optional</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="foreman.client.Foreman.index_images">
+<tt class="descname">index_images</tt><big>(</big><em>compute_resource_id</em>, <em>page=None</em>, <em>per_page=None</em>, <em>search=None</em>, <em>order=None</em><big>)</big><a class="headerlink" href="#foreman.client.Foreman.index_images" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>page</strong> &#8211; type String, optional</li>
+<li><strong>per_page</strong> &#8211; type String, optional</li>
+<li><strong>search</strong> &#8211; type String, optional</li>
+<li><strong>order</strong> &#8211; type String, optional</li>
+<li><strong>compute_resource_id</strong> &#8211; type identifier, string from 1 to 128 characters containing only alphanumeric characters, space, underscore(_), hypen(-) with no leading or trailing space., required</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="foreman.client.Foreman.index_lookup_keys">
+<tt class="descname">index_lookup_keys</tt><big>(</big><em>per_page=None</em>, <em>search=None</em>, <em>page=None</em>, <em>order=None</em><big>)</big><a class="headerlink" href="#foreman.client.Foreman.index_lookup_keys" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>per_page</strong> &#8211; type String, optional</li>
+<li><strong>search</strong> &#8211; type String, optional</li>
+<li><strong>page</strong> &#8211; type String, optional</li>
+<li><strong>order</strong> &#8211; type String, optional</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="foreman.client.Foreman.index_media">
+<tt class="descname">index_media</tt><big>(</big><em>per_page=None</em>, <em>search=None</em>, <em>page=None</em>, <em>order=None</em><big>)</big><a class="headerlink" href="#foreman.client.Foreman.index_media" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>per_page</strong> &#8211; type String, optional</li>
+<li><strong>search</strong> &#8211; type String, optional</li>
+<li><strong>page</strong> &#8211; type String, optional</li>
+<li><strong>order</strong> &#8211; type String, optional</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="foreman.client.Foreman.index_models">
+<tt class="descname">index_models</tt><big>(</big><em>per_page=None</em>, <em>search=None</em>, <em>page=None</em>, <em>order=None</em><big>)</big><a class="headerlink" href="#foreman.client.Foreman.index_models" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>per_page</strong> &#8211; type String, optional</li>
+<li><strong>search</strong> &#8211; type String, optional</li>
+<li><strong>page</strong> &#8211; type String, optional</li>
+<li><strong>order</strong> &#8211; type String, optional</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="foreman.client.Foreman.index_operatingsystems">
+<tt class="descname">index_operatingsystems</tt><big>(</big><em>per_page=None</em>, <em>search=None</em>, <em>page=None</em>, <em>order=None</em><big>)</big><a class="headerlink" href="#foreman.client.Foreman.index_operatingsystems" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>per_page</strong> &#8211; type String, optional</li>
+<li><strong>search</strong> &#8211; type String, optional</li>
+<li><strong>page</strong> &#8211; type String, optional</li>
+<li><strong>order</strong> &#8211; type String, optional</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="foreman.client.Foreman.index_ptables">
+<tt class="descname">index_ptables</tt><big>(</big><em>per_page=None</em>, <em>search=None</em>, <em>page=None</em>, <em>order=None</em><big>)</big><a class="headerlink" href="#foreman.client.Foreman.index_ptables" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>per_page</strong> &#8211; type String, optional</li>
+<li><strong>search</strong> &#8211; type String, optional</li>
+<li><strong>page</strong> &#8211; type String, optional</li>
+<li><strong>order</strong> &#8211; type String, optional</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="foreman.client.Foreman.index_puppetclasses">
+<tt class="descname">index_puppetclasses</tt><big>(</big><em>per_page=None</em>, <em>search=None</em>, <em>page=None</em>, <em>order=None</em><big>)</big><a class="headerlink" href="#foreman.client.Foreman.index_puppetclasses" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>per_page</strong> &#8211; type String, optional</li>
+<li><strong>search</strong> &#8211; type String, optional</li>
+<li><strong>page</strong> &#8211; type String, optional</li>
+<li><strong>order</strong> &#8211; type String, optional</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="foreman.client.Foreman.index_reports">
+<tt class="descname">index_reports</tt><big>(</big><em>per_page=None</em>, <em>search=None</em>, <em>page=None</em>, <em>order=None</em><big>)</big><a class="headerlink" href="#foreman.client.Foreman.index_reports" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>per_page</strong> &#8211; type String, optional</li>
+<li><strong>search</strong> &#8211; type String, optional</li>
+<li><strong>page</strong> &#8211; type String, optional</li>
+<li><strong>order</strong> &#8211; type String, optional</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="foreman.client.Foreman.index_roles">
+<tt class="descname">index_roles</tt><big>(</big><em>per_page=None</em>, <em>page=None</em><big>)</big><a class="headerlink" href="#foreman.client.Foreman.index_roles" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>per_page</strong> &#8211; type String, optional</li>
+<li><strong>page</strong> &#8211; type String, optional</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="foreman.client.Foreman.index_settings">
+<tt class="descname">index_settings</tt><big>(</big><em>per_page=None</em>, <em>search=None</em>, <em>page=None</em>, <em>order=None</em><big>)</big><a class="headerlink" href="#foreman.client.Foreman.index_settings" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>per_page</strong> &#8211; type String, optional</li>
+<li><strong>search</strong> &#8211; type String, optional</li>
+<li><strong>page</strong> &#8211; type String, optional</li>
+<li><strong>order</strong> &#8211; type String, optional</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="foreman.client.Foreman.index_smart_proxies">
+<tt class="descname">index_smart_proxies</tt><big>(</big><em>per_page=None</em>, <em>type=None</em>, <em>page=None</em><big>)</big><a class="headerlink" href="#foreman.client.Foreman.index_smart_proxies" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>per_page</strong> &#8211; type String, optional</li>
+<li><strong>type</strong> &#8211; type String, optional</li>
+<li><strong>page</strong> &#8211; type String, optional</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="foreman.client.Foreman.index_subnets">
+<tt class="descname">index_subnets</tt><big>(</big><em>per_page=None</em>, <em>search=None</em>, <em>page=None</em>, <em>order=None</em><big>)</big><a class="headerlink" href="#foreman.client.Foreman.index_subnets" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>per_page</strong> &#8211; type String, optional</li>
+<li><strong>search</strong> &#8211; type String, optional</li>
+<li><strong>page</strong> &#8211; type String, optional</li>
+<li><strong>order</strong> &#8211; type String, optional</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="foreman.client.Foreman.index_template_kinds">
+<tt class="descname">index_template_kinds</tt><big>(</big><em>per_page=None</em>, <em>page=None</em><big>)</big><a class="headerlink" href="#foreman.client.Foreman.index_template_kinds" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>per_page</strong> &#8211; type String, optional</li>
+<li><strong>page</strong> &#8211; type String, optional</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="foreman.client.Foreman.index_usergroups">
+<tt class="descname">index_usergroups</tt><big>(</big><em>per_page=None</em>, <em>search=None</em>, <em>page=None</em>, <em>order=None</em><big>)</big><a class="headerlink" href="#foreman.client.Foreman.index_usergroups" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>per_page</strong> &#8211; type String, optional</li>
+<li><strong>search</strong> &#8211; type String, optional</li>
+<li><strong>page</strong> &#8211; type String, optional</li>
+<li><strong>order</strong> &#8211; type String, optional</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="foreman.client.Foreman.index_users">
+<tt class="descname">index_users</tt><big>(</big><em>per_page=None</em>, <em>search=None</em>, <em>page=None</em>, <em>order=None</em><big>)</big><a class="headerlink" href="#foreman.client.Foreman.index_users" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>per_page</strong> &#8211; type String, optional</li>
+<li><strong>search</strong> &#8211; type String, optional</li>
+<li><strong>page</strong> &#8211; type String, optional</li>
+<li><strong>order</strong> &#8211; type String, optional</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="foreman.client.Foreman.last_reports">
+<tt class="descname">last_reports</tt><big>(</big><em>id</em><big>)</big><a class="headerlink" href="#foreman.client.Foreman.last_reports" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>id</strong> &#8211; type identifier, string from 1 to 128 characters containing only alphanumeric characters, space, underscore(_), hypen(-) with no leading or trailing space., required</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="foreman.client.Foreman.revision_config_templates">
+<tt class="descname">revision_config_templates</tt><big>(</big><em>version=None</em><big>)</big><a class="headerlink" href="#foreman.client.Foreman.revision_config_templates" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>version</strong> &#8211; type String, optional</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="foreman.client.Foreman.send_request">
+<tt class="descname">send_request</tt><big>(</big><em>rtype</em>, <em>mtype</em>, <em>**params</em><big>)</big><a class="reference internal" href="_modules/foreman/client.html#Foreman.send_request"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#foreman.client.Foreman.send_request" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>rtype</strong> &#8211; Request type, one of [&#8216;index&#8217;, &#8216;show&#8217;, &#8216;status&#8217;, &#8216;create&#8217;, &#8216;update&#8217;, &#8216;destroy&#8217;, &#8216;GET&#8217;, &#8216;POST&#8217;, &#8216;PUT&#8217;, &#8216;DELETE&#8217;]</li>
+<li><strong>mtype</strong> &#8211; Model type, the data model with wich we are interacting, for example host or environment.</li>
+<li><strong>**params</strong> &#8211; parameters for the api call</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="foreman.client.Foreman.show_architectures">
+<tt class="descname">show_architectures</tt><big>(</big><em>id</em><big>)</big><a class="headerlink" href="#foreman.client.Foreman.show_architectures" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>id</strong> &#8211; type identifier, string from 1 to 128 characters containing only alphanumeric characters, space, underscore(_), hypen(-) with no leading or trailing space., required</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="foreman.client.Foreman.show_audits">
+<tt class="descname">show_audits</tt><big>(</big><em>id</em><big>)</big><a class="headerlink" href="#foreman.client.Foreman.show_audits" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>id</strong> &#8211; type identifier, string from 1 to 128 characters containing only alphanumeric characters, space, underscore(_), hypen(-) with no leading or trailing space., required</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="foreman.client.Foreman.show_auth_source_ldaps">
+<tt class="descname">show_auth_source_ldaps</tt><big>(</big><em>id</em><big>)</big><a class="headerlink" href="#foreman.client.Foreman.show_auth_source_ldaps" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>id</strong> &#8211; type identifier, string from 1 to 128 characters containing only alphanumeric characters, space, underscore(_), hypen(-) with no leading or trailing space., required</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="foreman.client.Foreman.show_bookmarks">
+<tt class="descname">show_bookmarks</tt><big>(</big><em>id</em><big>)</big><a class="headerlink" href="#foreman.client.Foreman.show_bookmarks" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>id</strong> &#8211; type identifier, string from 1 to 128 characters containing only alphanumeric characters, space, underscore(_), hypen(-) with no leading or trailing space., required</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="foreman.client.Foreman.show_common_parameters">
+<tt class="descname">show_common_parameters</tt><big>(</big><em>id</em><big>)</big><a class="headerlink" href="#foreman.client.Foreman.show_common_parameters" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>id</strong> &#8211; type identifier, string from 1 to 128 characters containing only alphanumeric characters, space, underscore(_), hypen(-) with no leading or trailing space., required</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="foreman.client.Foreman.show_compute_resources">
+<tt class="descname">show_compute_resources</tt><big>(</big><em>id</em><big>)</big><a class="headerlink" href="#foreman.client.Foreman.show_compute_resources" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>id</strong> &#8211; type identifier, string from 1 to 128 characters containing only alphanumeric characters, space, underscore(_), hypen(-) with no leading or trailing space., required</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="foreman.client.Foreman.show_config_templates">
+<tt class="descname">show_config_templates</tt><big>(</big><em>id</em><big>)</big><a class="headerlink" href="#foreman.client.Foreman.show_config_templates" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>id</strong> &#8211; type identifier, string from 1 to 128 characters containing only alphanumeric characters, space, underscore(_), hypen(-) with no leading or trailing space., required</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="foreman.client.Foreman.show_domains">
+<tt class="descname">show_domains</tt><big>(</big><em>id</em><big>)</big><a class="headerlink" href="#foreman.client.Foreman.show_domains" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>id</strong> &#8211; type identifier, string from 1 to 128 characters containing only alphanumeric characters, space, underscore(_), hypen(-) with no leading or trailing space., required</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="foreman.client.Foreman.show_environments">
+<tt class="descname">show_environments</tt><big>(</big><em>id</em><big>)</big><a class="headerlink" href="#foreman.client.Foreman.show_environments" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>id</strong> &#8211; type identifier, string from 1 to 128 characters containing only alphanumeric characters, space, underscore(_), hypen(-) with no leading or trailing space., required</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="foreman.client.Foreman.show_hostgroups">
+<tt class="descname">show_hostgroups</tt><big>(</big><em>id</em><big>)</big><a class="headerlink" href="#foreman.client.Foreman.show_hostgroups" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>id</strong> &#8211; type identifier, string from 1 to 128 characters containing only alphanumeric characters, space, underscore(_), hypen(-) with no leading or trailing space., required</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="foreman.client.Foreman.show_hosts">
+<tt class="descname">show_hosts</tt><big>(</big><em>id</em><big>)</big><a class="headerlink" href="#foreman.client.Foreman.show_hosts" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>id</strong> &#8211; type identifier, string from 1 to 128 characters containing only alphanumeric characters, dot(.), space, underscore(_), hypen(-) with no leading or trailing space., required</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="foreman.client.Foreman.show_images">
+<tt class="descname">show_images</tt><big>(</big><em>id</em>, <em>compute_resource_id</em><big>)</big><a class="headerlink" href="#foreman.client.Foreman.show_images" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>id</strong> &#8211; type identifier, string from 1 to 128 characters containing only alphanumeric characters, space, underscore(_), hypen(-) with no leading or trailing space., required</li>
+<li><strong>compute_resource_id</strong> &#8211; type identifier, string from 1 to 128 characters containing only alphanumeric characters, space, underscore(_), hypen(-) with no leading or trailing space., required</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="foreman.client.Foreman.show_lookup_keys">
+<tt class="descname">show_lookup_keys</tt><big>(</big><em>id</em><big>)</big><a class="headerlink" href="#foreman.client.Foreman.show_lookup_keys" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>id</strong> &#8211; type identifier, string from 1 to 128 characters containing only alphanumeric characters, space, underscore(_), hypen(-) with no leading or trailing space., required</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="foreman.client.Foreman.show_media">
+<tt class="descname">show_media</tt><big>(</big><em>id</em><big>)</big><a class="headerlink" href="#foreman.client.Foreman.show_media" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>id</strong> &#8211; type identifier, string from 1 to 128 characters containing only alphanumeric characters, space, underscore(_), hypen(-) with no leading or trailing space., required</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="foreman.client.Foreman.show_models">
+<tt class="descname">show_models</tt><big>(</big><em>id</em><big>)</big><a class="headerlink" href="#foreman.client.Foreman.show_models" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>id</strong> &#8211; type identifier, string from 1 to 128 characters containing only alphanumeric characters, space, underscore(_), hypen(-) with no leading or trailing space., required</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="foreman.client.Foreman.show_operatingsystems">
+<tt class="descname">show_operatingsystems</tt><big>(</big><em>id</em><big>)</big><a class="headerlink" href="#foreman.client.Foreman.show_operatingsystems" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>id</strong> &#8211; type String, required</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="foreman.client.Foreman.show_ptables">
+<tt class="descname">show_ptables</tt><big>(</big><em>id</em><big>)</big><a class="headerlink" href="#foreman.client.Foreman.show_ptables" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>id</strong> &#8211; type identifier, string from 1 to 128 characters containing only alphanumeric characters, space, underscore(_), hypen(-) with no leading or trailing space., required</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="foreman.client.Foreman.show_puppetclasses">
+<tt class="descname">show_puppetclasses</tt><big>(</big><em>id</em><big>)</big><a class="headerlink" href="#foreman.client.Foreman.show_puppetclasses" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>id</strong> &#8211; type identifier, string from 1 to 128 characters containing only alphanumeric characters, space, underscore(_), hypen(-) with no leading or trailing space., required</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="foreman.client.Foreman.show_reports">
+<tt class="descname">show_reports</tt><big>(</big><em>id</em><big>)</big><a class="headerlink" href="#foreman.client.Foreman.show_reports" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>id</strong> &#8211; type identifier, string from 1 to 128 characters containing only alphanumeric characters, space, underscore(_), hypen(-) with no leading or trailing space., required</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="foreman.client.Foreman.show_roles">
+<tt class="descname">show_roles</tt><big>(</big><em>id</em><big>)</big><a class="headerlink" href="#foreman.client.Foreman.show_roles" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>id</strong> &#8211; type identifier, string from 1 to 128 characters containing only alphanumeric characters, space, underscore(_), hypen(-) with no leading or trailing space., required</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="foreman.client.Foreman.show_settings">
+<tt class="descname">show_settings</tt><big>(</big><em>id</em><big>)</big><a class="headerlink" href="#foreman.client.Foreman.show_settings" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>id</strong> &#8211; type String, required</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="foreman.client.Foreman.show_smart_proxies">
+<tt class="descname">show_smart_proxies</tt><big>(</big><em>id</em><big>)</big><a class="headerlink" href="#foreman.client.Foreman.show_smart_proxies" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>id</strong> &#8211; type identifier, string from 1 to 128 characters containing only alphanumeric characters, space, underscore(_), hypen(-) with no leading or trailing space., required</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="foreman.client.Foreman.show_subnets">
+<tt class="descname">show_subnets</tt><big>(</big><em>id</em><big>)</big><a class="headerlink" href="#foreman.client.Foreman.show_subnets" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>id</strong> &#8211; type identifier, string from 1 to 128 characters containing only alphanumeric characters, space, underscore(_), hypen(-) with no leading or trailing space., required</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="foreman.client.Foreman.show_usergroups">
+<tt class="descname">show_usergroups</tt><big>(</big><em>id</em><big>)</big><a class="headerlink" href="#foreman.client.Foreman.show_usergroups" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>id</strong> &#8211; type identifier, string from 1 to 128 characters containing only alphanumeric characters, space, underscore(_), hypen(-) with no leading or trailing space., required</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="foreman.client.Foreman.show_users">
+<tt class="descname">show_users</tt><big>(</big><em>id</em><big>)</big><a class="headerlink" href="#foreman.client.Foreman.show_users" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>id</strong> &#8211; type String, required</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="foreman.client.Foreman.status_home">
+<tt class="descname">status_home</tt><big>(</big><big>)</big><a class="headerlink" href="#foreman.client.Foreman.status_home" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="foreman.client.Foreman.status_hosts">
+<tt class="descname">status_hosts</tt><big>(</big><em>id</em><big>)</big><a class="headerlink" href="#foreman.client.Foreman.status_hosts" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>id</strong> &#8211; type identifier, string from 1 to 128 characters containing only alphanumeric characters, dot(.), space, underscore(_), hypen(-) with no leading or trailing space., required</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="foreman.client.Foreman.update_architectures">
+<tt class="descname">update_architectures</tt><big>(</big><em>id</em>, <em>architecture</em><big>)</big><a class="headerlink" href="#foreman.client.Foreman.update_architectures" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>architecture[name]</strong> &#8211; type String, optional</li>
+<li><strong>architecture[operatingsystem_ids]</strong> &#8211; type Array, optional</li>
+<li><strong>id</strong> &#8211; type identifier, string from 1 to 128 characters containing only alphanumeric characters, space, underscore(_), hypen(-) with no leading or trailing space., required</li>
+<li><strong>architecture</strong> &#8211; type Hash, required</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="foreman.client.Foreman.update_auth_source_ldaps">
+<tt class="descname">update_auth_source_ldaps</tt><big>(</big><em>auth_source_ldap</em>, <em>id</em><big>)</big><a class="headerlink" href="#foreman.client.Foreman.update_auth_source_ldaps" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>auth_source_ldap[tls]</strong> &#8211; type &#8216;true&#8217; or &#8216;false&#8217;, optional</li>
+<li><strong>auth_source_ldap[attr_login]</strong> &#8211; type String, required</li>
+<li><strong>auth_source_ldap[name]</strong> &#8211; type String, optional</li>
+<li><strong>auth_source_ldap[attr_mail]</strong> &#8211; type String, required</li>
+<li><strong>auth_source_ldap[port]</strong> &#8211; type number., optional</li>
+<li><strong>auth_source_ldap[account]</strong> &#8211; type String, optional</li>
+<li><strong>auth_source_ldap[account_password]</strong> &#8211; type String, required</li>
+<li><strong>auth_source_ldap[attr_firstname]</strong> &#8211; type String, required</li>
+<li><strong>auth_source_ldap[attr_lastname]</strong> &#8211; type String, required</li>
+<li><strong>auth_source_ldap[onthefly_register]</strong> &#8211; type &#8216;true&#8217; or &#8216;false&#8217;, optional</li>
+<li><strong>auth_source_ldap</strong> &#8211; type Hash, required</li>
+<li><strong>auth_source_ldap[base_dn]</strong> &#8211; type String, optional</li>
+<li><strong>id</strong> &#8211; type String, required</li>
+<li><strong>auth_source_ldap[host]</strong> &#8211; type String, optional</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="foreman.client.Foreman.update_bookmarks">
+<tt class="descname">update_bookmarks</tt><big>(</big><em>bookmark</em>, <em>id</em><big>)</big><a class="headerlink" href="#foreman.client.Foreman.update_bookmarks" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>bookmark[public]</strong> &#8211; type &#8216;true&#8217; or &#8216;false&#8217;, optional</li>
+<li><strong>bookmark</strong> &#8211; type Hash, required</li>
+<li><strong>bookmark[name]</strong> &#8211; type String, optional</li>
+<li><strong>bookmark[controller]</strong> &#8211; type String, optional</li>
+<li><strong>id</strong> &#8211; type identifier, string from 1 to 128 characters containing only alphanumeric characters, space, underscore(_), hypen(-) with no leading or trailing space., required</li>
+<li><strong>bookmark[query]</strong> &#8211; type String, optional</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="foreman.client.Foreman.update_common_parameters">
+<tt class="descname">update_common_parameters</tt><big>(</big><em>common_parameter</em>, <em>id</em><big>)</big><a class="headerlink" href="#foreman.client.Foreman.update_common_parameters" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>common_parameter[value]</strong> &#8211; type String, optional</li>
+<li><strong>common_parameter[name]</strong> &#8211; type String, optional</li>
+<li><strong>common_parameter</strong> &#8211; type Hash, required</li>
+<li><strong>id</strong> &#8211; type identifier, string from 1 to 128 characters containing only alphanumeric characters, space, underscore(_), hypen(-) with no leading or trailing space., required</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="foreman.client.Foreman.update_compute_resources">
+<tt class="descname">update_compute_resources</tt><big>(</big><em>compute_resource</em>, <em>id</em><big>)</big><a class="headerlink" href="#foreman.client.Foreman.update_compute_resources" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>compute_resource[password]</strong> &#8211; type String, optional</li>
+<li><strong>compute_resource[name]</strong> &#8211; type String, optional</li>
+<li><strong>compute_resource</strong> &#8211; type Hash, required</li>
+<li><strong>compute_resource[url]</strong> &#8211; type String, optional</li>
+<li><strong>compute_resource[description]</strong> &#8211; type String, optional</li>
+<li><strong>compute_resource[server]</strong> &#8211; type String, optional</li>
+<li><strong>compute_resource[uuid]</strong> &#8211; type String, optional</li>
+<li><strong>compute_resource[tenant]</strong> &#8211; type String, optional</li>
+<li><strong>compute_resource[user]</strong> &#8211; type String, optional</li>
+<li><strong>compute_resource[provider]</strong> &#8211; type String, optional</li>
+<li><strong>compute_resource[region]</strong> &#8211; type String, optional</li>
+<li><strong>id</strong> &#8211; type String, required</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="foreman.client.Foreman.update_config_templates">
+<tt class="descname">update_config_templates</tt><big>(</big><em>config_template</em>, <em>id</em><big>)</big><a class="headerlink" href="#foreman.client.Foreman.update_config_templates" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>config_template</strong> &#8211; type Hash, required</li>
+<li><strong>config_template[template_combinations_attributes]</strong> &#8211; type Array, optional</li>
+<li><strong>config_template[template_kind_id]</strong> &#8211; type number., optional</li>
+<li><strong>config_template[name]</strong> &#8211; type String, optional</li>
+<li><strong>config_template[operatingsystem_ids]</strong> &#8211; type Array, optional</li>
+<li><strong>config_template[audit_comment]</strong> &#8211; type String, optional</li>
+<li><strong>config_template[snippet]</strong> &#8211; type &#8216;true&#8217; or &#8216;false&#8217;, optional</li>
+<li><strong>config_template[template]</strong> &#8211; type String, optional</li>
+<li><strong>id</strong> &#8211; type identifier, string from 1 to 128 characters containing only alphanumeric characters, space, underscore(_), hypen(-) with no leading or trailing space., required</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="foreman.client.Foreman.update_domains">
+<tt class="descname">update_domains</tt><big>(</big><em>domain</em>, <em>id</em><big>)</big><a class="headerlink" href="#foreman.client.Foreman.update_domains" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>domain[domain_parameters_attributes]</strong> &#8211; type Array, optional</li>
+<li><strong>domain[dns_id]</strong> &#8211; type number., optional</li>
+<li><strong>domain</strong> &#8211; type Hash, required</li>
+<li><strong>domain[name]</strong> &#8211; type String, optional</li>
+<li><strong>id</strong> &#8211; type identifier, string from 1 to 128 characters containing only alphanumeric characters, space, underscore(_), hypen(-) with no leading or trailing space., required</li>
+<li><strong>domain[fullname]</strong> &#8211; type String, optional</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="foreman.client.Foreman.update_environments">
+<tt class="descname">update_environments</tt><big>(</big><em>environment</em>, <em>id</em><big>)</big><a class="headerlink" href="#foreman.client.Foreman.update_environments" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>environment[name]</strong> &#8211; type String, optional</li>
+<li><strong>environment</strong> &#8211; type Hash, required</li>
+<li><strong>id</strong> &#8211; type identifier, string from 1 to 128 characters containing only alphanumeric characters, space, underscore(_), hypen(-) with no leading or trailing space., required</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="foreman.client.Foreman.update_hostgroups">
+<tt class="descname">update_hostgroups</tt><big>(</big><em>hostgroup</em>, <em>id</em><big>)</big><a class="headerlink" href="#foreman.client.Foreman.update_hostgroups" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>hostgroup[operatingsystem_id]</strong> &#8211; type number., optional</li>
+<li><strong>hostgroup[puppet_ca_proxy_id]</strong> &#8211; type number., optional</li>
+<li><strong>hostgroup[ptable_id]</strong> &#8211; type number., optional</li>
+<li><strong>hostgroup[environment_id]</strong> &#8211; type number., optional</li>
+<li><strong>hostgroup[medium_id]</strong> &#8211; type number., optional</li>
+<li><strong>hostgroup</strong> &#8211; type Hash, required</li>
+<li><strong>hostgroup[subnet_id]</strong> &#8211; type number., optional</li>
+<li><strong>hostgroup[architecture_id]</strong> &#8211; type number., optional</li>
+<li><strong>hostgroup[name]</strong> &#8211; type String, optional</li>
+<li><strong>hostgroup[puppet_proxy_id]</strong> &#8211; type number., optional</li>
+<li><strong>hostgroup[domain_id]</strong> &#8211; type number., optional</li>
+<li><strong>id</strong> &#8211; type identifier, string from 1 to 128 characters containing only alphanumeric characters, space, underscore(_), hypen(-) with no leading or trailing space., required</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="foreman.client.Foreman.update_hosts">
+<tt class="descname">update_hosts</tt><big>(</big><em>host</em>, <em>id</em><big>)</big><a class="headerlink" href="#foreman.client.Foreman.update_hosts" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>host[hostgroup_id]</strong> &#8211; type number., optional</li>
+<li><strong>host[architecture_id]</strong> &#8211; type number., optional</li>
+<li><strong>host[sp_subnet_id]</strong> &#8211; type number., optional</li>
+<li><strong>host[subnet_id]</strong> &#8211; type number., optional</li>
+<li><strong>host[owner_id]</strong> &#8211; type number., optional</li>
+<li><strong>host</strong> &#8211; type Hash, required</li>
+<li><strong>host[host_parameters_attributes]</strong> &#8211; type Array, optional</li>
+<li><strong>host[name]</strong> &#8211; type String, optional</li>
+<li><strong>host[model_id_id]</strong> &#8211; type number., optional</li>
+<li><strong>host[puppet_ca_proxy_id]</strong> &#8211; type number., optional</li>
+<li><strong>host[domain_id]</strong> &#8211; type number., optional</li>
+<li><strong>host[mac]</strong> &#8211; type String, required</li>
+<li><strong>host[ip]</strong> &#8211; type String, required</li>
+<li><strong>host[operatingsystem_id]</strong> &#8211; type String, optional</li>
+<li><strong>host[ptable_id]</strong> &#8211; type number., optional</li>
+<li><strong>host[image_id]</strong> &#8211; type number., optional</li>
+<li><strong>host[medium_id]</strong> &#8211; type number., optional</li>
+<li><strong>host[puppet_proxy_id]</strong> &#8211; type number., optional</li>
+<li><strong>host[environment_id]</strong> &#8211; type String, optional</li>
+<li><strong>id</strong> &#8211; type identifier, string from 1 to 128 characters containing only alphanumeric characters, space, underscore(_), hypen(-) with no leading or trailing space., required</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="foreman.client.Foreman.update_images">
+<tt class="descname">update_images</tt><big>(</big><em>compute_resource_id</em>, <em>image</em>, <em>id</em><big>)</big><a class="headerlink" href="#foreman.client.Foreman.update_images" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>image[name]</strong> &#8211; type String, optional</li>
+<li><strong>image[username]</strong> &#8211; type String, optional</li>
+<li><strong>image[architecture_id]</strong> &#8211; type number., optional</li>
+<li><strong>compute_resource_id</strong> &#8211; type identifier, string from 1 to 128 characters containing only alphanumeric characters, space, underscore(_), hypen(-) with no leading or trailing space., required</li>
+<li><strong>image[compute_resource_id]</strong> &#8211; type number., optional</li>
+<li><strong>image[operatingsystem_id]</strong> &#8211; type number., optional</li>
+<li><strong>image</strong> &#8211; type Hash, required</li>
+<li><strong>image[uuid]</strong> &#8211; type String, optional</li>
+<li><strong>id</strong> &#8211; type identifier, string from 1 to 128 characters containing only alphanumeric characters, space, underscore(_), hypen(-) with no leading or trailing space., required</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="foreman.client.Foreman.update_lookup_keys">
+<tt class="descname">update_lookup_keys</tt><big>(</big><em>lookup_key</em>, <em>id</em><big>)</big><a class="headerlink" href="#foreman.client.Foreman.update_lookup_keys" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>lookup_key[path]</strong> &#8211; type String, optional</li>
+<li><strong>lookup_key[puppetclass_id]</strong> &#8211; type number., optional</li>
+<li><strong>lookup_key[description]</strong> &#8211; type String, optional</li>
+<li><strong>lookup_key</strong> &#8211; type Hash, required</li>
+<li><strong>lookup_key[default_value]</strong> &#8211; type String, optional</li>
+<li><strong>lookup_key[key]</strong> &#8211; type String, optional</li>
+<li><strong>id</strong> &#8211; type identifier, string from 1 to 128 characters containing only alphanumeric characters, space, underscore(_), hypen(-) with no leading or trailing space., required</li>
+<li><strong>lookup_key[lookup_values_count]</strong> &#8211; type number., optional</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="foreman.client.Foreman.update_media">
+<tt class="descname">update_media</tt><big>(</big><em>medium</em>, <em>id</em><big>)</big><a class="headerlink" href="#foreman.client.Foreman.update_media" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>medium</strong> &#8211; type Hash, required</li>
+<li><strong>medium[os_family]</strong> &#8211; type String, optional</li>
+<li><strong>medium[name]</strong> &#8211; type String, optional</li>
+<li><strong>id</strong> &#8211; type String, required</li>
+<li><strong>medium[path]</strong> &#8211; type String, optional</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="foreman.client.Foreman.update_models">
+<tt class="descname">update_models</tt><big>(</big><em>model</em>, <em>id</em><big>)</big><a class="headerlink" href="#foreman.client.Foreman.update_models" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>model[name]</strong> &#8211; type String, optional</li>
+<li><strong>model[vendor_class]</strong> &#8211; type String, optional</li>
+<li><strong>model[hardware_model]</strong> &#8211; type String, optional</li>
+<li><strong>model[info]</strong> &#8211; type String, optional</li>
+<li><strong>model</strong> &#8211; type Hash, required</li>
+<li><strong>id</strong> &#8211; type String, required</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="foreman.client.Foreman.update_operatingsystems">
+<tt class="descname">update_operatingsystems</tt><big>(</big><em>operatingsystem</em>, <em>id</em><big>)</big><a class="headerlink" href="#foreman.client.Foreman.update_operatingsystems" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>operatingsystem</strong> &#8211; type Hash, required</li>
+<li><strong>operatingsystem[minor]</strong> &#8211; type String, optional</li>
+<li><strong>operatingsystem[family]</strong> &#8211; type String, optional</li>
+<li><strong>operatingsystem[release_name]</strong> &#8211; type String, optional</li>
+<li><strong>operatingsystem[major]</strong> &#8211; type String, optional</li>
+<li><strong>operatingsystem[name]</strong> &#8211; type regular expression /A(S+)Z/., optional</li>
+<li><strong>id</strong> &#8211; type String, required</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="foreman.client.Foreman.update_ptables">
+<tt class="descname">update_ptables</tt><big>(</big><em>ptable</em>, <em>id</em><big>)</big><a class="headerlink" href="#foreman.client.Foreman.update_ptables" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>ptable[layout]</strong> &#8211; type String, optional</li>
+<li><strong>ptable</strong> &#8211; type Hash, required</li>
+<li><strong>ptable[name]</strong> &#8211; type String, optional</li>
+<li><strong>ptable[os_family]</strong> &#8211; type String, optional</li>
+<li><strong>id</strong> &#8211; type String, required</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="foreman.client.Foreman.update_puppetclasses">
+<tt class="descname">update_puppetclasses</tt><big>(</big><em>puppetclass</em>, <em>id</em><big>)</big><a class="headerlink" href="#foreman.client.Foreman.update_puppetclasses" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>puppetclass[name]</strong> &#8211; type String, optional</li>
+<li><strong>puppetclass</strong> &#8211; type Hash, required</li>
+<li><strong>id</strong> &#8211; type String, required</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="foreman.client.Foreman.update_roles">
+<tt class="descname">update_roles</tt><big>(</big><em>role</em>, <em>id</em><big>)</big><a class="headerlink" href="#foreman.client.Foreman.update_roles" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>role[name]</strong> &#8211; type String, optional</li>
+<li><strong>role</strong> &#8211; type Hash, required</li>
+<li><strong>id</strong> &#8211; type String, required</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="foreman.client.Foreman.update_settings">
+<tt class="descname">update_settings</tt><big>(</big><em>setting</em>, <em>id</em><big>)</big><a class="headerlink" href="#foreman.client.Foreman.update_settings" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>setting[value]</strong> &#8211; type String, optional</li>
+<li><strong>setting</strong> &#8211; type Hash, required</li>
+<li><strong>id</strong> &#8211; type String, required</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="foreman.client.Foreman.update_smart_proxies">
+<tt class="descname">update_smart_proxies</tt><big>(</big><em>smart_proxy</em>, <em>id</em><big>)</big><a class="headerlink" href="#foreman.client.Foreman.update_smart_proxies" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>smart_proxy[name]</strong> &#8211; type String, optional</li>
+<li><strong>smart_proxy</strong> &#8211; type Hash, required</li>
+<li><strong>smart_proxy[url]</strong> &#8211; type String, optional</li>
+<li><strong>id</strong> &#8211; type String, required</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="foreman.client.Foreman.update_subnets">
+<tt class="descname">update_subnets</tt><big>(</big><em>subnet</em>, <em>id</em><big>)</big><a class="headerlink" href="#foreman.client.Foreman.update_subnets" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>subnet[mask]</strong> &#8211; type String, optional</li>
+<li><strong>subnet[vlanid]</strong> &#8211; type String, optional</li>
+<li><strong>subnet[dns_primary]</strong> &#8211; type String, optional</li>
+<li><strong>subnet[gateway]</strong> &#8211; type String, optional</li>
+<li><strong>subnet[to]</strong> &#8211; type String, optional</li>
+<li><strong>subnet</strong> &#8211; type Hash, required</li>
+<li><strong>subnet[dns_id]</strong> &#8211; type number., optional</li>
+<li><strong>subnet[dhcp_id]</strong> &#8211; type number., optional</li>
+<li><strong>subnet[from]</strong> &#8211; type String, optional</li>
+<li><strong>subnet[name]</strong> &#8211; type String, optional</li>
+<li><strong>subnet[network]</strong> &#8211; type String, optional</li>
+<li><strong>subnet[dns_secondary]</strong> &#8211; type String, optional</li>
+<li><strong>subnet[domain_ids]</strong> &#8211; type Array, optional</li>
+<li><strong>id</strong> &#8211; type number., required</li>
+<li><strong>subnet[tftp_id]</strong> &#8211; type number., optional</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="foreman.client.Foreman.update_usergroups">
+<tt class="descname">update_usergroups</tt><big>(</big><em>usergroup</em>, <em>id</em><big>)</big><a class="headerlink" href="#foreman.client.Foreman.update_usergroups" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>usergroup</strong> &#8211; type Hash, required</li>
+<li><strong>id</strong> &#8211; type String, required</li>
+<li><strong>usergroup[name]</strong> &#8211; type String, optional</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="foreman.client.Foreman.update_users">
+<tt class="descname">update_users</tt><big>(</big><em>user</em>, <em>id</em><big>)</big><a class="headerlink" href="#foreman.client.Foreman.update_users" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>user[login]</strong> &#8211; type String, optional</li>
+<li><strong>user</strong> &#8211; type Hash, required</li>
+<li><strong>user[firstname]</strong> &#8211; type String, optional</li>
+<li><strong>user[admin]</strong> &#8211; type &#8216;true&#8217; or &#8216;false&#8217;, optional</li>
+<li><strong>user[password]</strong> &#8211; type String, optional</li>
+<li><strong>user[lastname]</strong> &#8211; type String, optional</li>
+<li><strong>id</strong> &#8211; type String, required</li>
+<li><strong>user[mail]</strong> &#8211; type String, optional</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
+<dt id="foreman.client.ForemanException">
+<em class="property">exception </em><tt class="descclassname">foreman.client.</tt><tt class="descname">ForemanException</tt><big>(</big><em>res</em>, <em>msg</em><big>)</big><a class="reference internal" href="_modules/foreman/client.html#ForemanException"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#foreman.client.ForemanException" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="exception">
+<dt id="foreman.client.ForemanVersionException">
+<em class="property">exception </em><tt class="descclassname">foreman.client.</tt><tt class="descname">ForemanVersionException</tt><a class="reference internal" href="_modules/foreman/client.html#ForemanVersionException"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#foreman.client.ForemanVersionException" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="foreman.client.MetaForeman">
+<em class="property">class </em><tt class="descclassname">foreman.client.</tt><tt class="descname">MetaForeman</tt><a class="reference internal" href="_modules/foreman/client.html#MetaForeman"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#foreman.client.MetaForeman" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="exception">
+<dt id="foreman.client.ObjectNotFound">
+<em class="property">exception </em><tt class="descclassname">foreman.client.</tt><tt class="descname">ObjectNotFound</tt><big>(</big><em>res</em>, <em>msg</em><big>)</big><a class="reference internal" href="_modules/foreman/client.html#ObjectNotFound"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#foreman.client.ObjectNotFound" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="exception">
+<dt id="foreman.client.Unacceptable">
+<em class="property">exception </em><tt class="descclassname">foreman.client.</tt><tt class="descname">Unacceptable</tt><big>(</big><em>res</em>, <em>msg</em><big>)</big><a class="reference internal" href="_modules/foreman/client.html#Unacceptable"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#foreman.client.Unacceptable" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="foreman.client.gen_fun_doc">
+<tt class="descclassname">foreman.client.</tt><tt class="descname">gen_fun_doc</tt><big>(</big><em>fdef</em><big>)</big><a class="reference internal" href="_modules/foreman/client.html#gen_fun_doc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#foreman.client.gen_fun_doc" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>fdef</strong> &#8211; Function definition as found in the definitions file</td>
+</tr>
+</tbody>
+</table>
+<p>Generate the documtation for the given function definition</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="foreman.client.gen_fun_line">
+<tt class="descclassname">foreman.client.</tt><tt class="descname">gen_fun_line</tt><big>(</big><em>params</em><big>)</big><a class="reference internal" href="_modules/foreman/client.html#gen_fun_line"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#foreman.client.gen_fun_line" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>params</strong> &#8211; Dict with the funciton parameters as found in the definitions file</td>
+</tr>
+</tbody>
+</table>
+<p>Generates the python code that defines a function from it&#8217;s definition</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="foreman.client.generate_defs_file">
+<tt class="descclassname">foreman.client.</tt><tt class="descname">generate_defs_file</tt><big>(</big><em>fname='definitions.py'</em><big>)</big><a class="reference internal" href="_modules/foreman/client.html#generate_defs_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#foreman.client.generate_defs_file" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>fname</strong> &#8211; Name of the file todump the definitoins to.</td>
+</tr>
+</tbody>
+</table>
+<p>Fetch the docs and generate the definitions of the api methods.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="foreman.client.get_funct">
+<tt class="descclassname">foreman.client.</tt><tt class="descname">get_funct</tt><big>(</big><em>fname</em>, <em>mname</em>, <em>fdef</em><big>)</big><a class="reference internal" href="_modules/foreman/client.html#get_funct"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#foreman.client.get_funct" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>fname</strong> &#8211; Funtion name</li>
+<li><strong>fdef</strong> &#8211; Function definition as in the definitions file</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>Generate the function from the given function and definition</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="foreman.client.get_method_definition">
+<tt class="descclassname">foreman.client.</tt><tt class="descname">get_method_definition</tt><big>(</big><em>method_url</em><big>)</big><a class="reference internal" href="_modules/foreman/client.html#get_method_definition"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#foreman.client.get_method_definition" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>method_url</strong> &#8211; relative url to the method&#8217;s documentation page</td>
+</tr>
+</tbody>
+</table>
+<p>For a specific method url doc page, return it&#8217;s definition</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="foreman.client.get_methods_urls">
+<tt class="descclassname">foreman.client.</tt><tt class="descname">get_methods_urls</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/foreman/client.html#get_methods_urls"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#foreman.client.get_methods_urls" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the first level of the pages of the documentation</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="foreman.client.res_to_str">
+<tt class="descclassname">foreman.client.</tt><tt class="descname">res_to_str</tt><big>(</big><em>res</em><big>)</big><a class="reference internal" href="_modules/foreman/client.html#res_to_str"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#foreman.client.res_to_str" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>res</strong> &#8211; <tt class="xref py py-class docutils literal"><span class="pre">requests.Response</span></tt> object</td>
+</tr>
+</tbody>
+</table>
+<p>Parse the given request and generate an informative string from it</p>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="index.html"
+                        title="previous chapter">Welcome to Foreman API&#8217;s documentation!</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="tutorial.html"
+                        title="next chapter">Tutorial</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/client.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="tutorial.html" title="Tutorial"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Welcome to Foreman API’s documentation!"
+             >previous</a> |</li>
+        <li><a href="index.html">Foreman API 0.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, David Caro &lt;dcaroest@redhat.com&gt;.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

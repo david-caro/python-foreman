@@ -1,0 +1,546 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>foreman.client &mdash; Foreman API 0.1 documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="Foreman API 0.1 documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">Foreman API 0.1 documentation</a> &raquo;</li>
+          <li><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for foreman.client</h1><div class="highlight"><pre>
+<span class="c">#!/usr/bin/env python</span>
+<span class="c">#encoding: utf-8</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This module provides acces to the API of a foreman server</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">requests</span>
+<span class="kn">import</span> <span class="nn">pprint</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">definitions</span> <span class="kn">as</span> <span class="nn">defs</span>
+    <span class="n">download_defs</span> <span class="o">=</span> <span class="bp">False</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
+    <span class="n">download_defs</span> <span class="o">=</span> <span class="bp">True</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">foreman_api_plugins</span>
+    <span class="kn">import</span> <span class="nn">os.path</span><span class="o">,</span> <span class="nn">pkgutil</span>
+    <span class="n">pkg_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">foreman_api_plugins</span><span class="o">.</span><span class="n">__file__</span><span class="p">)</span>
+    <span class="n">plugins</span> <span class="o">=</span> <span class="p">[</span><span class="n">name</span> <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">pkgutil</span><span class="o">.</span><span class="n">iter_modules</span><span class="p">([</span><span class="n">pkg_path</span><span class="p">])]</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="n">plugins</span> <span class="o">=</span> <span class="p">[]</span>
+
+
+<span class="k">if</span> <span class="n">requests</span><span class="o">.</span><span class="n">__version__</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;.&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s">&#39;0&#39;</span><span class="p">:</span>
+    <span class="n">OLD_REQ</span> <span class="o">=</span> <span class="bp">True</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="n">OLD_REQ</span> <span class="o">=</span> <span class="bp">False</span>
+
+
+<div class="viewcode-block" id="ForemanException"><a class="viewcode-back" href="../../client.html#foreman.client.ForemanException">[docs]</a><span class="k">class</span> <span class="nc">ForemanException</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">res</span><span class="p">,</span> <span class="n">msg</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This exception wraps an error message and let&#39;s the caller to get the</span>
+<span class="sd">        :class:`requests.Response` that failed</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="ne">Exception</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msg</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">res</span> <span class="o">=</span> <span class="n">res</span>
+</div>
+<div class="viewcode-block" id="ObjectNotFound"><a class="viewcode-back" href="../../client.html#foreman.client.ObjectNotFound">[docs]</a><span class="k">class</span> <span class="nc">ObjectNotFound</span><span class="p">(</span><span class="n">ForemanException</span><span class="p">):</span>
+    <span class="k">pass</span>
+
+</div>
+<div class="viewcode-block" id="Unacceptable"><a class="viewcode-back" href="../../client.html#foreman.client.Unacceptable">[docs]</a><span class="k">class</span> <span class="nc">Unacceptable</span><span class="p">(</span><span class="n">ForemanException</span><span class="p">):</span>
+    <span class="k">pass</span>
+
+</div>
+<div class="viewcode-block" id="ForemanVersionException"><a class="viewcode-back" href="../../client.html#foreman.client.ForemanVersionException">[docs]</a><span class="k">class</span> <span class="nc">ForemanVersionException</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="k">pass</span>
+
+</div>
+<span class="n">BASE_DOC_URL</span> <span class="o">=</span> <span class="s">&quot;http://theforeman.org/api/apidoc.html&quot;</span>
+
+
+<div class="viewcode-block" id="get_methods_urls"><a class="viewcode-back" href="../../client.html#foreman.client.get_methods_urls">[docs]</a><span class="k">def</span> <span class="nf">get_methods_urls</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get the first level of the pages of the documentation</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">methodslist</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">BASE_DOC_URL</span><span class="p">)</span><span class="o">.</span><span class="n">text</span>
+    <span class="kn">import</span> <span class="nn">pdb</span><span class="p">;</span> <span class="n">pdb</span><span class="o">.</span><span class="n">set_trace</span><span class="p">()</span>
+    <span class="n">match_method</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s">r&#39;.*(?P&lt;url&gt;/apidoc/(?P&lt;main&gt;[^/]+)/&#39;</span>
+                              <span class="s">r&#39;(?P&lt;mtype&gt;[^/]+).html)&#39;</span><span class="p">)</span>
+    <span class="n">methods</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">methodslist</span><span class="o">.</span><span class="n">splitlines</span><span class="p">():</span>
+        <span class="n">match</span> <span class="o">=</span> <span class="n">match_method</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">match</span><span class="p">:</span>
+            <span class="n">res</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">groupdict</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">res</span><span class="p">[</span><span class="s">&#39;main&#39;</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">methods</span><span class="p">:</span>
+                <span class="n">methods</span><span class="p">[</span><span class="n">res</span><span class="p">[</span><span class="s">&#39;main&#39;</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="n">methods</span><span class="p">[</span><span class="n">res</span><span class="p">[</span><span class="s">&#39;main&#39;</span><span class="p">]][</span><span class="n">res</span><span class="p">[</span><span class="s">&#39;mtype&#39;</span><span class="p">]]</span> <span class="o">=</span> <span class="n">res</span><span class="p">[</span><span class="s">&#39;url&#39;</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">methods</span>
+
+</div>
+<div class="viewcode-block" id="get_method_definition"><a class="viewcode-back" href="../../client.html#foreman.client.get_method_definition">[docs]</a><span class="k">def</span> <span class="nf">get_method_definition</span><span class="p">(</span><span class="n">method_url</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    :param method_url: relative url to the method&#39;s documentation page</span>
+
+<span class="sd">    For a specific method url doc page, return it&#39;s definition</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">method_page</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">BASE_DOC_URL</span> <span class="o">+</span> <span class="n">method_url</span><span class="p">)</span><span class="o">.</span><span class="n">text</span>
+    <span class="n">method_page</span> <span class="o">=</span> <span class="n">method_page</span><span class="o">.</span><span class="n">splitlines</span><span class="p">()</span>
+    <span class="n">method_page</span><span class="o">.</span><span class="n">reverse</span><span class="p">()</span>
+    <span class="n">match_def</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s">r&#39;.*((?P&lt;required&gt;(required|optional))|&#39;</span>
+                           <span class="s">r&#39;&lt;strong&gt;(?P&lt;pname&gt;[^&lt;]+)&lt;/strong&gt;|&#39;</span>
+                           <span class="s">r&#39;Value: Must (be (an? )?|match )(?P&lt;ptype&gt;.+))&#39;</span><span class="p">)</span>
+    <span class="n">params</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">started</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="k">while</span> <span class="n">method_page</span><span class="p">:</span>
+        <span class="n">line</span> <span class="o">=</span> <span class="n">method_page</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">started</span><span class="p">:</span>
+            <span class="n">started</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s">r&#39;.*&lt;h2&gt;Params&lt;/h2&gt;&#39;</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span>
+            <span class="k">continue</span>
+        <span class="n">method_info</span> <span class="o">=</span> <span class="n">match_def</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">method_info</span><span class="p">:</span>
+            <span class="n">newinfo</span> <span class="o">=</span> <span class="n">method_info</span><span class="o">.</span><span class="n">groupdict</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">newinfo</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">val</span><span class="p">:</span>
+                    <span class="n">val</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">name</span> <span class="o">==</span> <span class="s">&#39;ptype&#39;</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="n">val</span> <span class="o">==</span> <span class="s">&#39;&amp;#x27;true&amp;#x27; or &amp;#x27;false&amp;#x27;&#39;</span><span class="p">:</span>
+                            <span class="n">val</span> <span class="o">=</span> <span class="s">&quot;&#39;true&#39; or &#39;false&#39;&quot;</span>
+                    <span class="k">if</span> <span class="n">name</span> <span class="o">==</span> <span class="s">&#39;pname&#39;</span><span class="p">:</span>
+                        <span class="n">params</span><span class="p">[</span><span class="n">val</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+                        <span class="n">current_param</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="n">val</span><span class="p">]</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="n">name</span> <span class="o">==</span> <span class="s">&#39;required&#39;</span><span class="p">:</span>
+                            <span class="n">val</span> <span class="o">=</span> <span class="n">val</span> <span class="o">==</span> <span class="s">&#39;required&#39;</span>
+                        <span class="n">current_param</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">name</span><span class="p">)]</span> <span class="o">=</span> <span class="n">val</span>
+    <span class="k">return</span> <span class="n">params</span>
+
+</div>
+<div class="viewcode-block" id="generate_defs_file"><a class="viewcode-back" href="../../client.html#foreman.client.generate_defs_file">[docs]</a><span class="k">def</span> <span class="nf">generate_defs_file</span><span class="p">(</span><span class="n">fname</span><span class="o">=</span><span class="s">&#39;definitions.py&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    :param fname: Name of the file todump the definitoins to.</span>
+
+<span class="sd">    Fetch the docs and generate the definitions of the api methods.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">all_defs</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">model</span><span class="p">,</span> <span class="n">methods</span> <span class="ow">in</span> <span class="n">get_methods_urls</span><span class="p">()</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+        <span class="n">model_def</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">mname</span><span class="p">,</span> <span class="n">murl</span> <span class="ow">in</span> <span class="n">methods</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+            <span class="n">mdef</span> <span class="o">=</span> <span class="n">get_method_definition</span><span class="p">(</span><span class="n">murl</span><span class="p">)</span>
+            <span class="n">model_def</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="nb">str</span><span class="p">(</span><span class="n">mname</span><span class="p">):</span> <span class="n">mdef</span><span class="p">})</span>
+        <span class="n">all_defs</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">model</span><span class="p">)]</span> <span class="o">=</span> <span class="n">model_def</span>
+    <span class="c">## Add the special &#39;status&#39; case</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="s">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fd_defs</span><span class="p">:</span>
+        <span class="n">fd_defs</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&#39;DEFS = &#39;</span><span class="p">)</span>
+        <span class="n">fd_defs</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">pprint</span><span class="o">.</span><span class="n">pformat</span><span class="p">(</span><span class="n">all_defs</span><span class="p">))</span>
+
+</div>
+<div class="viewcode-block" id="gen_fun_line"><a class="viewcode-back" href="../../client.html#foreman.client.gen_fun_line">[docs]</a><span class="k">def</span> <span class="nf">gen_fun_line</span><span class="p">(</span><span class="n">params</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    :param params: Dict with the funciton parameters as found in the definitions file</span>
+
+<span class="sd">    Generates the python code that defines a function from it&#39;s definition</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">args_str</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;self&#39;</span><span class="p">]</span>
+    <span class="n">default_args</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">arg</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">params</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+        <span class="k">if</span> <span class="s">&#39;[&#39;</span> <span class="ow">in</span> <span class="n">arg</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="k">if</span> <span class="n">val</span><span class="p">[</span><span class="s">&#39;required&#39;</span><span class="p">]:</span>
+            <span class="n">args_str</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">arg</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">default_args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;</span><span class="si">%s</span><span class="s">=None&#39;</span> <span class="o">%</span> <span class="n">arg</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+    <span class="k">return</span> <span class="s">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">args_str</span><span class="p">)</span> <span class="o">+</span> <span class="s">&#39;, &#39;</span> <span class="o">+</span> <span class="s">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">default_args</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="gen_fun_doc"><a class="viewcode-back" href="../../client.html#foreman.client.gen_fun_doc">[docs]</a><span class="k">def</span> <span class="nf">gen_fun_doc</span><span class="p">(</span><span class="n">fdef</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    :param fdef: Function definition as found in the definitions file</span>
+
+<span class="sd">    Generate the documtation for the given function definition</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">doc_str</span> <span class="o">=</span> <span class="s">&#39;&#39;</span>
+    <span class="k">for</span> <span class="n">arg</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">fdef</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+        <span class="n">arg</span> <span class="o">=</span> <span class="n">arg</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="n">doc_str</span> <span class="o">+=</span> <span class="s">&#39;</span><span class="se">\n\t</span><span class="s">:param </span><span class="si">%s</span><span class="s">: type </span><span class="si">%s</span><span class="s">, </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span>
+                               <span class="n">arg</span><span class="p">,</span> <span class="n">val</span><span class="p">[</span><span class="s">&#39;ptype&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">(),</span>
+                               <span class="n">val</span><span class="p">[</span><span class="s">&#39;required&#39;</span><span class="p">]</span> <span class="ow">and</span> <span class="s">&#39;required&#39;</span> <span class="ow">or</span> <span class="s">&#39;optional&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">doc_str</span>
+
+</div>
+<div class="viewcode-block" id="get_funct"><a class="viewcode-back" href="../../client.html#foreman.client.get_funct">[docs]</a><span class="k">def</span> <span class="nf">get_funct</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="n">mname</span><span class="p">,</span> <span class="n">fdef</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    :param fname: Funtion name</span>
+<span class="sd">    :param fdef: Function definition as in the definitions file</span>
+
+
+<span class="sd">    Generate the function from the given function and definition</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">params</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;{0}={0}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+                               <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">fdef</span><span class="o">.</span><span class="n">iterkeys</span><span class="p">()</span>
+                               <span class="k">if</span> <span class="s">&#39;[&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">i</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">mname</span> <span class="ow">in</span> <span class="p">[</span><span class="s">&#39;GET&#39;</span><span class="p">,</span> <span class="s">&#39;POST&#39;</span><span class="p">,</span> <span class="s">&#39;PUT&#39;</span><span class="p">,</span> <span class="s">&#39;DELETE&#39;</span><span class="p">]:</span>
+        <span class="n">fun_name</span><span class="p">,</span> <span class="n">fname</span><span class="p">,</span> <span class="n">mname</span> <span class="o">=</span> <span class="n">fname</span><span class="p">,</span> <span class="n">mname</span><span class="p">,</span> <span class="n">fname</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">fun_name</span> <span class="o">=</span> <span class="n">fname</span> <span class="o">+</span> <span class="s">&#39;_&#39;</span> <span class="o">+</span> <span class="n">mname</span>
+    <span class="n">code_str</span> <span class="o">=</span> <span class="s">&#39;&#39;&#39;</span>
+<span class="s">def {5}({0}):</span>
+<span class="s">    &quot;&quot;&quot;</span>
+<span class="s">    {1}</span>
+<span class="s">    &quot;&quot;&quot;</span>
+<span class="s">    return self.send_request(&#39;{2}&#39;,mtype=&#39;{3}&#39;, {4})&#39;&#39;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">gen_fun_line</span><span class="p">(</span><span class="n">fdef</span><span class="p">),</span>
+        <span class="n">gen_fun_doc</span><span class="p">(</span><span class="n">fdef</span><span class="p">),</span>
+        <span class="n">fname</span><span class="p">,</span>
+        <span class="n">mname</span><span class="p">,</span>
+        <span class="s">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">params</span><span class="p">),</span>
+        <span class="n">fun_name</span><span class="p">)</span>
+    <span class="k">exec</span> <span class="n">code_str</span>
+    <span class="k">return</span> <span class="nb">locals</span><span class="p">()[</span><span class="n">fun_name</span><span class="p">]</span>
+
+
+<span class="c">## Before getting any further, make sure that the definitions file exists</span></div>
+<span class="k">if</span> <span class="n">download_defs</span><span class="p">:</span>
+    <span class="n">fpath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">__file__</span><span class="p">))</span>
+    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Downloading definitions for the first tine at &quot;</span>
+                 <span class="o">+</span> <span class="s">&quot;</span><span class="si">%s</span><span class="s">/definitions.py&quot;</span> <span class="o">%</span> <span class="n">fpath</span><span class="p">)</span>
+    <span class="n">generate_defs_file</span><span class="p">(</span><span class="n">fpath</span> <span class="o">+</span> <span class="s">&#39;/definitions.py&#39;</span><span class="p">)</span>
+    <span class="kn">import</span> <span class="nn">definitions</span> <span class="kn">as</span> <span class="nn">defs</span>
+
+
+<div class="viewcode-block" id="res_to_str"><a class="viewcode-back" href="../../client.html#foreman.client.res_to_str">[docs]</a><span class="k">def</span> <span class="nf">res_to_str</span><span class="p">(</span><span class="n">res</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    :param res: :class:`requests.Response` object</span>
+
+<span class="sd">    Parse the given request and generate an informative string from it</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="s">&#39;Authorization&#39;</span> <span class="ow">in</span> <span class="n">res</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">headers</span><span class="p">:</span>
+        <span class="n">res</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">headers</span><span class="p">[</span><span class="s">&#39;Authorization&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&quot;*****&quot;</span>
+    <span class="k">return</span> <span class="s">&quot;&quot;&quot;</span>
+<span class="s">####################################</span>
+<span class="s">url = </span><span class="si">%s</span><span class="s"></span>
+<span class="s">headers = </span><span class="si">%s</span><span class="s"></span>
+<span class="s">-------- data sent -----------------</span>
+<span class="si">%s</span><span class="s"></span>
+<span class="s">------------------------------------</span>
+<span class="s">@@@@@ response @@@@@@@@@@@@@@@@</span>
+<span class="s">headers = </span><span class="si">%s</span><span class="s"></span>
+<span class="s">code = </span><span class="si">%d</span><span class="s"></span>
+<span class="s">reason = </span><span class="si">%s</span><span class="s"></span>
+<span class="s">--------- data received ------------</span>
+<span class="si">%s</span><span class="s"></span>
+<span class="s">------------------------------------</span>
+<span class="s">####################################</span>
+<span class="s">&quot;&quot;&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">res</span><span class="o">.</span><span class="n">url</span><span class="p">,</span>
+       <span class="nb">str</span><span class="p">(</span><span class="n">res</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">headers</span><span class="p">),</span>
+       <span class="n">OLD_REQ</span> <span class="ow">and</span> <span class="n">res</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">data</span> <span class="ow">or</span> <span class="n">res</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">body</span><span class="p">,</span>
+       <span class="n">res</span><span class="o">.</span><span class="n">headers</span><span class="p">,</span>
+       <span class="n">res</span><span class="o">.</span><span class="n">status_code</span><span class="p">,</span>
+       <span class="n">res</span><span class="o">.</span><span class="n">reason</span><span class="p">,</span>
+       <span class="n">res</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="MetaForeman"><a class="viewcode-back" href="../../client.html#foreman.client.MetaForeman">[docs]</a><span class="k">class</span> <span class="nc">MetaForeman</span><span class="p">(</span><span class="nb">type</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__new__</span><span class="p">(</span><span class="n">meta</span><span class="p">,</span> <span class="n">cls_name</span><span class="p">,</span> <span class="n">bases</span><span class="p">,</span> <span class="n">attrs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This class is called when defining the Foreman class, and populates it</span>
+<span class="sd">        with the defined methods</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">mname</span><span class="p">,</span> <span class="n">funcs</span> <span class="ow">in</span> <span class="n">defs</span><span class="o">.</span><span class="n">DEFS</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+            <span class="k">for</span> <span class="n">fname</span><span class="p">,</span> <span class="n">fdef</span> <span class="ow">in</span> <span class="n">funcs</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+                <span class="n">full_fname</span> <span class="o">=</span> <span class="s">&#39;</span><span class="si">%s</span><span class="s">_</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="n">mname</span><span class="p">)</span>
+                <span class="n">newfunc</span> <span class="o">=</span> <span class="n">get_funct</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="n">mname</span><span class="p">,</span> <span class="n">fdef</span><span class="p">)</span>
+                <span class="n">attrs</span><span class="p">[</span><span class="n">full_fname</span><span class="p">]</span> <span class="o">=</span> <span class="n">newfunc</span>
+        <span class="k">for</span> <span class="n">plugin</span> <span class="ow">in</span> <span class="p">(</span> <span class="n">pl</span> <span class="k">for</span> <span class="n">pl</span> <span class="ow">in</span> <span class="n">plugins</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">pl</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&#39;_&#39;</span><span class="p">)):</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">myplugin</span> <span class="o">=</span> <span class="nb">__import__</span><span class="p">(</span><span class="s">&#39;foreman_api_plugins.&#39;</span> <span class="o">+</span> <span class="n">plugin</span><span class="p">,</span> <span class="nb">globals</span><span class="p">(),</span> <span class="nb">locals</span><span class="p">(),[</span><span class="s">&#39;DEFS&#39;</span><span class="p">])</span>
+            <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+                <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s">&#39;Unable to import plugin module </span><span class="si">%s</span><span class="s">&#39;</span>
+                             <span class="o">%</span> <span class="n">plugin</span><span class="p">)</span>
+                <span class="k">continue</span>
+            <span class="k">for</span> <span class="n">mname</span><span class="p">,</span> <span class="n">funcs</span> <span class="ow">in</span> <span class="n">myplugin</span><span class="o">.</span><span class="n">DEFS</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+                <span class="k">for</span> <span class="n">fname</span><span class="p">,</span> <span class="n">fdef</span> <span class="ow">in</span> <span class="n">funcs</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+                    <span class="k">if</span> <span class="n">mname</span> <span class="ow">in</span> <span class="p">[</span><span class="s">&#39;GET&#39;</span><span class="p">,</span> <span class="s">&#39;PUT&#39;</span><span class="p">,</span> <span class="s">&#39;POST&#39;</span><span class="p">,</span> <span class="s">&#39;DELETE&#39;</span><span class="p">]:</span>
+                        <span class="n">full_fname</span> <span class="o">=</span> <span class="n">fname</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">full_fname</span> <span class="o">=</span> <span class="s">&#39;</span><span class="si">%s</span><span class="s">_</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="n">mname</span><span class="p">)</span>
+                    <span class="n">newfunc</span> <span class="o">=</span> <span class="n">get_funct</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="n">mname</span><span class="p">,</span> <span class="n">fdef</span><span class="p">)</span>
+                    <span class="n">attrs</span><span class="p">[</span><span class="n">full_fname</span><span class="p">]</span> <span class="o">=</span> <span class="n">newfunc</span>
+        <span class="k">return</span> <span class="nb">type</span><span class="o">.</span><span class="n">__new__</span><span class="p">(</span><span class="n">meta</span><span class="p">,</span> <span class="n">cls_name</span><span class="p">,</span> <span class="n">bases</span><span class="p">,</span> <span class="n">attrs</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="Foreman"><a class="viewcode-back" href="../../client.html#foreman.client.Foreman">[docs]</a><span class="k">class</span> <span class="nc">Foreman</span><span class="p">():</span>
+    <span class="n">__metaclass__</span> <span class="o">=</span> <span class="n">MetaForeman</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="o">=</span><span class="s">&#39;http://localhost:3000&#39;</span><span class="p">,</span> <span class="n">auth</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">version</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param url: Full url to the foreman server</span>
+<span class="sd">        :param auth: Tuple with the user and the pass</span>
+<span class="sd">        :param version: Version string for the given foreman url. If None</span>
+<span class="sd">        given it will try to autodiscover it from the main page&#39;s footer.</span>
+
+<span class="sd">        Main client class.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">url</span> <span class="o">=</span> <span class="n">url</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_req_params</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s">&#39;verify&#39;</span><span class="p">:</span> <span class="bp">False</span><span class="p">,</span>
+                <span class="s">&#39;headers&#39;</span><span class="p">:</span> <span class="p">{}</span>
+                <span class="p">}</span>
+        <span class="k">if</span> <span class="n">auth</span> <span class="o">!=</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_req_params</span><span class="p">[</span><span class="s">&#39;auth&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">auth</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">version</span> <span class="o">=</span> <span class="n">version</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_foreman_version</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_extra_url</span> <span class="o">=</span> <span class="s">&#39;&#39;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">version</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;.&#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_extra_url</span> <span class="o">=</span> <span class="s">&#39;/api&#39;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">version</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;.&#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_req_params</span><span class="p">[</span><span class="s">&#39;headers&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+                <span class="p">{</span>
+                    <span class="s">&#39;Accept&#39;</span><span class="p">:</span> <span class="s">&#39;application/json&#39;</span><span class="p">,</span>
+                    <span class="s">&#39;Content-type&#39;</span><span class="p">:</span> <span class="s">&#39;application/json&#39;</span><span class="p">,</span>
+                <span class="p">})</span>
+
+<div class="viewcode-block" id="Foreman.get_foreman_version"><a class="viewcode-back" href="../../client.html#foreman.client.Foreman.get_foreman_version">[docs]</a>    <span class="k">def</span> <span class="nf">get_foreman_version</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Even if we have an api method that return the foreman version, we need</span>
+<span class="sd">        the version first to know it&#39;s path, so instead of that we get the</span>
+<span class="sd">        main page and extract the version from the footer.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_req_params</span><span class="p">)</span>
+        <span class="n">params</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s">&#39;headers&#39;</span><span class="p">)</span>
+        <span class="n">home_page</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">url</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">)</span>
+        <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s">r&#39;Version\s+(?P&lt;version&gt;\S+)&#39;</span><span class="p">,</span> <span class="n">home_page</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">match</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">match</span><span class="o">.</span><span class="n">groupdict</span><span class="p">()[</span><span class="s">&#39;version&#39;</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c"># on newer versions the version is in another page</span>
+            <span class="n">about_page</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">url</span> <span class="o">+</span> <span class="s">&#39;/api&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">)</span>
+            <span class="k">if</span> <span class="s">&#39;foreman_version&#39;</span> <span class="ow">in</span> <span class="n">about_page</span><span class="o">.</span><span class="n">headers</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">about_page</span><span class="o">.</span><span class="n">headers</span><span class="p">[</span><span class="s">&#39;foreman_version&#39;</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">ForemanVersionException</span><span class="p">(</span><span class="s">&#39;Unable to get version&#39;</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="Foreman.send_request"><a class="viewcode-back" href="../../client.html#foreman.client.Foreman.send_request">[docs]</a>    <span class="k">def</span> <span class="nf">send_request</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rtype</span><span class="p">,</span> <span class="n">mtype</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param rtype: Request type, one of [&#39;index&#39;, &#39;show&#39;, &#39;status&#39;, &#39;create&#39;, &#39;update&#39;, &#39;destroy&#39;, &#39;GET&#39;, &#39;POST&#39;, &#39;PUT&#39;, &#39;DELETE&#39;]</span>
+<span class="sd">        :param mtype: Model type, the data model with wich we are interacting, for example host or environment.</span>
+<span class="sd">        :param \*\*params: parameters for the api call</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># get rid of unnecessary parameters</span>
+        <span class="n">topop</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">params</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">val</span> <span class="o">==</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="n">topop</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">topop</span><span class="p">:</span>
+            <span class="n">params</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">rtype</span> <span class="ow">in</span> <span class="p">[</span><span class="s">&#39;index&#39;</span><span class="p">,</span> <span class="s">&#39;show&#39;</span><span class="p">,</span> <span class="s">&#39;status&#39;</span><span class="p">,</span>
+                     <span class="s">&#39;bootfiles&#39;</span><span class="p">,</span> <span class="s">&#39;build_pxe_default&#39;</span><span class="p">,</span>
+                     <span class="s">&#39;GET&#39;</span><span class="p">]:</span>
+            <span class="n">res</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">do_get</span><span class="p">(</span><span class="n">rtype</span><span class="p">,</span> <span class="n">mtype</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">rtype</span> <span class="ow">in</span> <span class="p">[</span><span class="s">&#39;create&#39;</span><span class="p">,</span> <span class="s">&#39;POST&#39;</span><span class="p">]:</span>
+            <span class="n">res</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">do_post</span><span class="p">(</span><span class="n">rtype</span><span class="p">,</span> <span class="n">mtype</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">rtype</span> <span class="ow">in</span> <span class="p">[</span><span class="s">&#39;update&#39;</span><span class="p">,</span> <span class="s">&#39;PUT&#39;</span><span class="p">]:</span>
+            <span class="n">res</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">do_put</span><span class="p">(</span><span class="n">rtype</span><span class="p">,</span> <span class="n">mtype</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">rtype</span> <span class="ow">in</span> <span class="p">[</span><span class="s">&#39;destroy&#39;</span><span class="p">,</span> <span class="s">&#39;DEL&#39;</span><span class="p">]:</span>
+            <span class="n">res</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">do_delete</span><span class="p">(</span><span class="n">rtype</span><span class="p">,</span> <span class="n">mtype</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s">&quot;Wrong method type </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">rtype</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">res</span><span class="o">.</span><span class="n">status_code</span> <span class="o">&lt;</span> <span class="mi">200</span> <span class="ow">or</span> <span class="n">res</span><span class="o">.</span><span class="n">status_code</span> <span class="o">&gt;=</span> <span class="mi">300</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">res</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">404</span><span class="p">:</span>
+                <span class="k">return</span> <span class="p">[]</span>
+            <span class="k">elif</span> <span class="n">res</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">406</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">Unacceptable</span><span class="p">(</span><span class="n">res</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">res_to_str</span><span class="p">(</span><span class="n">res</span><span class="p">))</span>
+            <span class="k">raise</span> <span class="n">ForemanException</span><span class="p">(</span><span class="n">res</span><span class="p">,</span> <span class="s">&#39;Something went wrong&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="s">&#39;headers&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_req_params</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">OLD_REQ</span> <span class="ow">and</span> <span class="n">res</span><span class="o">.</span><span class="n">json</span> <span class="ow">or</span> <span class="n">res</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">res</span><span class="o">.</span><span class="n">text</span>
+</div>
+<div class="viewcode-block" id="Foreman.do_get"><a class="viewcode-back" href="../../client.html#foreman.client.Foreman.do_get">[docs]</a>    <span class="k">def</span> <span class="nf">do_get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rtype</span><span class="p">,</span> <span class="n">mtype</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param rtype: Request type, one of [&#39;index&#39;, &#39;show&#39;, &#39;status&#39;, &#39;create&#39;, &#39;update&#39;, &#39;destroy&#39;]</span>
+<span class="sd">        :param mtype: Model type, the data model with wich we are interacting, for example host or environment.</span>
+<span class="sd">        :param \*\*kwargs: parameters for the api call</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c">## The special &#39;home&#39; model type does not have the same url format</span>
+        <span class="k">if</span> <span class="n">mtype</span> <span class="o">==</span> <span class="s">&#39;home&#39;</span><span class="p">:</span>
+            <span class="n">res</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;</span><span class="si">%s</span><span class="s">/</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span>
+                                        <span class="bp">self</span><span class="o">.</span><span class="n">url</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extra_url</span><span class="p">,</span>
+                                        <span class="n">rtype</span> <span class="o">==</span> <span class="s">&#39;status&#39;</span> <span class="ow">and</span> <span class="n">rtype</span> <span class="ow">or</span> <span class="s">&#39;&#39;</span><span class="p">),</span>
+                               <span class="n">params</span><span class="o">=</span><span class="n">kwargs</span><span class="p">,</span>
+                               <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_req_params</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">rtype</span> <span class="ow">in</span> <span class="p">[</span><span class="s">&#39;index&#39;</span><span class="p">,</span> <span class="s">&#39;GET&#39;</span><span class="p">]:</span>
+            <span class="n">res</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;</span><span class="si">%s</span><span class="s">/</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span>
+                                        <span class="bp">self</span><span class="o">.</span><span class="n">url</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extra_url</span><span class="p">,</span>
+                                        <span class="n">mtype</span><span class="p">),</span>
+                               <span class="n">params</span><span class="o">=</span><span class="n">kwargs</span><span class="p">,</span>
+                               <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_req_params</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">rtype</span> <span class="o">==</span> <span class="s">&#39;show&#39;</span><span class="p">:</span>
+            <span class="n">elem_id</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s">&#39;id&#39;</span><span class="p">)</span>
+            <span class="n">res</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;</span><span class="si">%s</span><span class="s">/</span><span class="si">%s</span><span class="s">/</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span>
+                                            <span class="bp">self</span><span class="o">.</span><span class="n">url</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extra_url</span><span class="p">,</span>
+                                            <span class="n">mtype</span><span class="p">,</span>
+                                            <span class="n">elem_id</span><span class="p">),</span>
+                               <span class="n">params</span><span class="o">=</span><span class="n">kwargs</span><span class="p">,</span>
+                               <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_req_params</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">rtype</span> <span class="o">==</span> <span class="s">&#39;status&#39;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">version</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&#39;1.1&#39;</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="n">ForemanVersionException</span><span class="p">(</span>
+                                <span class="s">&#39;Not available for Foreman versions &#39;</span>
+                                <span class="s">&#39;below 1.1&#39;</span><span class="p">)</span>
+            <span class="n">elem_id</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s">&#39;id&#39;</span><span class="p">)</span>
+            <span class="n">res</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;</span><span class="si">%s</span><span class="s">/</span><span class="si">%s</span><span class="s">/</span><span class="si">%s</span><span class="s">/status&#39;</span> <span class="o">%</span> <span class="p">(</span>
+                                            <span class="bp">self</span><span class="o">.</span><span class="n">url</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extra_url</span><span class="p">,</span>
+                                            <span class="n">mtype</span><span class="p">,</span>
+                                            <span class="n">elem_id</span><span class="p">),</span>
+                               <span class="n">params</span><span class="o">=</span><span class="n">kwargs</span><span class="p">,</span>
+                               <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_req_params</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">rtype</span> <span class="o">==</span> <span class="s">&#39;bootfiles&#39;</span><span class="p">:</span>
+            <span class="n">elem_id</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s">&#39;id&#39;</span><span class="p">)</span>
+            <span class="n">res</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;</span><span class="si">%s</span><span class="s">/</span><span class="si">%s</span><span class="s">/</span><span class="si">%s</span><span class="s">/bootfiles&#39;</span> <span class="o">%</span> <span class="p">(</span>
+                                            <span class="bp">self</span><span class="o">.</span><span class="n">url</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extra_url</span><span class="p">,</span>
+                                            <span class="n">mtype</span><span class="p">,</span>
+                                            <span class="n">elem_id</span><span class="p">),</span>
+                               <span class="n">params</span><span class="o">=</span><span class="n">kwargs</span><span class="p">,</span>
+                               <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_req_params</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">rtype</span> <span class="o">==</span> <span class="s">&#39;build_pxe_default&#39;</span><span class="p">:</span>
+            <span class="n">res</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;</span><span class="si">%s</span><span class="s">/</span><span class="si">%s</span><span class="s">/build_pxe_default&#39;</span> <span class="o">%</span> <span class="p">(</span>
+                                            <span class="bp">self</span><span class="o">.</span><span class="n">url</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extra_url</span><span class="p">,</span>
+                                            <span class="n">mtype</span><span class="p">),</span>
+                               <span class="n">params</span><span class="o">=</span><span class="n">kwargs</span><span class="p">,</span>
+                               <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_req_params</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">res</span>
+</div>
+<div class="viewcode-block" id="Foreman.do_post"><a class="viewcode-back" href="../../client.html#foreman.client.Foreman.do_post">[docs]</a>    <span class="k">def</span> <span class="nf">do_post</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rtype</span><span class="p">,</span> <span class="n">mtype</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param rtype: Request type, one of [&#39;index&#39;, &#39;show&#39;, &#39;status&#39;, &#39;create&#39;, &#39;update&#39;, &#39;destroy&#39;]</span>
+<span class="sd">        :param mtype: Model type, the data model with wich we are interacting, for example host or environment.</span>
+<span class="sd">        :param \*\*kwargs: parameters for the api call</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">rtype</span> <span class="ow">in</span> <span class="p">[</span><span class="s">&#39;create&#39;</span><span class="p">,</span> <span class="s">&#39;POST&#39;</span><span class="p">]:</span>
+            <span class="n">res</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s">&#39;</span><span class="si">%s</span><span class="s">/</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span>
+                                          <span class="bp">self</span><span class="o">.</span><span class="n">url</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extra_url</span><span class="p">,</span>
+                                        <span class="n">mtype</span><span class="p">),</span>
+                                <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span>
+                                <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_req_params</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">res</span>
+</div>
+<div class="viewcode-block" id="Foreman.do_put"><a class="viewcode-back" href="../../client.html#foreman.client.Foreman.do_put">[docs]</a>    <span class="k">def</span> <span class="nf">do_put</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rtype</span><span class="p">,</span> <span class="n">mtype</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param rtype: Request type, one of [&#39;index&#39;, &#39;show&#39;, &#39;status&#39;, &#39;create&#39;, &#39;update&#39;, &#39;destroy&#39;]</span>
+<span class="sd">        :param mtype: Model type, the data model with wich we are interacting, for example host or environment.</span>
+<span class="sd">        :param \*\*kwargs: parameters for the api call</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">mid</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s">&#39;id&#39;</span><span class="p">)</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">rtype</span> <span class="ow">in</span> <span class="p">[</span><span class="s">&#39;PUT&#39;</span><span class="p">,</span> <span class="s">&#39;update&#39;</span><span class="p">]:</span>
+            <span class="n">res</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="s">&#39;</span><span class="si">%s</span><span class="s">/</span><span class="si">%s</span><span class="s">/</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span>
+                                            <span class="bp">self</span><span class="o">.</span><span class="n">url</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extra_url</span><span class="p">,</span>
+                                            <span class="n">mtype</span><span class="p">,</span>
+                                            <span class="n">mid</span><span class="p">),</span>
+                                <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span>
+                                <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_req_params</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">res</span>
+</div>
+<div class="viewcode-block" id="Foreman.do_delete"><a class="viewcode-back" href="../../client.html#foreman.client.Foreman.do_delete">[docs]</a>    <span class="k">def</span> <span class="nf">do_delete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rtype</span><span class="p">,</span> <span class="n">mtype</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param rtype: Request type, one of [&#39;index&#39;, &#39;show&#39;, &#39;status&#39;, &#39;create&#39;, &#39;update&#39;, &#39;destroy&#39;]</span>
+<span class="sd">        :param mtype: Model type, the data model with wich we are interacting, for example host or environment.</span>
+<span class="sd">        :param \*\*kwargs: parameters for the api call</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">rtype</span> <span class="ow">in</span> <span class="p">[</span><span class="s">&#39;DELETE&#39;</span><span class="p">,</span> <span class="s">&#39;destroy&#39;</span><span class="p">]:</span>
+            <span class="n">elem_id</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s">&#39;id&#39;</span><span class="p">)</span>
+            <span class="n">res</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="s">&#39;</span><span class="si">%s</span><span class="s">/</span><span class="si">%s</span><span class="s">/</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span>
+                                               <span class="bp">self</span><span class="o">.</span><span class="n">url</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extra_url</span><span class="p">,</span>
+                                               <span class="n">mtype</span><span class="p">,</span>
+                                               <span class="n">elem_id</span><span class="p">),</span>
+                                  <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_req_params</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">res</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">Foreman API 0.1 documentation</a> &raquo;</li>
+          <li><a href="../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, David Caro &lt;dcaroest@redhat.com&gt;.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>
