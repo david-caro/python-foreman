@@ -17,7 +17,7 @@ Let's see it in action, if we have this on our directory::
    \-- client.py
 
 
-And we import the module :mod:`foreman_api.client`, we will end up with this::
+And we import the module :mod:`foreman.client`, we will end up with this::
 
 
 
@@ -30,4 +30,4 @@ And we import the module :mod:`foreman_api.client`, we will end up with this::
 **Notice**: it will not overwrite it if it does find the module, so to update
 the file you must rename it and import the module.
 
-The function that generates the file is :class:`foreman_api.client.generate_defs_file`.
+The function that generates the file is :class:`foreman.client.generate_defs_file`.

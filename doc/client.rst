@@ -1,6 +1,6 @@
 Client module documentation
 =======================================
 
-.. automodule:: foreman_api.client
+.. automodule:: foreman.client
     :members:
     :undoc-members:

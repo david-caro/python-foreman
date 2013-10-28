@@ -5,10 +5,10 @@ Basic Tutorial
 Connect
 ----------------------
 
-To connect to a foreman server just instantiate a :class:`foreman_api.client.Foreman` object with the server's url and authentication aprameters, like this:
+To connect to a foreman server just instantiate a :class:`foreman.client.Foreman` object with the server's url and authentication aprameters, like this:
 
 >>> from getpass import getpass
->>> from foreman_api.client import Foreman
+>>> from foreman.client import Foreman
 >>> f = Foreman('http://myforeman.server:3000', ('myuser', getpass()))
 
 

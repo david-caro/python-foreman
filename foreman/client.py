@@ -51,15 +51,14 @@ class ForemanVersionException(Exception):
     pass
 
 
-BASE_DOC_URL = "http://theforeman.org/api/apidoc.html"
+BASE_DOC_URL = "http://theforeman.org/api"
 
 
 def get_methods_urls():
     """
     Get the first level of the pages of the documentation
     """
-    methodslist = requests.get(BASE_DOC_URL).text
-    import pdb; pdb.set_trace()
+    methodslist = requests.get(BASE_DOC_URL + '/apidoc.html').text
     match_method = re.compile(r'.*(?P<url>/apidoc/(?P<main>[^/]+)/'
                               r'(?P<mtype>[^/]+).html)')
     methods = {}
@@ -79,7 +78,7 @@ def get_method_definition(method_url):
 
     For a specific method url doc page, return it's definition
     """
-    method_page = requests.get(BASE_DOC_URL + method_url).text
+    method_page = requests.get(BASE_DOC_URL + '/' +  method_url).text
     method_page = method_page.splitlines()
     method_page.reverse()
     match_def = re.compile(r'.*((?P<required>(required|optional))|'
@@ -306,7 +305,7 @@ class Foreman():
         if match:
             return match.groupdict()['version']
         else:
-            # on newer versions the version is in another page
+            # on newer versions the version is in the headers
             about_page = requests.get(self.url + '/api', **params)
             if 'foreman_version' in about_page.headers:
                 return about_page.headers['foreman_version']
