@@ -16,9 +16,9 @@ try:
 except ImportError, e:
     download_defs = True
 try:
-    import foreman_api_plugins
+    import foreman_plugins
     import os.path, pkgutil
-    pkg_path = os.path.dirname(foreman_api_plugins.__file__)
+    pkg_path = os.path.dirname(foreman_plugins.__file__)
     plugins = [name for _, name, _ in pkgutil.iter_modules([pkg_path])]
 except ImportError:
     plugins = []
@@ -246,7 +246,7 @@ class MetaForeman(type):
                 attrs[full_fname] = newfunc
         for plugin in ( pl for pl in plugins if not pl.startswith('_')):
             try:
-                myplugin = __import__('foreman_api_plugins.' + plugin, globals(), locals(),['DEFS'])
+                myplugin = __import__('foreman_plugins.' + plugin, globals(), locals(),['DEFS'])
             except ImportError:
                 logging.error('Unable to import plugin module %s'
                              % plugin)
@@ -275,18 +275,18 @@ class Foreman():
         Main client class.
         """
         self.url = url
+        self.session = requests.Session()
         self._req_params = {
                 'verify': False,
-                'headers': {}
                 }
         if auth != None:
-            self._req_params['auth'] = auth
+            self.session.auth = auth
         self.version = version or self.get_foreman_version()
         self._extra_url = ''
         if self.version.split('.')[1] >= 1:
             self._extra_url = '/api'
         if self.version.split('.')[1] <= 1:
-            self._req_params['headers'].update(
+            self.session.headers.update(
                 {
                     'Accept': 'application/json',
                     'Content-type': 'application/json',
@@ -299,14 +299,13 @@ class Foreman():
         main page and extract the version from the footer.
         """
         params = dict(self._req_params)
-        params.pop('headers')
-        home_page = requests.get(self.url, **params)
+        home_page = self.session.get(self.url, **params)
         match = re.search(r'Version\s+(?P<version>\S+)', home_page.text)
         if match:
             return match.groupdict()['version']
         else:
             # on newer versions the version is in the headers
-            about_page = requests.get(self.url + '/api', **params)
+            about_page = self.session.get(self.url + '/api', **params)
             if 'foreman_version' in about_page.headers:
                 return about_page.headers['foreman_version']
             else:
@@ -355,21 +354,23 @@ class Foreman():
         :param \*\*kwargs: parameters for the api call
         """
         ## The special 'home' model type does not have the same url format
+        if not self.session:
+            self.session = requests.Session()
         if mtype == 'home':
-            res = requests.get('%s/%s' % (
+            res = self.session.get('%s/%s' % (
                                         self.url + self._extra_url,
                                         rtype == 'status' and rtype or ''),
                                params=kwargs,
                                **self._req_params)
         elif rtype in ['index', 'GET']:
-            res = requests.get('%s/%s' % (
+            res = self.session.get('%s/%s' % (
                                         self.url + self._extra_url,
                                         mtype),
                                params=kwargs,
                                **self._req_params)
         elif rtype == 'show':
             elem_id = kwargs.pop('id')
-            res = requests.get('%s/%s/%s' % (
+            res = self.session.get('%s/%s/%s' % (
                                             self.url + self._extra_url,
                                             mtype,
                                             elem_id),
@@ -381,7 +382,7 @@ class Foreman():
                                 'Not available for Foreman versions '
                                 'below 1.1')
             elem_id = kwargs.pop('id')
-            res = requests.get('%s/%s/%s/status' % (
+            res = self.session.get('%s/%s/%s/status' % (
                                             self.url + self._extra_url,
                                             mtype,
                                             elem_id),
@@ -389,14 +390,14 @@ class Foreman():
                                **self._req_params)
         elif rtype == 'bootfiles':
             elem_id = kwargs.pop('id')
-            res = requests.get('%s/%s/%s/bootfiles' % (
+            res = self.sessions.get('%s/%s/%s/bootfiles' % (
                                             self.url + self._extra_url,
                                             mtype,
                                             elem_id),
                                params=kwargs,
                                **self._req_params)
         elif rtype == 'build_pxe_default':
-            res = requests.get('%s/%s/build_pxe_default' % (
+            res = self.session.get('%s/%s/build_pxe_default' % (
                                             self.url + self._extra_url,
                                             mtype),
                                params=kwargs,
@@ -411,7 +412,7 @@ class Foreman():
         """
         data = json.dumps(kwargs)
         if rtype in ['create', 'POST']:
-            res = requests.post('%s/%s' % (
+            res = self.session.post('%s/%s' % (
                                           self.url + self._extra_url,
                                         mtype),
                                 data=data,
@@ -427,7 +428,7 @@ class Foreman():
         mid = kwargs.pop('id')
         data = json.dumps(kwargs)
         if rtype in ['PUT', 'update']:
-            res = requests.put('%s/%s/%s' % (
+            res = self.session.put('%s/%s/%s' % (
                                             self.url + self._extra_url,
                                             mtype,
                                             mid),
@@ -443,7 +444,7 @@ class Foreman():
         """
         if rtype in ['DELETE', 'destroy']:
             elem_id = kwargs.pop('id')
-            res = requests.delete('%s/%s/%s' % (
+            res = self.session.delete('%s/%s/%s' % (
                                                self.url + self._extra_url,
                                                mtype,
                                                elem_id),
