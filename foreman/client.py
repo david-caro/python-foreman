@@ -17,7 +17,8 @@ except ImportError, e:
     download_defs = True
 try:
     import foreman_plugins
-    import os.path, pkgutil
+    import os.path
+    import pkgutil
     pkg_path = os.path.dirname(foreman_plugins.__file__)
     plugins = [name for _, name, _ in pkgutil.iter_modules([pkg_path])]
 except ImportError:
@@ -38,6 +39,7 @@ class ForemanException(Exception):
         """
         Exception.__init__(self, msg)
         self.res = res
+
 
 class ObjectNotFound(ForemanException):
     pass
@@ -78,7 +80,7 @@ def get_method_definition(method_url):
 
     For a specific method url doc page, return it's definition
     """
-    method_page = requests.get(BASE_DOC_URL + '/' +  method_url).text
+    method_page = requests.get(BASE_DOC_URL + '/' + method_url).text
     method_page = method_page.splitlines()
     method_page.reverse()
     match_def = re.compile(r'.*((?P<required>(required|optional))|'
@@ -131,7 +133,8 @@ def generate_defs_file(fname='definitions.py'):
 
 def gen_fun_line(params):
     """
-    :param params: Dict with the funciton parameters as found in the definitions file
+    :param params: Dict with the funciton parameters as found in the
+    definitions file
 
     Generates the python code that defines a function from it's definition
     """
@@ -157,8 +160,8 @@ def gen_fun_doc(fdef):
     for arg, val in fdef.iteritems():
         arg = arg.strip()
         doc_str += '\n\t:param %s: type %s, %s' % (
-                               arg, val['ptype'].strip(),
-                               val['required'] and 'required' or 'optional')
+            arg, val['ptype'].strip(),
+            val['required'] and 'required' or 'optional')
     return doc_str
 
 
@@ -171,8 +174,8 @@ def get_funct(fname, mname, fdef):
     Generate the function from the given function and definition
     """
     params = ['{0}={0}'.format(i.strip())
-                               for i in fdef.iterkeys()
-                               if '[' not in i]
+              for i in fdef.iterkeys()
+              if '[' not in i]
     if mname in ['GET', 'POST', 'PUT', 'DELETE']:
         fun_name, fname, mname = fname, mname, fname
     else:
@@ -182,7 +185,8 @@ def {5}({0}):
     """
     {1}
     """
-    return self.send_request('{2}',mtype='{3}', {4})'''.format(gen_fun_line(fdef),
+    return self.send_request('{2}',mtype='{3}', {4})'''.format(
+        gen_fun_line(fdef),
         gen_fun_doc(fdef),
         fname,
         mname,
@@ -244,12 +248,14 @@ class MetaForeman(type):
                 full_fname = '%s_%s' % (fname, mname)
                 newfunc = get_funct(fname, mname, fdef)
                 attrs[full_fname] = newfunc
-        for plugin in ( pl for pl in plugins if not pl.startswith('_')):
+        for plugin in (pl for pl in plugins if not pl.startswith('_')):
             try:
-                myplugin = __import__('foreman_plugins.' + plugin, globals(), locals(),['DEFS'])
+                myplugin = __import__('foreman_plugins.' + plugin, globals(),
+                                      locals(),
+                                      ['DEFS'])
             except ImportError:
                 logging.error('Unable to import plugin module %s'
-                             % plugin)
+                              % plugin)
                 continue
             for mname, funcs in myplugin.DEFS.iteritems():
                 for fname, fdef in funcs.iteritems():
@@ -277,20 +283,19 @@ class Foreman():
         self.url = url
         self.session = requests.Session()
         self._req_params = {
-                'verify': False,
-                }
-        if auth != None:
+            'verify': False,
+            }
+        if auth is not None:
             self.session.auth = auth
         self.version = version or self.get_foreman_version()
         self._extra_url = ''
         if self.version.split('.')[1] >= 1:
             self._extra_url = '/api'
-        if self.version.split('.')[1] <= 1:
-            self.session.headers.update(
-                {
-                    'Accept': 'application/json',
-                    'Content-type': 'application/json',
-                })
+        self.session.headers.update(
+            {
+                'Accept': 'application/json',
+                'Content-type': 'application/json',
+            })
 
     def get_foreman_version(self):
         """
@@ -313,14 +318,16 @@ class Foreman():
 
     def send_request(self, rtype, mtype, **params):
         """
-        :param rtype: Request type, one of ['index', 'show', 'status', 'create', 'update', 'destroy', 'GET', 'POST', 'PUT', 'DELETE']
-        :param mtype: Model type, the data model with wich we are interacting, for example host or environment.
+        :param rtype: Request type, one of ['index', 'show', 'status',
+        'create', 'update', 'destroy', 'GET', 'POST', 'PUT', 'DELETE']
+        :param mtype: Model type, the data model with wich we are interacting,
+        for example host or environment.
         :param \*\*params: parameters for the api call
         """
         # get rid of unnecessary parameters
         topop = []
         for key, val in params.iteritems():
-            if val == None:
+            if val is None:
                 topop.append(key)
         for key in topop:
             params.pop(key)
@@ -343,110 +350,128 @@ class Foreman():
                 raise Unacceptable(res, None)
             logging.error(res_to_str(res))
             raise ForemanException(res, 'Something went wrong')
-        if 'headers' in self._req_params:
+        try:
             return OLD_REQ and res.json or res.json()
-        return res.text
+        except requests.JSONDecodeError, e:
+            return res.text
 
     def do_get(self, rtype, mtype, **kwargs):
         """
-        :param rtype: Request type, one of ['index', 'show', 'status', 'create', 'update', 'destroy']
-        :param mtype: Model type, the data model with wich we are interacting, for example host or environment.
+        :param rtype: Request type, one of ['index', 'show', 'status',
+        'create', 'update', 'destroy']
+        :param mtype: Model type, the data model with wich we are interacting,
+        for example host or environment.
         :param \*\*kwargs: parameters for the api call
         """
         ## The special 'home' model type does not have the same url format
         if not self.session:
             self.session = requests.Session()
         if mtype == 'home':
-            res = self.session.get('%s/%s' % (
-                                        self.url + self._extra_url,
-                                        rtype == 'status' and rtype or ''),
-                               params=kwargs,
-                               **self._req_params)
+            res = self.session.get(
+                '%s/%s' % (
+                    self.url + self._extra_url,
+                    rtype == 'status' and rtype or ''),
+                params=kwargs,
+                **self._req_params)
         elif rtype in ['index', 'GET']:
-            res = self.session.get('%s/%s' % (
-                                        self.url + self._extra_url,
-                                        mtype),
-                               params=kwargs,
-                               **self._req_params)
+            res = self.session.get(
+                '%s/%s' % (
+                    self.url + self._extra_url,
+                    mtype),
+                params=kwargs,
+                **self._req_params)
         elif rtype == 'show':
             elem_id = kwargs.pop('id')
-            res = self.session.get('%s/%s/%s' % (
-                                            self.url + self._extra_url,
-                                            mtype,
-                                            elem_id),
-                               params=kwargs,
-                               **self._req_params)
+            res = self.session.get(
+                '%s/%s/%s' % (
+                    self.url + self._extra_url,
+                    mtype,
+                    elem_id),
+                params=kwargs,
+                **self._req_params)
         elif rtype == 'status':
             if not self.version.startswith('1.1'):
                 raise ForemanVersionException(
-                                'Not available for Foreman versions '
-                                'below 1.1')
+                    'Not available for Foreman versions '
+                    'below 1.1')
             elem_id = kwargs.pop('id')
-            res = self.session.get('%s/%s/%s/status' % (
-                                            self.url + self._extra_url,
-                                            mtype,
-                                            elem_id),
-                               params=kwargs,
-                               **self._req_params)
+            res = self.session.get(
+                '%s/%s/%s/status' % (
+                    self.url + self._extra_url,
+                    mtype,
+                    elem_id),
+                params=kwargs,
+                **self._req_params)
         elif rtype == 'bootfiles':
             elem_id = kwargs.pop('id')
-            res = self.sessions.get('%s/%s/%s/bootfiles' % (
-                                            self.url + self._extra_url,
-                                            mtype,
-                                            elem_id),
-                               params=kwargs,
-                               **self._req_params)
+            res = self.sessions.get(
+                '%s/%s/%s/bootfiles' % (
+                    self.url + self._extra_url,
+                    mtype,
+                    elem_id),
+                params=kwargs,
+                **self._req_params)
         elif rtype == 'build_pxe_default':
-            res = self.session.get('%s/%s/build_pxe_default' % (
-                                            self.url + self._extra_url,
-                                            mtype),
-                               params=kwargs,
-                               **self._req_params)
+            res = self.session.get(
+                '%s/%s/build_pxe_default' % (
+                    self.url + self._extra_url,
+                    mtype),
+                params=kwargs,
+                **self._req_params)
         return res
 
     def do_post(self, rtype, mtype, **kwargs):
         """
-        :param rtype: Request type, one of ['index', 'show', 'status', 'create', 'update', 'destroy']
-        :param mtype: Model type, the data model with wich we are interacting, for example host or environment.
+        :param rtype: Request type, one of ['index', 'show', 'status',
+        'create', 'update', 'destroy']
+        :param mtype: Model type, the data model with wich we are interacting,
+        for example host or environment.
         :param \*\*kwargs: parameters for the api call
         """
         data = json.dumps(kwargs)
         if rtype in ['create', 'POST']:
-            res = self.session.post('%s/%s' % (
-                                          self.url + self._extra_url,
-                                        mtype),
-                                data=data,
-                                **self._req_params)
+            res = self.session.post(
+                '%s/%s' % (
+                    self.url + self._extra_url,
+                    mtype),
+                data=data,
+                **self._req_params)
         return res
 
     def do_put(self, rtype, mtype, **kwargs):
         """
-        :param rtype: Request type, one of ['index', 'show', 'status', 'create', 'update', 'destroy']
-        :param mtype: Model type, the data model with wich we are interacting, for example host or environment.
+        :param rtype: Request type, one of ['index', 'show', 'status',
+        'create', 'update', 'destroy']
+        :param mtype: Model type, the data model with wich we are interacting,
+        for example host or environment.
         :param \*\*kwargs: parameters for the api call
         """
         mid = kwargs.pop('id')
         data = json.dumps(kwargs)
         if rtype in ['PUT', 'update']:
-            res = self.session.put('%s/%s/%s' % (
-                                            self.url + self._extra_url,
-                                            mtype,
-                                            mid),
-                                data=data,
-                                **self._req_params)
+            res = self.session.put(
+                '%s/%s/%s' % (
+                    self.url + self._extra_url,
+                    mtype,
+                    mid),
+                data=data,
+                **self._req_params)
         return res
 
     def do_delete(self, rtype, mtype, **kwargs):
         """
-        :param rtype: Request type, one of ['index', 'show', 'status', 'create', 'update', 'destroy']
-        :param mtype: Model type, the data model with wich we are interacting, for example host or environment.
+        :param rtype: Request type, one of ['index', 'show', 'status',
+        'create', 'update', 'destroy']
+        :param mtype: Model type, the data model with wich we are interacting,
+        for example host or environment.
         :param \*\*kwargs: parameters for the api call
         """
         if rtype in ['DELETE', 'destroy']:
             elem_id = kwargs.pop('id')
-            res = self.session.delete('%s/%s/%s' % (
-                                               self.url + self._extra_url,
-                                               mtype,
-                                               elem_id),
-                                  **self._req_params)
+            res = self.session.delete(
+                '%s/%s/%s' % (
+                    self.url + self._extra_url,
+                    mtype,
+                    elem_id),
+                **self._req_params)
         return res
