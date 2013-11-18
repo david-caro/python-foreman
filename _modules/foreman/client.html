@@ -8,7 +8,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>foreman.client &mdash; Foreman API 0.1 documentation</title>
+    <title>foreman.client &mdash; Python Foreman 0.1.2 documentation</title>
     
     <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
@@ -16,7 +16,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     '0.1',
+        VERSION:     '0.1.2',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../_static/doctools.js"></script>
-    <link rel="top" title="Foreman API 0.1 documentation" href="../../index.html" />
+    <link rel="top" title="Python Foreman 0.1.2 documentation" href="../../index.html" />
     <link rel="up" title="Module code" href="../index.html" /> 
   </head>
   <body>
@@ -38,7 +38,7 @@
         <li class="right" >
           <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li><a href="../../index.html">Foreman API 0.1 documentation</a> &raquo;</li>
+        <li><a href="../../index.html">Python Foreman 0.1.2 documentation</a> &raquo;</li>
           <li><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
       </ul>
     </div>  
@@ -67,9 +67,10 @@
 <span class="k">except</span> <span class="ne">ImportError</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
     <span class="n">download_defs</span> <span class="o">=</span> <span class="bp">True</span>
 <span class="k">try</span><span class="p">:</span>
-    <span class="kn">import</span> <span class="nn">foreman_api_plugins</span>
-    <span class="kn">import</span> <span class="nn">os.path</span><span class="o">,</span> <span class="nn">pkgutil</span>
-    <span class="n">pkg_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">foreman_api_plugins</span><span class="o">.</span><span class="n">__file__</span><span class="p">)</span>
+    <span class="kn">import</span> <span class="nn">foreman_plugins</span>
+    <span class="kn">import</span> <span class="nn">os.path</span>
+    <span class="kn">import</span> <span class="nn">pkgutil</span>
+    <span class="n">pkg_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">foreman_plugins</span><span class="o">.</span><span class="n">__file__</span><span class="p">)</span>
     <span class="n">plugins</span> <span class="o">=</span> <span class="p">[</span><span class="n">name</span> <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">pkgutil</span><span class="o">.</span><span class="n">iter_modules</span><span class="p">([</span><span class="n">pkg_path</span><span class="p">])]</span>
 <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
     <span class="n">plugins</span> <span class="o">=</span> <span class="p">[]</span>
@@ -89,6 +90,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="ne">Exception</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msg</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">res</span> <span class="o">=</span> <span class="n">res</span>
+
 </div>
 <div class="viewcode-block" id="ObjectNotFound"><a class="viewcode-back" href="../../client.html#foreman.client.ObjectNotFound">[docs]</a><span class="k">class</span> <span class="nc">ObjectNotFound</span><span class="p">(</span><span class="n">ForemanException</span><span class="p">):</span>
     <span class="k">pass</span>
@@ -102,15 +104,14 @@
     <span class="k">pass</span>
 
 </div>
-<span class="n">BASE_DOC_URL</span> <span class="o">=</span> <span class="s">&quot;http://theforeman.org/api/apidoc.html&quot;</span>
+<span class="n">BASE_DOC_URL</span> <span class="o">=</span> <span class="s">&quot;http://theforeman.org/api&quot;</span>
 
 
 <div class="viewcode-block" id="get_methods_urls"><a class="viewcode-back" href="../../client.html#foreman.client.get_methods_urls">[docs]</a><span class="k">def</span> <span class="nf">get_methods_urls</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Get the first level of the pages of the documentation</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">methodslist</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">BASE_DOC_URL</span><span class="p">)</span><span class="o">.</span><span class="n">text</span>
-    <span class="kn">import</span> <span class="nn">pdb</span><span class="p">;</span> <span class="n">pdb</span><span class="o">.</span><span class="n">set_trace</span><span class="p">()</span>
+    <span class="n">methodslist</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">BASE_DOC_URL</span> <span class="o">+</span> <span class="s">&#39;/apidoc.html&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">text</span>
     <span class="n">match_method</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s">r&#39;.*(?P&lt;url&gt;/apidoc/(?P&lt;main&gt;[^/]+)/&#39;</span>
                               <span class="s">r&#39;(?P&lt;mtype&gt;[^/]+).html)&#39;</span><span class="p">)</span>
     <span class="n">methods</span> <span class="o">=</span> <span class="p">{}</span>
@@ -130,7 +131,7 @@
 
 <span class="sd">    For a specific method url doc page, return it&#39;s definition</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">method_page</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">BASE_DOC_URL</span> <span class="o">+</span> <span class="n">method_url</span><span class="p">)</span><span class="o">.</span><span class="n">text</span>
+    <span class="n">method_page</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">BASE_DOC_URL</span> <span class="o">+</span> <span class="s">&#39;/&#39;</span> <span class="o">+</span> <span class="n">method_url</span><span class="p">)</span><span class="o">.</span><span class="n">text</span>
     <span class="n">method_page</span> <span class="o">=</span> <span class="n">method_page</span><span class="o">.</span><span class="n">splitlines</span><span class="p">()</span>
     <span class="n">method_page</span><span class="o">.</span><span class="n">reverse</span><span class="p">()</span>
     <span class="n">match_def</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s">r&#39;.*((?P&lt;required&gt;(required|optional))|&#39;</span>
@@ -183,7 +184,8 @@
 </div>
 <div class="viewcode-block" id="gen_fun_line"><a class="viewcode-back" href="../../client.html#foreman.client.gen_fun_line">[docs]</a><span class="k">def</span> <span class="nf">gen_fun_line</span><span class="p">(</span><span class="n">params</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    :param params: Dict with the funciton parameters as found in the definitions file</span>
+<span class="sd">    :param params: Dict with the funciton parameters as found in the</span>
+<span class="sd">    definitions file</span>
 
 <span class="sd">    Generates the python code that defines a function from it&#39;s definition</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -209,8 +211,8 @@
     <span class="k">for</span> <span class="n">arg</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">fdef</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
         <span class="n">arg</span> <span class="o">=</span> <span class="n">arg</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
         <span class="n">doc_str</span> <span class="o">+=</span> <span class="s">&#39;</span><span class="se">\n\t</span><span class="s">:param </span><span class="si">%s</span><span class="s">: type </span><span class="si">%s</span><span class="s">, </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span>
-                               <span class="n">arg</span><span class="p">,</span> <span class="n">val</span><span class="p">[</span><span class="s">&#39;ptype&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">(),</span>
-                               <span class="n">val</span><span class="p">[</span><span class="s">&#39;required&#39;</span><span class="p">]</span> <span class="ow">and</span> <span class="s">&#39;required&#39;</span> <span class="ow">or</span> <span class="s">&#39;optional&#39;</span><span class="p">)</span>
+            <span class="n">arg</span><span class="p">,</span> <span class="n">val</span><span class="p">[</span><span class="s">&#39;ptype&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">(),</span>
+            <span class="n">val</span><span class="p">[</span><span class="s">&#39;required&#39;</span><span class="p">]</span> <span class="ow">and</span> <span class="s">&#39;required&#39;</span> <span class="ow">or</span> <span class="s">&#39;optional&#39;</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">doc_str</span>
 
 </div>
@@ -223,8 +225,8 @@
 <span class="sd">    Generate the function from the given function and definition</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">params</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;{0}={0}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
-                               <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">fdef</span><span class="o">.</span><span class="n">iterkeys</span><span class="p">()</span>
-                               <span class="k">if</span> <span class="s">&#39;[&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">i</span><span class="p">]</span>
+              <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">fdef</span><span class="o">.</span><span class="n">iterkeys</span><span class="p">()</span>
+              <span class="k">if</span> <span class="s">&#39;[&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">i</span><span class="p">]</span>
     <span class="k">if</span> <span class="n">mname</span> <span class="ow">in</span> <span class="p">[</span><span class="s">&#39;GET&#39;</span><span class="p">,</span> <span class="s">&#39;POST&#39;</span><span class="p">,</span> <span class="s">&#39;PUT&#39;</span><span class="p">,</span> <span class="s">&#39;DELETE&#39;</span><span class="p">]:</span>
         <span class="n">fun_name</span><span class="p">,</span> <span class="n">fname</span><span class="p">,</span> <span class="n">mname</span> <span class="o">=</span> <span class="n">fname</span><span class="p">,</span> <span class="n">mname</span><span class="p">,</span> <span class="n">fname</span>
     <span class="k">else</span><span class="p">:</span>
@@ -234,7 +236,8 @@
 <span class="s">    &quot;&quot;&quot;</span>
 <span class="s">    {1}</span>
 <span class="s">    &quot;&quot;&quot;</span>
-<span class="s">    return self.send_request(&#39;{2}&#39;,mtype=&#39;{3}&#39;, {4})&#39;&#39;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">gen_fun_line</span><span class="p">(</span><span class="n">fdef</span><span class="p">),</span>
+<span class="s">    return self.send_request(&#39;{2}&#39;,mtype=&#39;{3}&#39;, {4})&#39;&#39;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+        <span class="n">gen_fun_line</span><span class="p">(</span><span class="n">fdef</span><span class="p">),</span>
         <span class="n">gen_fun_doc</span><span class="p">(</span><span class="n">fdef</span><span class="p">),</span>
         <span class="n">fname</span><span class="p">,</span>
         <span class="n">mname</span><span class="p">,</span>
@@ -296,12 +299,14 @@
                 <span class="n">full_fname</span> <span class="o">=</span> <span class="s">&#39;</span><span class="si">%s</span><span class="s">_</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="n">mname</span><span class="p">)</span>
                 <span class="n">newfunc</span> <span class="o">=</span> <span class="n">get_funct</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="n">mname</span><span class="p">,</span> <span class="n">fdef</span><span class="p">)</span>
                 <span class="n">attrs</span><span class="p">[</span><span class="n">full_fname</span><span class="p">]</span> <span class="o">=</span> <span class="n">newfunc</span>
-        <span class="k">for</span> <span class="n">plugin</span> <span class="ow">in</span> <span class="p">(</span> <span class="n">pl</span> <span class="k">for</span> <span class="n">pl</span> <span class="ow">in</span> <span class="n">plugins</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">pl</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&#39;_&#39;</span><span class="p">)):</span>
+        <span class="k">for</span> <span class="n">plugin</span> <span class="ow">in</span> <span class="p">(</span><span class="n">pl</span> <span class="k">for</span> <span class="n">pl</span> <span class="ow">in</span> <span class="n">plugins</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">pl</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&#39;_&#39;</span><span class="p">)):</span>
             <span class="k">try</span><span class="p">:</span>
-                <span class="n">myplugin</span> <span class="o">=</span> <span class="nb">__import__</span><span class="p">(</span><span class="s">&#39;foreman_api_plugins.&#39;</span> <span class="o">+</span> <span class="n">plugin</span><span class="p">,</span> <span class="nb">globals</span><span class="p">(),</span> <span class="nb">locals</span><span class="p">(),[</span><span class="s">&#39;DEFS&#39;</span><span class="p">])</span>
+                <span class="n">myplugin</span> <span class="o">=</span> <span class="nb">__import__</span><span class="p">(</span><span class="s">&#39;foreman_plugins.&#39;</span> <span class="o">+</span> <span class="n">plugin</span><span class="p">,</span> <span class="nb">globals</span><span class="p">(),</span>
+                                      <span class="nb">locals</span><span class="p">(),</span>
+                                      <span class="p">[</span><span class="s">&#39;DEFS&#39;</span><span class="p">])</span>
             <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
                 <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s">&#39;Unable to import plugin module </span><span class="si">%s</span><span class="s">&#39;</span>
-                             <span class="o">%</span> <span class="n">plugin</span><span class="p">)</span>
+                              <span class="o">%</span> <span class="n">plugin</span><span class="p">)</span>
                 <span class="k">continue</span>
             <span class="k">for</span> <span class="n">mname</span><span class="p">,</span> <span class="n">funcs</span> <span class="ow">in</span> <span class="n">myplugin</span><span class="o">.</span><span class="n">DEFS</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
                 <span class="k">for</span> <span class="n">fname</span><span class="p">,</span> <span class="n">fdef</span> <span class="ow">in</span> <span class="n">funcs</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
@@ -327,22 +332,21 @@
 <span class="sd">        Main client class.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">url</span> <span class="o">=</span> <span class="n">url</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">session</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">Session</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_req_params</span> <span class="o">=</span> <span class="p">{</span>
-                <span class="s">&#39;verify&#39;</span><span class="p">:</span> <span class="bp">False</span><span class="p">,</span>
-                <span class="s">&#39;headers&#39;</span><span class="p">:</span> <span class="p">{}</span>
-                <span class="p">}</span>
-        <span class="k">if</span> <span class="n">auth</span> <span class="o">!=</span> <span class="bp">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_req_params</span><span class="p">[</span><span class="s">&#39;auth&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">auth</span>
+            <span class="s">&#39;verify&#39;</span><span class="p">:</span> <span class="bp">False</span><span class="p">,</span>
+            <span class="p">}</span>
+        <span class="k">if</span> <span class="n">auth</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">auth</span> <span class="o">=</span> <span class="n">auth</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">version</span> <span class="o">=</span> <span class="n">version</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_foreman_version</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_extra_url</span> <span class="o">=</span> <span class="s">&#39;&#39;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">version</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;.&#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_extra_url</span> <span class="o">=</span> <span class="s">&#39;/api&#39;</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">version</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;.&#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_req_params</span><span class="p">[</span><span class="s">&#39;headers&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
-                <span class="p">{</span>
-                    <span class="s">&#39;Accept&#39;</span><span class="p">:</span> <span class="s">&#39;application/json&#39;</span><span class="p">,</span>
-                    <span class="s">&#39;Content-type&#39;</span><span class="p">:</span> <span class="s">&#39;application/json&#39;</span><span class="p">,</span>
-                <span class="p">})</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">headers</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="s">&#39;Accept&#39;</span><span class="p">:</span> <span class="s">&#39;application/json&#39;</span><span class="p">,</span>
+                <span class="s">&#39;Content-type&#39;</span><span class="p">:</span> <span class="s">&#39;application/json&#39;</span><span class="p">,</span>
+            <span class="p">})</span>
 
 <div class="viewcode-block" id="Foreman.get_foreman_version"><a class="viewcode-back" href="../../client.html#foreman.client.Foreman.get_foreman_version">[docs]</a>    <span class="k">def</span> <span class="nf">get_foreman_version</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -351,14 +355,13 @@
 <span class="sd">        main page and extract the version from the footer.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">params</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_req_params</span><span class="p">)</span>
-        <span class="n">params</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s">&#39;headers&#39;</span><span class="p">)</span>
-        <span class="n">home_page</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">url</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">)</span>
+        <span class="n">home_page</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">url</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">)</span>
         <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s">r&#39;Version\s+(?P&lt;version&gt;\S+)&#39;</span><span class="p">,</span> <span class="n">home_page</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">match</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">match</span><span class="o">.</span><span class="n">groupdict</span><span class="p">()[</span><span class="s">&#39;version&#39;</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="c"># on newer versions the version is in another page</span>
-            <span class="n">about_page</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">url</span> <span class="o">+</span> <span class="s">&#39;/api&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">)</span>
+            <span class="c"># on newer versions the version is in the headers</span>
+            <span class="n">about_page</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">url</span> <span class="o">+</span> <span class="s">&#39;/api&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">)</span>
             <span class="k">if</span> <span class="s">&#39;foreman_version&#39;</span> <span class="ow">in</span> <span class="n">about_page</span><span class="o">.</span><span class="n">headers</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">about_page</span><span class="o">.</span><span class="n">headers</span><span class="p">[</span><span class="s">&#39;foreman_version&#39;</span><span class="p">]</span>
             <span class="k">else</span><span class="p">:</span>
@@ -366,14 +369,16 @@
 </div>
 <div class="viewcode-block" id="Foreman.send_request"><a class="viewcode-back" href="../../client.html#foreman.client.Foreman.send_request">[docs]</a>    <span class="k">def</span> <span class="nf">send_request</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rtype</span><span class="p">,</span> <span class="n">mtype</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        :param rtype: Request type, one of [&#39;index&#39;, &#39;show&#39;, &#39;status&#39;, &#39;create&#39;, &#39;update&#39;, &#39;destroy&#39;, &#39;GET&#39;, &#39;POST&#39;, &#39;PUT&#39;, &#39;DELETE&#39;]</span>
-<span class="sd">        :param mtype: Model type, the data model with wich we are interacting, for example host or environment.</span>
+<span class="sd">        :param rtype: Request type, one of [&#39;index&#39;, &#39;show&#39;, &#39;status&#39;,</span>
+<span class="sd">        &#39;create&#39;, &#39;update&#39;, &#39;destroy&#39;, &#39;GET&#39;, &#39;POST&#39;, &#39;PUT&#39;, &#39;DELETE&#39;]</span>
+<span class="sd">        :param mtype: Model type, the data model with wich we are interacting,</span>
+<span class="sd">        for example host or environment.</span>
 <span class="sd">        :param \*\*params: parameters for the api call</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c"># get rid of unnecessary parameters</span>
         <span class="n">topop</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">params</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
-            <span class="k">if</span> <span class="n">val</span> <span class="o">==</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">val</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
                 <span class="n">topop</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">topop</span><span class="p">:</span>
             <span class="n">params</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
@@ -396,110 +401,130 @@
                 <span class="k">raise</span> <span class="n">Unacceptable</span><span class="p">(</span><span class="n">res</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
             <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">res_to_str</span><span class="p">(</span><span class="n">res</span><span class="p">))</span>
             <span class="k">raise</span> <span class="n">ForemanException</span><span class="p">(</span><span class="n">res</span><span class="p">,</span> <span class="s">&#39;Something went wrong&#39;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="s">&#39;headers&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_req_params</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">OLD_REQ</span> <span class="ow">and</span> <span class="n">res</span><span class="o">.</span><span class="n">json</span> <span class="ow">or</span> <span class="n">res</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
-        <span class="k">return</span> <span class="n">res</span><span class="o">.</span><span class="n">text</span>
+        <span class="k">except</span> <span class="n">requests</span><span class="o">.</span><span class="n">JSONDecodeError</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">res</span><span class="o">.</span><span class="n">text</span>
 </div>
 <div class="viewcode-block" id="Foreman.do_get"><a class="viewcode-back" href="../../client.html#foreman.client.Foreman.do_get">[docs]</a>    <span class="k">def</span> <span class="nf">do_get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rtype</span><span class="p">,</span> <span class="n">mtype</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        :param rtype: Request type, one of [&#39;index&#39;, &#39;show&#39;, &#39;status&#39;, &#39;create&#39;, &#39;update&#39;, &#39;destroy&#39;]</span>
-<span class="sd">        :param mtype: Model type, the data model with wich we are interacting, for example host or environment.</span>
+<span class="sd">        :param rtype: Request type, one of [&#39;index&#39;, &#39;show&#39;, &#39;status&#39;,</span>
+<span class="sd">        &#39;create&#39;, &#39;update&#39;, &#39;destroy&#39;]</span>
+<span class="sd">        :param mtype: Model type, the data model with wich we are interacting,</span>
+<span class="sd">        for example host or environment.</span>
 <span class="sd">        :param \*\*kwargs: parameters for the api call</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c">## The special &#39;home&#39; model type does not have the same url format</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">session</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">Session</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">mtype</span> <span class="o">==</span> <span class="s">&#39;home&#39;</span><span class="p">:</span>
-            <span class="n">res</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;</span><span class="si">%s</span><span class="s">/</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span>
-                                        <span class="bp">self</span><span class="o">.</span><span class="n">url</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extra_url</span><span class="p">,</span>
-                                        <span class="n">rtype</span> <span class="o">==</span> <span class="s">&#39;status&#39;</span> <span class="ow">and</span> <span class="n">rtype</span> <span class="ow">or</span> <span class="s">&#39;&#39;</span><span class="p">),</span>
-                               <span class="n">params</span><span class="o">=</span><span class="n">kwargs</span><span class="p">,</span>
-                               <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_req_params</span><span class="p">)</span>
+            <span class="n">res</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+                <span class="s">&#39;</span><span class="si">%s</span><span class="s">/</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">url</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extra_url</span><span class="p">,</span>
+                    <span class="n">rtype</span> <span class="o">==</span> <span class="s">&#39;status&#39;</span> <span class="ow">and</span> <span class="n">rtype</span> <span class="ow">or</span> <span class="s">&#39;&#39;</span><span class="p">),</span>
+                <span class="n">params</span><span class="o">=</span><span class="n">kwargs</span><span class="p">,</span>
+                <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_req_params</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">rtype</span> <span class="ow">in</span> <span class="p">[</span><span class="s">&#39;index&#39;</span><span class="p">,</span> <span class="s">&#39;GET&#39;</span><span class="p">]:</span>
-            <span class="n">res</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;</span><span class="si">%s</span><span class="s">/</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span>
-                                        <span class="bp">self</span><span class="o">.</span><span class="n">url</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extra_url</span><span class="p">,</span>
-                                        <span class="n">mtype</span><span class="p">),</span>
-                               <span class="n">params</span><span class="o">=</span><span class="n">kwargs</span><span class="p">,</span>
-                               <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_req_params</span><span class="p">)</span>
+            <span class="n">res</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+                <span class="s">&#39;</span><span class="si">%s</span><span class="s">/</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">url</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extra_url</span><span class="p">,</span>
+                    <span class="n">mtype</span><span class="p">),</span>
+                <span class="n">params</span><span class="o">=</span><span class="n">kwargs</span><span class="p">,</span>
+                <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_req_params</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">rtype</span> <span class="o">==</span> <span class="s">&#39;show&#39;</span><span class="p">:</span>
             <span class="n">elem_id</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s">&#39;id&#39;</span><span class="p">)</span>
-            <span class="n">res</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;</span><span class="si">%s</span><span class="s">/</span><span class="si">%s</span><span class="s">/</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span>
-                                            <span class="bp">self</span><span class="o">.</span><span class="n">url</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extra_url</span><span class="p">,</span>
-                                            <span class="n">mtype</span><span class="p">,</span>
-                                            <span class="n">elem_id</span><span class="p">),</span>
-                               <span class="n">params</span><span class="o">=</span><span class="n">kwargs</span><span class="p">,</span>
-                               <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_req_params</span><span class="p">)</span>
+            <span class="n">res</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+                <span class="s">&#39;</span><span class="si">%s</span><span class="s">/</span><span class="si">%s</span><span class="s">/</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">url</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extra_url</span><span class="p">,</span>
+                    <span class="n">mtype</span><span class="p">,</span>
+                    <span class="n">elem_id</span><span class="p">),</span>
+                <span class="n">params</span><span class="o">=</span><span class="n">kwargs</span><span class="p">,</span>
+                <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_req_params</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">rtype</span> <span class="o">==</span> <span class="s">&#39;status&#39;</span><span class="p">:</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">version</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&#39;1.1&#39;</span><span class="p">):</span>
                 <span class="k">raise</span> <span class="n">ForemanVersionException</span><span class="p">(</span>
-                                <span class="s">&#39;Not available for Foreman versions &#39;</span>
-                                <span class="s">&#39;below 1.1&#39;</span><span class="p">)</span>
+                    <span class="s">&#39;Not available for Foreman versions &#39;</span>
+                    <span class="s">&#39;below 1.1&#39;</span><span class="p">)</span>
             <span class="n">elem_id</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s">&#39;id&#39;</span><span class="p">)</span>
-            <span class="n">res</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;</span><span class="si">%s</span><span class="s">/</span><span class="si">%s</span><span class="s">/</span><span class="si">%s</span><span class="s">/status&#39;</span> <span class="o">%</span> <span class="p">(</span>
-                                            <span class="bp">self</span><span class="o">.</span><span class="n">url</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extra_url</span><span class="p">,</span>
-                                            <span class="n">mtype</span><span class="p">,</span>
-                                            <span class="n">elem_id</span><span class="p">),</span>
-                               <span class="n">params</span><span class="o">=</span><span class="n">kwargs</span><span class="p">,</span>
-                               <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_req_params</span><span class="p">)</span>
+            <span class="n">res</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+                <span class="s">&#39;</span><span class="si">%s</span><span class="s">/</span><span class="si">%s</span><span class="s">/</span><span class="si">%s</span><span class="s">/status&#39;</span> <span class="o">%</span> <span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">url</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extra_url</span><span class="p">,</span>
+                    <span class="n">mtype</span><span class="p">,</span>
+                    <span class="n">elem_id</span><span class="p">),</span>
+                <span class="n">params</span><span class="o">=</span><span class="n">kwargs</span><span class="p">,</span>
+                <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_req_params</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">rtype</span> <span class="o">==</span> <span class="s">&#39;bootfiles&#39;</span><span class="p">:</span>
             <span class="n">elem_id</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s">&#39;id&#39;</span><span class="p">)</span>
-            <span class="n">res</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;</span><span class="si">%s</span><span class="s">/</span><span class="si">%s</span><span class="s">/</span><span class="si">%s</span><span class="s">/bootfiles&#39;</span> <span class="o">%</span> <span class="p">(</span>
-                                            <span class="bp">self</span><span class="o">.</span><span class="n">url</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extra_url</span><span class="p">,</span>
-                                            <span class="n">mtype</span><span class="p">,</span>
-                                            <span class="n">elem_id</span><span class="p">),</span>
-                               <span class="n">params</span><span class="o">=</span><span class="n">kwargs</span><span class="p">,</span>
-                               <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_req_params</span><span class="p">)</span>
+            <span class="n">res</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sessions</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+                <span class="s">&#39;</span><span class="si">%s</span><span class="s">/</span><span class="si">%s</span><span class="s">/</span><span class="si">%s</span><span class="s">/bootfiles&#39;</span> <span class="o">%</span> <span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">url</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extra_url</span><span class="p">,</span>
+                    <span class="n">mtype</span><span class="p">,</span>
+                    <span class="n">elem_id</span><span class="p">),</span>
+                <span class="n">params</span><span class="o">=</span><span class="n">kwargs</span><span class="p">,</span>
+                <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_req_params</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">rtype</span> <span class="o">==</span> <span class="s">&#39;build_pxe_default&#39;</span><span class="p">:</span>
-            <span class="n">res</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;</span><span class="si">%s</span><span class="s">/</span><span class="si">%s</span><span class="s">/build_pxe_default&#39;</span> <span class="o">%</span> <span class="p">(</span>
-                                            <span class="bp">self</span><span class="o">.</span><span class="n">url</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extra_url</span><span class="p">,</span>
-                                            <span class="n">mtype</span><span class="p">),</span>
-                               <span class="n">params</span><span class="o">=</span><span class="n">kwargs</span><span class="p">,</span>
-                               <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_req_params</span><span class="p">)</span>
+            <span class="n">res</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+                <span class="s">&#39;</span><span class="si">%s</span><span class="s">/</span><span class="si">%s</span><span class="s">/build_pxe_default&#39;</span> <span class="o">%</span> <span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">url</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extra_url</span><span class="p">,</span>
+                    <span class="n">mtype</span><span class="p">),</span>
+                <span class="n">params</span><span class="o">=</span><span class="n">kwargs</span><span class="p">,</span>
+                <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_req_params</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">res</span>
 </div>
 <div class="viewcode-block" id="Foreman.do_post"><a class="viewcode-back" href="../../client.html#foreman.client.Foreman.do_post">[docs]</a>    <span class="k">def</span> <span class="nf">do_post</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rtype</span><span class="p">,</span> <span class="n">mtype</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        :param rtype: Request type, one of [&#39;index&#39;, &#39;show&#39;, &#39;status&#39;, &#39;create&#39;, &#39;update&#39;, &#39;destroy&#39;]</span>
-<span class="sd">        :param mtype: Model type, the data model with wich we are interacting, for example host or environment.</span>
+<span class="sd">        :param rtype: Request type, one of [&#39;index&#39;, &#39;show&#39;, &#39;status&#39;,</span>
+<span class="sd">        &#39;create&#39;, &#39;update&#39;, &#39;destroy&#39;]</span>
+<span class="sd">        :param mtype: Model type, the data model with wich we are interacting,</span>
+<span class="sd">        for example host or environment.</span>
 <span class="sd">        :param \*\*kwargs: parameters for the api call</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">rtype</span> <span class="ow">in</span> <span class="p">[</span><span class="s">&#39;create&#39;</span><span class="p">,</span> <span class="s">&#39;POST&#39;</span><span class="p">]:</span>
-            <span class="n">res</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s">&#39;</span><span class="si">%s</span><span class="s">/</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span>
-                                          <span class="bp">self</span><span class="o">.</span><span class="n">url</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extra_url</span><span class="p">,</span>
-                                        <span class="n">mtype</span><span class="p">),</span>
-                                <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span>
-                                <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_req_params</span><span class="p">)</span>
+            <span class="n">res</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">post</span><span class="p">(</span>
+                <span class="s">&#39;</span><span class="si">%s</span><span class="s">/</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">url</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extra_url</span><span class="p">,</span>
+                    <span class="n">mtype</span><span class="p">),</span>
+                <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span>
+                <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_req_params</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">res</span>
 </div>
 <div class="viewcode-block" id="Foreman.do_put"><a class="viewcode-back" href="../../client.html#foreman.client.Foreman.do_put">[docs]</a>    <span class="k">def</span> <span class="nf">do_put</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rtype</span><span class="p">,</span> <span class="n">mtype</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        :param rtype: Request type, one of [&#39;index&#39;, &#39;show&#39;, &#39;status&#39;, &#39;create&#39;, &#39;update&#39;, &#39;destroy&#39;]</span>
-<span class="sd">        :param mtype: Model type, the data model with wich we are interacting, for example host or environment.</span>
+<span class="sd">        :param rtype: Request type, one of [&#39;index&#39;, &#39;show&#39;, &#39;status&#39;,</span>
+<span class="sd">        &#39;create&#39;, &#39;update&#39;, &#39;destroy&#39;]</span>
+<span class="sd">        :param mtype: Model type, the data model with wich we are interacting,</span>
+<span class="sd">        for example host or environment.</span>
 <span class="sd">        :param \*\*kwargs: parameters for the api call</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">mid</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s">&#39;id&#39;</span><span class="p">)</span>
         <span class="n">data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">rtype</span> <span class="ow">in</span> <span class="p">[</span><span class="s">&#39;PUT&#39;</span><span class="p">,</span> <span class="s">&#39;update&#39;</span><span class="p">]:</span>
-            <span class="n">res</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="s">&#39;</span><span class="si">%s</span><span class="s">/</span><span class="si">%s</span><span class="s">/</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span>
-                                            <span class="bp">self</span><span class="o">.</span><span class="n">url</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extra_url</span><span class="p">,</span>
-                                            <span class="n">mtype</span><span class="p">,</span>
-                                            <span class="n">mid</span><span class="p">),</span>
-                                <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span>
-                                <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_req_params</span><span class="p">)</span>
+            <span class="n">res</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">put</span><span class="p">(</span>
+                <span class="s">&#39;</span><span class="si">%s</span><span class="s">/</span><span class="si">%s</span><span class="s">/</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">url</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extra_url</span><span class="p">,</span>
+                    <span class="n">mtype</span><span class="p">,</span>
+                    <span class="n">mid</span><span class="p">),</span>
+                <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span>
+                <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_req_params</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">res</span>
 </div>
 <div class="viewcode-block" id="Foreman.do_delete"><a class="viewcode-back" href="../../client.html#foreman.client.Foreman.do_delete">[docs]</a>    <span class="k">def</span> <span class="nf">do_delete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rtype</span><span class="p">,</span> <span class="n">mtype</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        :param rtype: Request type, one of [&#39;index&#39;, &#39;show&#39;, &#39;status&#39;, &#39;create&#39;, &#39;update&#39;, &#39;destroy&#39;]</span>
-<span class="sd">        :param mtype: Model type, the data model with wich we are interacting, for example host or environment.</span>
+<span class="sd">        :param rtype: Request type, one of [&#39;index&#39;, &#39;show&#39;, &#39;status&#39;,</span>
+<span class="sd">        &#39;create&#39;, &#39;update&#39;, &#39;destroy&#39;]</span>
+<span class="sd">        :param mtype: Model type, the data model with wich we are interacting,</span>
+<span class="sd">        for example host or environment.</span>
 <span class="sd">        :param \*\*kwargs: parameters for the api call</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">rtype</span> <span class="ow">in</span> <span class="p">[</span><span class="s">&#39;DELETE&#39;</span><span class="p">,</span> <span class="s">&#39;destroy&#39;</span><span class="p">]:</span>
             <span class="n">elem_id</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s">&#39;id&#39;</span><span class="p">)</span>
-            <span class="n">res</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="s">&#39;</span><span class="si">%s</span><span class="s">/</span><span class="si">%s</span><span class="s">/</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span>
-                                               <span class="bp">self</span><span class="o">.</span><span class="n">url</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extra_url</span><span class="p">,</span>
-                                               <span class="n">mtype</span><span class="p">,</span>
-                                               <span class="n">elem_id</span><span class="p">),</span>
-                                  <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_req_params</span><span class="p">)</span>
+            <span class="n">res</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span>
+                <span class="s">&#39;</span><span class="si">%s</span><span class="s">/</span><span class="si">%s</span><span class="s">/</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">url</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extra_url</span><span class="p">,</span>
+                    <span class="n">mtype</span><span class="p">,</span>
+                    <span class="n">elem_id</span><span class="p">),</span>
+                <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_req_params</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">res</span></div></div>
 </pre></div>
 
@@ -534,7 +559,7 @@
         <li class="right" >
           <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li><a href="../../index.html">Foreman API 0.1 documentation</a> &raquo;</li>
+        <li><a href="../../index.html">Python Foreman 0.1.2 documentation</a> &raquo;</li>
           <li><a href="../index.html" >Module code</a> &raquo;</li> 
       </ul>
     </div>

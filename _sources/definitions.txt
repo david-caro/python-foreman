@@ -1,7 +1,7 @@
 Definitions file
 =======================================
 
-The Foreman API gets the methods and it's definitions from a module named
+The Python Foreman gets the methods and it's definitions from a module named
 ``definitions``.
 This module contains a dictionary that can be manually edited, but in case
 that you are just lazy (like me :) ) you can let the client generate it for
