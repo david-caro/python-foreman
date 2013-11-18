@@ -1,15 +1,19 @@
 #!/usr/bin/env python
 
-from distutils.core import setup
+from setuptools import setup
 
-setup(name = "python-foreman",
-    version = "0.1.2",
-    description = "Simple low-level client library to access the Foreman API",
-    author = "David Caro",
-    author_email = "dcaroest@redhat.com",
-    packages = ['foreman', 'foreman_plugins'],
-    url = 'nowhere',
-    install_requires = [
+long_desc = open('README.rst').read()
+
+setup(
+    name="python-foreman",
+    version="0.1.2",
+    description="Simple low-level client library to access the Foreman API",
+    long_description=long_desc,
+    author="David Caro",
+    author_email="dcaroest@redhat.com",
+    packages=['foreman', 'foreman_plugins'],
+    url='https://github.com/david-caro/python-foreman',
+    install_requires=[
         'requests>=0.14',
     ]
-) 
+)
