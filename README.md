@@ -1,7 +1,8 @@
 python-foreman
 ==============
 
-Simple library to acces the Foreman API
+Simple library to acces the Foreman API, the full documentation can be found
+here: http://david-caro.github.io/python-foreman
 
 
 Installation
