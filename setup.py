@@ -15,5 +15,5 @@ setup(
     url='https://github.com/david-caro/python-foreman',
     install_requires=[
         'requests>=0.14',
-    ]
+    ],
 )
