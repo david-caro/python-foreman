@@ -2,7 +2,7 @@
 
 from setuptools import setup
 
-long_desc = open('README.rst').read()
+long_desc = 'README.rst'
 
 setup(
     name="python-foreman",
