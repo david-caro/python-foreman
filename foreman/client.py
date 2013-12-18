@@ -289,7 +289,7 @@ class Foreman():
             self.session.auth = auth
         self.version = version or self.get_foreman_version()
         self._extra_url = ''
-        if self.version.split('.')[1] >= 1:
+        if int(self.version.split('.')[1]) >= 1:
             self._extra_url = '/api'
         self.session.headers.update(
             {
