@@ -309,10 +309,11 @@ class Foreman():
         if match:
             return match.groupdict()['version']
         else:
-            # on newer versions the version is in the headers
-            about_page = self.session.get(self.url + '/api', **params)
-            if 'foreman_version' in about_page.headers:
-                return about_page.headers['foreman_version']
+            # on newer versions the version can be taken from the status page
+            status_page = self.session.get(self.url + '/status',
+                                           **params).json()
+            if 'version' in status_page:
+                return status_page['version']
             else:
                 raise ForemanVersionException('Unable to get version')
 
