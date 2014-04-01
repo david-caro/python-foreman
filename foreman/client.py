@@ -3,18 +3,13 @@
 """
 This module provides acces to the API of a foreman server
 """
-
-import os
 import re
-import logging
 import json
+import copy
+import types
 import requests
-import pprint
-try:
-    import definitions as defs
-    download_defs = False
-except ImportError, e:
-    download_defs = True
+import logging
+import glob
 try:
     import foreman_plugins
     import os.path
@@ -31,178 +26,10 @@ else:
     OLD_REQ = False
 
 
-class ForemanException(Exception):
-    def __init__(self, res, msg):
-        """
-        This exception wraps an error message and let's the caller to get the
-        :class:`requests.Response` that failed
-        """
-        Exception.__init__(self, msg)
-        self.res = res
-
-
-class ObjectNotFound(ForemanException):
-    pass
-
-
-class Unacceptable(ForemanException):
-    pass
-
-
-class ForemanVersionException(Exception):
-    pass
-
-
-BASE_DOC_URL = "http://theforeman.org/api"
-
-
-def get_methods_urls():
-    """
-    Get the first level of the pages of the documentation
-    """
-    methodslist = requests.get(BASE_DOC_URL + '/apidoc.html').text
-    match_method = re.compile(r'.*(?P<url>/apidoc/(?P<main>[^/]+)/'
-                              r'(?P<mtype>[^/]+).html)')
-    methods = {}
-    for line in methodslist.splitlines():
-        match = match_method.match(line)
-        if match:
-            res = match.groupdict()
-            if res['main'] not in methods:
-                methods[res['main']] = {}
-            methods[res['main']][res['mtype']] = res['url']
-    return methods
-
-
-def get_method_definition(method_url):
-    """
-    :param method_url: relative url to the method's documentation page
-
-    For a specific method url doc page, return it's definition
-    """
-    method_page = requests.get(BASE_DOC_URL + '/' + method_url).text
-    method_page = method_page.splitlines()
-    method_page.reverse()
-    match_def = re.compile(r'.*((?P<required>(required|optional))|'
-                           r'<strong>(?P<pname>[^<]+)</strong>|'
-                           r'Value: Must (be (an? )?|match )(?P<ptype>.+))')
-    params = {}
-    started = None
-    while method_page:
-        line = method_page.pop()
-        if not started:
-            started = re.match(r'.*<h2>Params</h2>', line)
-            continue
-        method_info = match_def.match(line)
-        if method_info:
-            newinfo = method_info.groupdict()
-            for name, val in newinfo.iteritems():
-                if val:
-                    val = str(val)
-                    if name == 'ptype':
-                        if val == '&#x27;true&#x27; or &#x27;false&#x27;':
-                            val = "'true' or 'false'"
-                    if name == 'pname':
-                        params[val] = {}
-                        current_param = params[val]
-                    else:
-                        if name == 'required':
-                            val = val == 'required'
-                        current_param[str(name)] = val
-    return params
-
-
-def generate_defs_file(fname='definitions.py'):
-    """
-    :param fname: Name of the file todump the definitoins to.
-
-    Fetch the docs and generate the definitions of the api methods.
-    """
-    all_defs = {}
-    for model, methods in get_methods_urls().iteritems():
-        model_def = {}
-        for mname, murl in methods.iteritems():
-            mdef = get_method_definition(murl)
-            model_def.update({str(mname): mdef})
-        all_defs[str(model)] = model_def
-    ## Add the special 'status' case
-    with open(fname, 'w') as fd_defs:
-        fd_defs.write('DEFS = ')
-        fd_defs.write(pprint.pformat(all_defs))
-
-
-def gen_fun_line(params):
-    """
-    :param params: Dict with the funciton parameters as found in the
-    definitions file
-
-    Generates the python code that defines a function from it's definition
-    """
-    args_str = ['self']
-    default_args = []
-    for arg, val in params.iteritems():
-        if '[' in arg:
-            continue
-        if val['required']:
-            args_str.append('%s' % arg.strip())
-        else:
-            default_args.append('%s=None' % arg.strip())
-    return ', '.join(args_str) + ', ' + ', '.join(default_args)
-
-
-def gen_fun_doc(fdef):
-    """
-    :param fdef: Function definition as found in the definitions file
-
-    Generate the documtation for the given function definition
-    """
-    doc_str = ''
-    for arg, val in fdef.iteritems():
-        arg = arg.strip()
-        doc_str += '\n\t:param %s: type %s, %s' % (
-            arg, val['ptype'].strip(),
-            val['required'] and 'required' or 'optional')
-    return doc_str
-
-
-def get_funct(fname, mname, fdef):
-    """
-    :param fname: Funtion name
-    :param fdef: Function definition as in the definitions file
-
-
-    Generate the function from the given function and definition
-    """
-    params = ['{0}={0}'.format(i.strip())
-              for i in fdef.iterkeys()
-              if '[' not in i]
-    if mname in ['GET', 'POST', 'PUT', 'DELETE']:
-        fun_name, fname, mname = fname, mname, fname
-    else:
-        fun_name = fname + '_' + mname
-    code_str = '''
-def {5}({0}):
-    """
-    {1}
-    """
-    return self.send_request('{2}',mtype='{3}', {4})'''.format(
-        gen_fun_line(fdef),
-        gen_fun_doc(fdef),
-        fname,
-        mname,
-        ', '.join(params),
-        fun_name)
-    exec code_str
-    return locals()[fun_name]
-
-
-## Before getting any further, make sure that the definitions file exists
-if download_defs:
-    fpath = os.path.dirname(os.path.abspath(__file__))
-    logging.info("Downloading definitions for the first tine at "
-                 + "%s/definitions.py" % fpath)
-    generate_defs_file(fpath + '/definitions.py')
-    import definitions as defs
+def ver_cmp(ver_a, ver_b):
+    ver_a = ver_a.split('-')[0].split('.')
+    ver_b = ver_b.split('-')[0].split('.')
+    return cmp(ver_a, ver_b)
 
 
 def res_to_str(res):
@@ -237,17 +64,174 @@ reason = %s
        res.text)
 
 
+class ForemanException(Exception):
+    def __init__(self, res, msg):
+        """
+        This exception wraps an error message and let's the caller to get the
+        :class:`requests.Response` that failed
+        """
+        Exception.__init__(self, msg)
+        self.res = res
+
+
+class ObjectNotFound(ForemanException):
+    pass
+
+
+class Unacceptable(ForemanException):
+    pass
+
+
+class ForemanVersionException(Exception):
+    pass
+
+
+class ResourceMeta(type):
+    """
+    This type composes methods for resource class
+    """
+    params_reg = re.compile(":[^/]+")
+    multi_api_reg = re.compile(r'/([a-z_]+)s/(:\1_id)/([a-z_]+)(?:/(:id))?')
+    exclude_html_reg = re.compile('</?[^>/]+/?>')
+
+    def __new__(meta, name, bases, dct):
+        if name == 'Resource':  # Skip base class
+            return type.__new__(meta, name, bases, dct)
+
+        # NOTE: regarding to __module__, it will be better to close
+        # these classes into own module per each Foreman instance.
+        # it could cause problems in case of having more instances
+        # connected to different versions of foreman.
+        new_dict = {'__module__': dct.get('__module__', __name__),
+                    '__doc__': dct['full_description'],
+                    '_resource_name': name,
+                    '_foreign_methods': {}}
+
+        for definition in dct['methods']:
+
+            for api in definition['apis']:
+                m = meta.multi_api_reg.search(api['api_url'])
+                if m:
+                    # Multi-api match
+                    resource, _, _, _ = m.groups()
+                    new_definition = copy.deepcopy(definition)
+                    new_definition['name'] += "_%s" % name
+
+                    resources = new_dict['_foreign_methods']
+                    # NOTE: adding 's' in order to create plural
+                    # WARN: may cause problem with 'es'
+                    functions = resources.setdefault(resource+'s', {})
+
+                    func = meta.create_func(new_definition, api)
+                    functions[new_definition['name']] = func
+                else:
+                    func = meta.create_func(definition, api)
+                    new_dict[definition['name']] = func
+
+        # element_name => ElementName
+        cls_name = ''.join([x.capitalize() for x in name.split('_')])
+        return type.__new__(meta, cls_name, bases, new_dict)
+
+    @classmethod
+    def create_param_doc(meta, param, prefix=None):
+        """
+        Generate documentation for single parameter of function
+        :param param: dict contains info about parameter
+        :param sub: prefix string for recursive purposes
+        """
+        desc = meta.exclude_html_reg.sub('', param['description']).strip()
+        if not desc:
+            desc = "<no description>"
+        name = param['name']
+        if prefix:
+            name = "%s[%s]" % (prefix, name)
+        doc_ = ":param %s: %s; %s" % (name, desc, param['validator'])
+        if param['required']:
+            doc_ += " (REQUIRED)"
+        for param in param.get('params', []):
+            doc_ += "\n" + meta.create_param_doc(param, name)
+        return doc_
+
+    @classmethod
+    def create_func(meta, definition, api):
+        """
+        Generate function for specific method and using specific api
+        :param definition: dict contains definition of function
+        :param api: dict contains api URL
+        """
+        params = [x.strip(":")
+                  for x in meta.params_reg.findall(api['api_url'])]
+
+        keywords = []
+        params_def = []
+        params_doc = ""
+
+        for param in definition['params']:
+            params_doc += meta.create_param_doc(param) + "\n"
+            if param['name'] not in params:
+                keywords.append(param['name'])
+                params_def.append("%s=None" % param['name'])
+
+        params_def = params + params_def
+
+        func_head = 'def {0}(self, {1}):'.format(definition['name'],
+                                                 ', '.join(params_def))
+        code_body = (
+            '   _vars_ = locals()\n'
+            '   _url = self._fill_url("{1}", _vars_, {2})\n'
+            '   _kwargs = dict((k, _vars_[k]) for k in {3} if _vars_[k])\n'
+            '   return self._f.do_{0}(_url, _kwargs)')
+        code_body = code_body.format(api['http_method'].lower(),
+                                     api['api_url'], params, keywords)
+
+        code = [func_head,
+                '   """',
+                api['short_description'] or '',
+                '',
+                params_doc,
+                '   """',
+                code_body]
+
+        code = '\n'.join(code)
+
+        exec code
+        return locals()[definition['name']]
+
+
+class Resource(object):
+    """
+    Provides entry point for specific resource
+    """
+    __metaclass__ = ResourceMeta
+    _params_reg = re.compile(":([^/]+)")
+
+    def __init__(self, foreman):
+        """
+        :param foreman: instance of Foreman class
+        """
+        self._f = foreman
+        # Preserve backward compatibility with old interface
+        for method_name in ('index', 'show', 'update', 'destroy'):
+            method = getattr(self, method_name, None)
+            method_name = "%s_%s" % (method_name, self._resource_name)
+            if method:
+                setattr(self._f, method_name, method)
+
+    def _fill_url(self, url, vars_, params):
+        kwargs = dict((k, vars_[k]) for k in params)
+        url = self._params_reg.sub('{\\1}', url)
+        return url.format(**kwargs)
+
+
 class MetaForeman(type):
     def __new__(meta, cls_name, bases, attrs):
         """
         This class is called when defining the Foreman class, and populates it
         with the defined methods
         """
-        for mname, funcs in defs.DEFS.iteritems():
-            for fname, fdef in funcs.iteritems():
-                full_fname = '%s_%s' % (fname, mname)
-                newfunc = get_funct(fname, mname, fdef)
-                attrs[full_fname] = newfunc
+        entires = {'name': 'plugins',
+                   'methods': [],
+                   'full_description': "Binds foreman_plugins"}
         for plugin in (pl for pl in plugins if not pl.startswith('_')):
             try:
                 myplugin = __import__('foreman_plugins.' + plugin, globals(),
@@ -258,27 +242,63 @@ class MetaForeman(type):
                               % plugin)
                 continue
             for mname, funcs in myplugin.DEFS.iteritems():
-                for fname, fdef in funcs.iteritems():
-                    if mname in ['GET', 'PUT', 'POST', 'DELETE']:
-                        full_fname = fname
-                    else:
-                        full_fname = '%s_%s' % (fname, mname)
-                    newfunc = get_funct(fname, mname, fdef)
-                    attrs[full_fname] = newfunc
+                methods = meta.convert_plugin_def(mname, funcs)
+                entires['methods'].extend(methods)
+
+        def _init(self, foreman):
+            super(self.__class__, self).__init__(foreman)
+            for name, value in self.__class__.__dict__.iteritems():
+                if isinstance(value, types.FunctionType) and name[0] != '_':
+                    setattr(self._f, name, getattr(self, name))
+
+        plugins_cls = ResourceMeta.__new__(ResourceMeta, 'plugins',
+                                           (Resource,), entires)
+        plugins_cls.__init__ = _init
+        attrs['_plugins_resources'] = plugins_cls
         return type.__new__(meta, cls_name, bases, attrs)
 
+    @classmethod
+    def convert_plugin_def(meta, mname, funcs):
+        methods = []
+        for fname, params in funcs.iteritems():
+            method = {'apis': [{'short_description': 'no-doc'}],
+                      'params': []}
+            if mname in ['GET', 'PUT', 'POST', 'DELETE']:
+                full_fname = fname
+                method['apis'][0]['http_method'] = mname
+            else:
+                full_fname = '%s_%s' % (fname, mname)
+                method['apis'][0]['http_method'] = 'GET'
+            method['apis'][0]['api_url'] = '/api/' + full_fname
+            method['name'] = full_fname
+            for pname, pdef in params.iteritems():
+                doc_ = "Must be %s" % pdef['ptype']
+                param = {'name': pname,
+                         'validator': doc_,
+                         'description': doc_,
+                         'required': pdef['required']}
+                method['params'].append(param)
+            methods.append(method)
+        return methods
 
-class Foreman():
+
+class Foreman(object):
+    """
+    Main client class.
+    """
     __metaclass__ = MetaForeman
 
-    def __init__(self, url='http://localhost:3000', auth=None, version=None):
+    def __init__(self, url, auth=None, version=None, api_version=2,
+                 use_cache=True):
         """
         :param url: Full url to the foreman server
         :param auth: Tuple with the user and the pass
-        :param version: Version string for the given foreman url. If None
-        given it will try to autodiscover it from the main page's footer.
-
-        Main client class.
+        :param version: Foreman version (will autodetect by default)
+        :param api_version: Version of the api to use (2 by default)
+        :param use_cache: if True, will use local api definitions, if False,
+            will try to get them from the remote Foreman instance (it needs
+            you to have disabled use_cache in the apipie configuration in your
+            foreman instance)
         """
         self.url = url
         self.session = requests.Session()
@@ -287,15 +307,17 @@ class Foreman():
             }
         if auth is not None:
             self.session.auth = auth
-        self.version = version or self.get_foreman_version()
-        self._extra_url = ''
-        if int(self.version.split('.')[1]) >= 1:
-            self._extra_url = '/api'
         self.session.headers.update(
             {
-                'Accept': 'application/json',
+                'Accept': 'application/json; version=%s' % api_version,
                 'Content-type': 'application/json',
             })
+        if version is None:
+            version = self.get_foreman_version()
+        self._generate_api_defs(version, api_version, use_cache)
+
+        # Instantiate plugins
+        self.plugins = self._plugins_resources(self)
 
     def get_foreman_version(self):
         """
@@ -310,40 +332,79 @@ class Foreman():
             return match.groupdict()['version']
         else:
             # on newer versions the version can be taken from the status page
-            status_page = self.session.get(self.url + '/status',
-                                           **params).json()
-            if 'version' in status_page:
-                return status_page['version']
+            res = self.session.get(self.url + '/api/status', **params)
+            if res.status_code < 200 or res.status_code >= 300:
+                logging.error(res_to_str(res))
+                raise ForemanException(res, 'Something went wrong')
+            res = res.json()
+            if 'version' in res:
+                return res['version']
             else:
                 raise ForemanVersionException('Unable to get version')
 
-    def send_request(self, rtype, mtype, **params):
-        """
-        :param rtype: Request type, one of ['index', 'show', 'status',
-        'create', 'update', 'destroy', 'GET', 'POST', 'PUT', 'DELETE']
-        :param mtype: Model type, the data model with wich we are interacting,
-        for example host or environment.
-        :param \*\*params: parameters for the api call
-        """
-        # get rid of unnecessary parameters
-        topop = []
-        for key, val in params.iteritems():
-            if val is None:
-                topop.append(key)
-        for key in topop:
-            params.pop(key)
-        if rtype in ['index', 'show', 'status',
-                     'bootfiles', 'build_pxe_default',
-                     'GET']:
-            res = self.do_get(rtype, mtype, **params)
-        elif rtype in ['create', 'POST']:
-            res = self.do_post(rtype, mtype, **params)
-        elif rtype in ['update', 'PUT']:
-            res = self.do_put(rtype, mtype, **params)
-        elif rtype in ['destroy', 'DEL']:
-            res = self.do_delete(rtype, mtype, **params)
+    def _get_local_defs(self, version, api_version):
+        defs_path = os.path.join(os.path.dirname(__file__), 'definitions')
+        files = glob.glob('%s/*-v%s.json' % (defs_path, api_version))
+        last_major_match = None
+        for f_name in sorted(files):
+            f_ver = os.path.basename(f_name).split('-')[0]
+            if f_ver == version:
+                return json.loads(open(f_name).read())
+            if f_ver.split('.')[:2] == version.split('.')[:2]:
+                last_major_match = f_name
+            if ver_cmp(f_ver, version) < 0:
+                logging.warn("Not exact version found, using %s from cache "
+                             "for Foreman %s" % (f_ver, version))
+                return json.loads(open(f_name).read())
+        if last_major_match:
+            logging.warn("Not exact version found, using %s from cache "
+                         "for Foreman %s" % (f_ver, version))
+            return json.loads(open(last_major_match).read())
+        raise ForemanVersionException(
+            "No suitable cache found for version=%s api_version=%s."
+            "\nAvailable: %s"
+            % (version, api_version, '\n\t' + '\n\t'.join(files)))
+
+    def _get_remote_defs(self, api_version, version):
+        res = self.session.get(
+            '%s/%s' % (self.url, 'apidoc/v%s.json' % api_version),
+            **self._req_params)
+        if res.ok:
+            data = json.loads(res.text)
+        if res.status_code == 404:
+            logging.warn(
+                "Unable to get api definition from live foreman instance "
+                "at '%s', trying cache.\nNOTE: Make sure that you have "
+                "set the config.use_cache parameter to false in apipie "
+                "initializer (usually "
+                "FOREMAN_HOME/config/initializers/apipie.rb)."
+                % res.url)
+            data = self._get_local_defs(version, api_version)
         else:
-            raise Exception("Wrong method type %s" % rtype)
+            raise ForemanVersionException(
+                "There was an error trying to get api definition from %s"
+                % self.url)
+        return data
+
+    def _generate_api_defs(self, version, api_version, use_cache=True):
+        if use_cache:
+            data = self._get_local_defs(version, api_version)
+        else:
+            data = self._get_remote_defs(api_version, version)
+        resources = {}
+        for name, entires in data['docs']["resources"].iteritems():
+            new_resource = ResourceMeta.__new__(ResourceMeta, str(name),
+                                                (Resource,), entires)
+            resources[name] = new_resource
+        for name, resource in resources.iteritems():
+            for fname, ffunctions in resource._foreign_methods.iteritems():
+                for func_name, func in ffunctions.iteritems():
+                    setattr(resources[fname], func_name, func)
+        for name, resource in resources.iteritems():
+            instance = resource(self)
+            setattr(self, resource._resource_name, instance)
+
+    def _process_request_result(self, res):
         if res.status_code < 200 or res.status_code >= 300:
             if res.status_code == 404:
                 return []
@@ -353,126 +414,43 @@ class Foreman():
             raise ForemanException(res, 'Something went wrong')
         try:
             return OLD_REQ and res.json or res.json()
-        except requests.JSONDecodeError, e:
+        except requests.JSONDecodeError:
             return res.text
 
-    def do_get(self, rtype, mtype, **kwargs):
+    def do_get(self, url, kwargs):
         """
-        :param rtype: Request type, one of ['index', 'show', 'status',
-        'create', 'update', 'destroy']
-        :param mtype: Model type, the data model with wich we are interacting,
-        for example host or environment.
-        :param \*\*kwargs: parameters for the api call
+        :param url: relative url to resource
+        :param kwargs: parameters for the api call
         """
-        ## The special 'home' model type does not have the same url format
-        if not self.session:
-            self.session = requests.Session()
-        if mtype == 'home':
-            res = self.session.get(
-                '%s/%s' % (
-                    self.url + self._extra_url,
-                    rtype == 'status' and rtype or ''),
-                params=kwargs,
-                **self._req_params)
-        elif rtype in ['index', 'GET']:
-            res = self.session.get(
-                '%s/%s' % (
-                    self.url + self._extra_url,
-                    mtype),
-                params=kwargs,
-                **self._req_params)
-        elif rtype == 'show':
-            elem_id = kwargs.pop('id')
-            res = self.session.get(
-                '%s/%s/%s' % (
-                    self.url + self._extra_url,
-                    mtype,
-                    elem_id),
-                params=kwargs,
-                **self._req_params)
-        elif rtype == 'status':
-            if not self.version.startswith('1.1'):
-                raise ForemanVersionException(
-                    'Not available for Foreman versions '
-                    'below 1.1')
-            elem_id = kwargs.pop('id')
-            res = self.session.get(
-                '%s/%s/%s/status' % (
-                    self.url + self._extra_url,
-                    mtype,
-                    elem_id),
-                params=kwargs,
-                **self._req_params)
-        elif rtype == 'bootfiles':
-            elem_id = kwargs.pop('id')
-            res = self.sessions.get(
-                '%s/%s/%s/bootfiles' % (
-                    self.url + self._extra_url,
-                    mtype,
-                    elem_id),
-                params=kwargs,
-                **self._req_params)
-        elif rtype == 'build_pxe_default':
-            res = self.session.get(
-                '%s/%s/build_pxe_default' % (
-                    self.url + self._extra_url,
-                    mtype),
-                params=kwargs,
-                **self._req_params)
-        return res
+        res = self.session.get('%s%s' % (self.url, url),
+                               params=kwargs, **self._req_params)
+        return self._process_request_result(res)
 
-    def do_post(self, rtype, mtype, **kwargs):
+    def do_post(self, url, kwargs):
         """
-        :param rtype: Request type, one of ['index', 'show', 'status',
-        'create', 'update', 'destroy']
-        :param mtype: Model type, the data model with wich we are interacting,
-        for example host or environment.
-        :param \*\*kwargs: parameters for the api call
+        :param url: relative url to resource
+        :param kwargs: parameters for the api call
         """
         data = json.dumps(kwargs)
-        if rtype in ['create', 'POST']:
-            res = self.session.post(
-                '%s/%s' % (
-                    self.url + self._extra_url,
-                    mtype),
-                data=data,
-                **self._req_params)
-        return res
+        res = self.session.post('%s%s' % (self.url, url),
+                                data=data, **self._req_params)
+        return self._process_request_result(res)
 
-    def do_put(self, rtype, mtype, **kwargs):
+    def do_put(self, url, kwargs):
         """
-        :param rtype: Request type, one of ['index', 'show', 'status',
-        'create', 'update', 'destroy']
-        :param mtype: Model type, the data model with wich we are interacting,
-        for example host or environment.
-        :param \*\*kwargs: parameters for the api call
+        :param url: relative url to resource
+        :param kwargs: parameters for the api call
         """
-        mid = kwargs.pop('id')
         data = json.dumps(kwargs)
-        if rtype in ['PUT', 'update']:
-            res = self.session.put(
-                '%s/%s/%s' % (
-                    self.url + self._extra_url,
-                    mtype,
-                    mid),
-                data=data,
-                **self._req_params)
-        return res
+        res = self.session.put('%s%s' % (self.url, url),
+                               data=data, **self._req_params)
+        return self._process_request_result(res)
 
-    def do_delete(self, rtype, mtype, **kwargs):
+    def do_delete(self, url, kwargs):
         """
-        :param rtype: Request type, one of ['index', 'show', 'status',
-        'create', 'update', 'destroy']
-        :param mtype: Model type, the data model with wich we are interacting,
-        for example host or environment.
-        :param \*\*kwargs: parameters for the api call
+        :param url: relative url to resource
+        :param kwargs: parameters for the api call
         """
-        if rtype in ['DELETE', 'destroy']:
-            elem_id = kwargs.pop('id')
-            res = self.session.delete(
-                '%s/%s/%s' % (
-                    self.url + self._extra_url,
-                    mtype,
-                    elem_id),
-                **self._req_params)
-        return res
+        res = self.session.delete('%s%s' % (self.url, url),
+                                  **self._req_params)
+        return self._process_request_result(res)

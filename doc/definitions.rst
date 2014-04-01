@@ -1,33 +1,13 @@
-Definitions file
+Definitions files
 =======================================
 
-The Python Foreman gets the methods and it's definitions from a module named
-``definitions``.
-This module contains a dictionary that can be manually edited, but in case
-that you are just lazy (like me :) ) you can let the client generate it for
-you. Whe you import the client module if that file does not exist, it
-downloads it from the web.
-
-**CAUTION**: it relies on the web structure so it may break anytime.
-
-Let's see it in action, if we have this on our directory::
-
-   client.py
-   |
-   \-- client.py
-
-
-And we import the module :mod:`foreman.client`, we will end up with this::
-
-
-
-   client.py
-   |
-   |-- client.py
-   \-- definitions.py
-
-
-**Notice**: it will not overwrite it if it does find the module, so to update
-the file you must rename it and import the module.
-
-The function that generates the file is :class:`foreman.client.generate_defs_file`.
+The Python Foreman can get the methods and it's definitions from two places
+the ``definitions`` directory or the foreman instance.
+This directory contains some apipie json definitions from different foreman
+versions and api versions, by default it will try to match the foreman version
+with the firttest of those files.
+It can also get it's definitions from the live Foreman instance, to do that,
+you have to make sure that the urls "FOREMAN_URL/apidoc/v2.json" and
+"FOREMAN_URL/apidoc/v1.json" are available, usually that means setting the
+config.use_cache parameter for the apipie gem to false (normally found under
+FOREMAN_HOME/config/initializers/apipie.rb)
