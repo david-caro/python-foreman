@@ -202,7 +202,7 @@ if download_defs:
     logging.info("Downloading definitions for the first tine at "
                  + "%s/definitions.py" % fpath)
     generate_defs_file(fpath + '/definitions.py')
-    import definitions as defs
+    import definitions as defs  # NOQA
 
 
 def res_to_str(res):
@@ -284,7 +284,7 @@ class Foreman():
         self.session = requests.Session()
         self._req_params = {
             'verify': False,
-            }
+        }
         if auth is not None:
             self.session.auth = auth
         self.version = version or self.get_foreman_version()
@@ -353,7 +353,7 @@ class Foreman():
             raise ForemanException(res, 'Something went wrong')
         try:
             return OLD_REQ and res.json or res.json()
-        except requests.JSONDecodeError, e:
+        except requests.JSONDecodeError:
             return res.text
 
     def do_get(self, rtype, mtype, **kwargs):
