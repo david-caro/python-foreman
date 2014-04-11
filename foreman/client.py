@@ -60,8 +60,8 @@ def get_methods_urls():
     """
     Get the first level of the pages of the documentation
     """
-    methodslist = requests.get(BASE_DOC_URL + '/apidoc.html').text
-    match_method = re.compile(r'.*(?P<url>/apidoc/(?P<main>[^/]+)/'
+    methodslist = requests.get(BASE_DOC_URL + '/apidoc/v2.html').text
+    match_method = re.compile(r'.*(?P<url>/apidoc/v2/(?P<main>[^/]+)/'
                               r'(?P<mtype>[^/]+).html)')
     methods = {}
     for line in methodslist.splitlines():
@@ -173,9 +173,13 @@ def get_funct(fname, mname, fdef):
 
     Generate the function from the given function and definition
     """
+    try:
+        del fdef['except ']
+    except:
+        pass
     params = ['{0}={0}'.format(i.strip())
               for i in fdef.iterkeys()
-              if '[' not in i]
+              if ('[' not in i) and ('except' not in i)]
     if mname in ['GET', 'POST', 'PUT', 'DELETE']:
         fun_name, fname, mname = fname, mname, fname
     else:
