@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-#encoding: utf-8
 """
 This module provides acces to the API of a foreman server
 """
@@ -108,7 +107,9 @@ class ResourceMeta(type):
                     '_foreign_methods': {}}
 
         for definition in dct['methods']:
-
+            if not new_dict['__doc__'] and len(definition['apis']) == 1:
+                new_dict['__doc__'] = \
+                    definition['apis'][0]['short_description']
             for api in definition['apis']:
                 m = meta.multi_api_reg.search(api['api_url'])
                 if m:
@@ -120,7 +121,7 @@ class ResourceMeta(type):
                     resources = new_dict['_foreign_methods']
                     # NOTE: adding 's' in order to create plural
                     # WARN: may cause problem with 'es'
-                    functions = resources.setdefault(resource+'s', {})
+                    functions = resources.setdefault(resource + 's', {})
 
                     func = meta.create_func(new_definition, api)
                     functions[new_definition['name']] = func
@@ -148,6 +149,8 @@ class ResourceMeta(type):
         doc_ = ":param %s: %s; %s" % (name, desc, param['validator'])
         if param['required']:
             doc_ += " (REQUIRED)"
+        else:
+            doc_ += " (OPTIONAL)"
         for param in param.get('params', []):
             doc_ += "\n" + meta.create_param_doc(param, name)
         return doc_
@@ -165,12 +168,17 @@ class ResourceMeta(type):
         keywords = []
         params_def = []
         params_doc = ""
+        original_names = {}
 
         for param in definition['params']:
             params_doc += meta.create_param_doc(param) + "\n"
             if param['name'] not in params:
-                keywords.append(param['name'])
-                params_def.append("%s=None" % param['name'])
+                local_name = param['name']
+                if param['name'] == 'except':
+                    local_name = 'except_'
+                original_names[local_name] = param['name']
+                keywords.append(local_name)
+                params_def.append("%s=None" % local_name)
 
         params_def = params + params_def
 
@@ -179,10 +187,13 @@ class ResourceMeta(type):
         code_body = (
             '   _vars_ = locals()\n'
             '   _url = self._fill_url("{1}", _vars_, {2})\n'
-            '   _kwargs = dict((k, _vars_[k]) for k in {3} if _vars_[k])\n'
+            '   _original_names = {4}\n'
+            '   _kwargs = dict((_original_names[k], _vars_[k])'
+            '                   for k in {3} if _vars_[k])\n'
             '   return self._f.do_{0}(_url, _kwargs)')
-        code_body = code_body.format(api['http_method'].lower(),
-                                     api['api_url'], params, keywords)
+        code_body = code_body.format(
+            api['http_method'].lower(), api['api_url'], params, keywords,
+            original_names)
 
         code = [func_head,
                 '   """',
@@ -211,7 +222,7 @@ class Resource(object):
         """
         self._f = foreman
         # Preserve backward compatibility with old interface
-        for method_name in ('index', 'show', 'update', 'destroy'):
+        for method_name in ('index', 'show', 'update', 'destroy', 'create'):
             method = getattr(self, method_name, None)
             method_name = "%s_%s" % (method_name, self._resource_name)
             if method:
@@ -288,7 +299,7 @@ class Foreman(object):
     """
     __metaclass__ = MetaForeman
 
-    def __init__(self, url, auth=None, version=None, api_version=2,
+    def __init__(self, url, auth=None, version=None, api_version=None,
                  use_cache=True):
         """
         :param url: Full url to the foreman server
@@ -300,11 +311,20 @@ class Foreman(object):
             you to have disabled use_cache in the apipie configuration in your
             foreman instance)
         """
+        if api_version is None:
+            api_version = 1
+            logging.warning(
+                "Api v1 will not be the default in the next version, if you "
+                "still want to use it, change the call to explicitly ask for "
+                "it. Though we recommend using the new and improved version 2"
+            )
         self.url = url
-        self.session = requests.Session()
         self._req_params = {
             'verify': False,
-            }
+        }
+        self.version = version
+        self.api_version = api_version
+        self.session = requests.Session()
         if auth is not None:
             self.session.auth = auth
         self.session.headers.update(
@@ -312,10 +332,10 @@ class Foreman(object):
                 'Accept': 'application/json; version=%s' % api_version,
                 'Content-type': 'application/json',
             })
-        if version is None:
-            version = self.get_foreman_version()
-        self._generate_api_defs(version, api_version, use_cache)
+        if self.version is None:
+            self.version = self.get_foreman_version()
 
+        self._generate_api_defs(use_cache)
         # Instantiate plugins
         self.plugins = self._plugins_resources(self)
 
@@ -342,51 +362,92 @@ class Foreman(object):
             else:
                 raise ForemanVersionException('Unable to get version')
 
-    def _get_local_defs(self, version, api_version):
+    def _get_local_defs(self, strict=True):
+        """
+        Gets the cached definition or the any previous from the same major
+        version if not strict passed.
+
+        :param strict: Use any version that shared major version and has lower
+                       minor if no total match found
+        """
         defs_path = os.path.join(os.path.dirname(__file__), 'definitions')
-        files = glob.glob('%s/*-v%s.json' % (defs_path, api_version))
+        files = glob.glob('%s/*-v%s.json' % (defs_path, self.api_version))
         last_major_match = None
         for f_name in sorted(files):
             f_ver = os.path.basename(f_name).split('-')[0]
-            if f_ver == version:
+            if f_ver == self.version:
                 return json.loads(open(f_name).read())
-            if f_ver.split('.')[:2] == version.split('.')[:2]:
+            if f_ver.split('.')[:2] == self.version.split('.')[:2]:
                 last_major_match = f_name
-            if ver_cmp(f_ver, version) < 0:
-                logging.warn("Not exact version found, using %s from cache "
-                             "for Foreman %s" % (f_ver, version))
-                return json.loads(open(f_name).read())
+            if ver_cmp(f_ver, self.version) < 0:
+                if strict:
+                    raise ForemanVersionException(
+                        "Unable to get suitable json definition for Foreman "
+                        "%s, but found a similar cached version %s/%s, run "
+                        "without strict flag to use it"
+                        % (self.version, self.api_version, last_major_match))
+                else:
+                    logging.warn("Not exact version found, found %s in cache "
+                                 "for Foreman %s" % (f_ver, self.version))
+                    return json.loads(open(f_name).read())
         if last_major_match:
             logging.warn("Not exact version found, using %s from cache "
-                         "for Foreman %s" % (f_ver, version))
+                         "for Foreman %s" % (f_ver, self.version))
             return json.loads(open(last_major_match).read())
         raise ForemanVersionException(
             "No suitable cache found for version=%s api_version=%s."
             "\nAvailable: %s"
-            % (version, api_version, '\n\t' + '\n\t'.join(files)))
+            % (self.version, self.api_version, '\n\t' + '\n\t'.join(files)))
 
-    def _generate_api_defs(self, version, api_version, use_cache=True):
-        if use_cache:
-            data = self._get_local_defs(version, api_version)
+    def _get_remote_defs(self, use_cache=True):
+        res = self.session.get(
+            '%s/%s' % (self.url, 'apidoc/v%s.json' % self.api_version),
+            **self._req_params)
+        if res.ok:
+            data = json.loads(res.text)
+            defs_path = os.path.join(os.path.dirname(__file__), 'definitions')
+            cache_fn = '%s/%s-v%s.json' % (defs_path, self.version,
+                                           self.api_version)
+            try:
+                with open(cache_fn, 'w') as cache_fd:
+                    cache_fd.write(json.dumps(data, indent=4, default=str))
+            except:
+                logging.debug('Unable to write cache file %s' % cache_fn)
+        elif res.status_code == 404 and use_cache:
+            logging.warn(
+                "Unable to get api definition from live foreman instance "
+                "at '%s', trying cache.\nNOTE: Make sure that you have "
+                "set the config.use_cache parameter to false in apipie "
+                "initializer (usually "
+                "FOREMAN_HOME/config/initializers/apipie.rb)."
+                % res.url)
+            # fallback to cache if not found
+            data = self._get_local_defs(strict=False)
         else:
-            res = self.session.get(
-                '%s/%s' % (self.url, 'apidoc/v%s.json' % version),
-                **self._req_params)
-            if res.ok:
-                data = json.loads(res.text)
-            if res.status_code == 404:
-                logging.warn(
-                    "Unable to get api definition from live foreman instance "
-                    "at '%s', trying cache.\nNOTE: Make sure that you have "
-                    "set the config.use_cache parameter to false in apipie "
-                    "initializer (usually "
-                    "FOREMAN_HOME/config/initializers/apipie.rb)."
-                    % res.url)
-                data = self._get_local_defs(version, api_version)
-            else:
-                raise ForemanVersionException(
-                    "There was an error trying to get api definition from %s"
-                    % self.url)
+            raise ForemanVersionException(
+                "There was an error trying to get api definition from %s"
+                % '%s/%s' % (self.url, 'apidoc/v%s.json' % self.api_version))
+        return data
+
+    def _generate_api_defs(self, use_cache=True):
+        """
+        This method populates the class with the api definitions.
+
+        :param use_cache: If set, will try to get the definitions from the
+            local cache first, then from the remote server, and at last will
+            try to get the closest one from the local cached
+        """
+        if use_cache:
+            try:
+                logging.debug("Getting local cached definitions")
+                data = self._get_local_defs()
+            except ForemanVersionException:
+                logging.debug("Checking remote ang approximated local "
+                              "definitions")
+                data = self._get_remote_defs()
+        else:
+            logging.debug("Checking remote definitions only")
+            data = self._get_remote_defs(use_cache=False)
         resources = {}
         for name, entires in data['docs']["resources"].iteritems():
             new_resource = ResourceMeta.__new__(ResourceMeta, str(name),

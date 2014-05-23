@@ -1,3 +1,4 @@
-include *rst
+include *.rst
 include LICENSE
 include *.py
+include foreman/definitions/*.json
