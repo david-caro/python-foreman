@@ -2,10 +2,10 @@ python-foreman
 ==============
 
 Simple library to acces the Foreman API, the full documentation can be found
-here: http://david-caro.github.io/python-foreman
+http://david-caro.github.io/python-foreman.
 
 .. image:: https://travis-ci.org/david-caro/python-foreman.png
- :target: https://travis-ci.org/david-caro/python-foreman
+    :target: https://travis-ci.org/david-caro/python-foreman
 
 Installation
 ==============
