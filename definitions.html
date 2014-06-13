@@ -8,7 +8,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Definitions file &mdash; Python Foreman 0.1.2 documentation</title>
+    <title>Definitions files &mdash; Python Foreman 0.1.2 documentation</title>
     
     <link rel="stylesheet" href="_static/default.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -56,29 +56,18 @@
         <div class="bodywrapper">
           <div class="body">
             
-  <div class="section" id="definitions-file">
-<h1>Definitions file<a class="headerlink" href="#definitions-file" title="Permalink to this headline">¶</a></h1>
-<p>The Python Foreman gets the methods and it&#8217;s definitions from a module named
-<tt class="docutils literal"><span class="pre">definitions</span></tt>.
-This module contains a dictionary that can be manually edited, but in case
-that you are just lazy (like me :) ) you can let the client generate it for
-you. Whe you import the client module if that file does not exist, it
-downloads it from the web.</p>
-<p><strong>CAUTION</strong>: it relies on the web structure so it may break anytime.</p>
-<p>Let&#8217;s see it in action, if we have this on our directory:</p>
-<div class="highlight-python"><pre>client.py
-|
-\-- client.py</pre>
-</div>
-<p>And we import the module <a class="reference internal" href="client.html#module-foreman.client" title="foreman.client"><tt class="xref py py-mod docutils literal"><span class="pre">foreman.client</span></tt></a>, we will end up with this:</p>
-<div class="highlight-python"><pre>client.py
-|
-|-- client.py
-\-- definitions.py</pre>
-</div>
-<p><strong>Notice</strong>: it will not overwrite it if it does find the module, so to update
-the file you must rename it and import the module.</p>
-<p>The function that generates the file is <a class="reference internal" href="client.html#foreman.client.generate_defs_file" title="foreman.client.generate_defs_file"><tt class="xref py py-class docutils literal"><span class="pre">foreman.client.generate_defs_file</span></tt></a>.</p>
+  <div class="section" id="definitions-files">
+<h1>Definitions files<a class="headerlink" href="#definitions-files" title="Permalink to this headline">¶</a></h1>
+<p>The Python Foreman can get the methods and it&#8217;s definitions from two places
+the <tt class="docutils literal"><span class="pre">definitions</span></tt> directory or the foreman instance.
+This directory contains some apipie json definitions from different foreman
+versions and api versions, by default it will try to match the foreman version
+with the firttest of those files.
+It can also get it&#8217;s definitions from the live Foreman instance, to do that,
+you have to make sure that the urls &#8220;FOREMAN_URL/apidoc/v2.json&#8221; and
+&#8220;FOREMAN_URL/apidoc/v1.json&#8221; are available, usually that means setting the
+config.use_cache parameter for the apipie gem to false (normally found under
+FOREMAN_HOME/config/initializers/apipie.rb)</p>
 </div>
 
 
