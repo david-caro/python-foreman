@@ -59,15 +59,19 @@
   <div class="section" id="definitions-files">
 <h1>Definitions files<a class="headerlink" href="#definitions-files" title="Permalink to this headline">¶</a></h1>
 <p>The Python Foreman can get the methods and it&#8217;s definitions from two places
-the <tt class="docutils literal"><span class="pre">definitions</span></tt> directory or the foreman instance.
-This directory contains some apipie json definitions from different foreman
-versions and api versions, by default it will try to match the foreman version
-with the firttest of those files.
-It can also get it&#8217;s definitions from the live Foreman instance, to do that,
-you have to make sure that the urls &#8220;FOREMAN_URL/apidoc/v2.json&#8221; and
-&#8220;FOREMAN_URL/apidoc/v1.json&#8221; are available, usually that means setting the
-config.use_cache parameter for the apipie gem to false (normally found under
-FOREMAN_HOME/config/initializers/apipie.rb)</p>
+the <tt class="docutils literal"><span class="pre">definitions</span></tt> directory or the foreman instance.</p>
+<p>This <tt class="docutils literal"><span class="pre">definitions</span></tt> directory contains some apipie json definitions retrieved from
+different foreman versions and api versions, by default it will try to match the foreman version
+with the fittest of those files.</p>
+<p>It can also get it&#8217;s definitions from the live Foreman instance, to do that,
+you have to make sure that the urls:</p>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">FOREMAN_URL/apidoc/v2.json</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">FOREMAN_URL/apidoc/v1.json</span></tt></li>
+</ul>
+<p>are available, usually that means that you&#8217;ll have to set the <tt class="docutils literal"><span class="pre">config.use_cache</span></tt>
+parameter for the apipie gem to false (normally found under
+<tt class="docutils literal"><span class="pre">FOREMAN_HOME/config/initializers/apipie.rb</span></tt>)</p>
 </div>
 
 

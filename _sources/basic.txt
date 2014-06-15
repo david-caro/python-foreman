@@ -49,7 +49,7 @@ This methods create a new object into foreman. An example:
 >>> f.create_hosts(host={'name': 'mynewhost', 'ip': '192.168.1.1', 'mac': '00:00:00:00:00:00'})
 >>> f.hosts.create(host={'name': 'mynewhost', 'ip': '192.168.1.1', 'mac': '00:00:00:00:00:00'})
 
-To see the exact parameters look at the docs.
+To see the exact parameters look at the `foreman API docs<http://theforeman.org/api.html>`_.
 
 
 update
