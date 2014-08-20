@@ -9,7 +9,7 @@ DEFS = {
             'host_name': {'ptype': 'String', 'required': False},
             'amount': {'ptype': 'Integer', 'required': False}},
         'show_available': {
-            'query ': {'ptype': 'String', 'required': False},
+            'query': {'ptype': 'String', 'required': False},
             'amount': {'ptype': 'Integer', 'required': False}},
         'show_reserved': {
             'query': {'ptype': 'String', 'required': False}},
