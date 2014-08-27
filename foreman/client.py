@@ -317,7 +317,7 @@ class Foreman(object):
         :param url: Full url to the foreman server
         :param auth: Tuple with the user and the pass
         :param version: Foreman version (will autodetect by default)
-        :param api_version: Version of the api to use (2 by default)
+        :param api_version: Version of the api to use (1 by default)
         :param use_cache: if True, will use local api definitions, if False,
             will try to get them from the remote Foreman instance (it needs
             you to have disabled use_cache in the apipie configuration in your
