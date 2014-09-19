@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-This module provides acces to the API of a foreman server
+This module provides access to the API of a foreman server
 """
 import re
 import json
@@ -353,8 +353,8 @@ class Foreman(object):
 
     def get_foreman_version(self):
         """
-        Even if we have an api method that return the foreman version, we need
-        the version first to know it's path, so instead of that we get the
+        Even if we have an api method that returns the foreman version, we need
+        the version first to know its path, so instead of that we get the
         main page and extract the version from the footer.
         """
         params = dict(self._req_params)
