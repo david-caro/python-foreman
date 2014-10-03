@@ -253,8 +253,7 @@ class MetaForeman(type):
                                       locals(),
                                       ['DEFS'])
             except ImportError:
-                logging.error('Unable to import plugin module %s'
-                              % plugin)
+                logging.error('Unable to import plugin module %s', plugin)
                 continue
             for mname, funcs in myplugin.DEFS.iteritems():
                 methods = meta.convert_plugin_def(mname, funcs)
@@ -400,11 +399,11 @@ class Foreman(object):
                         % (self.version, self.api_version, last_major_match))
                 else:
                     logging.warn("Not exact version found, found %s in cache "
-                                 "for Foreman %s" % (f_ver, self.version))
+                                 "for Foreman %s", f_ver, self.version)
                     return json.loads(open(f_name).read())
         if last_major_match:
             logging.warn("Not exact version found, using %s from cache "
-                         "for Foreman %s" % (f_ver, self.version))
+                         "for Foreman %s", f_ver, self.version)
             return json.loads(open(last_major_match).read())
         raise ForemanVersionException(
             "No suitable cache found for version=%s api_version=%s."
@@ -430,15 +429,15 @@ class Foreman(object):
                 with open(cache_fn, 'w') as cache_fd:
                     cache_fd.write(json.dumps(data, indent=4, default=str))
             except:
-                logging.debug('Unable to write cache file %s' % cache_fn)
+                logging.debug('Unable to write cache file %s', cache_fn)
         elif res.status_code == 404 and use_cache:
             logging.warn(
                 "Unable to get api definition from live foreman instance "
                 "at '%s', trying cache.\nNOTE: Make sure that you have "
                 "set the config.use_cache parameter to false in apipie "
                 "initializer (usually "
-                "FOREMAN_HOME/config/initializers/apipie.rb)."
-                % res.url)
+                "FOREMAN_HOME/config/initializers/apipie.rb).",
+                res.url)
             # fallback to cache if not found
             data = self._get_local_defs(strict=False)
         else:
