@@ -365,8 +365,10 @@ class Foreman(object):
             # on newer versions the version can be taken from the status page
             res = self.session.get(self.url + '/api/status', **params)
             if res.status_code < 200 or res.status_code >= 300:
-                logging.error(res_to_str(res))
-                raise ForemanException(res, 'Something went wrong')
+                raise ForemanException(
+                    res,
+                    'Something went wrong:%s' % res_to_str(res)
+                )
             res = res.json()
             if 'version' in res:
                 return res['version']
@@ -485,8 +487,10 @@ class Foreman(object):
                 return []
             elif res.status_code == 406:
                 raise Unacceptable(res, None)
-            logging.error(res_to_str(res))
-            raise ForemanException(res, 'Something went wrong')
+            raise ForemanException(
+                res,
+                'Something went wrong:%s' % res_to_str(res)
+            )
         try:
             return OLD_REQ and res.json or res.json()
         except requests.JSONDecodeError:
