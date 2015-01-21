@@ -6,7 +6,7 @@ long_desc = open('README.rst').read()
 
 setup(
     name="python-foreman",
-    version="0.2.2",
+    version="0.2.3",
     description="Simple low-level client library to access the Foreman API",
     long_description=long_desc,
     author="David Caro",
@@ -15,6 +15,7 @@ setup(
     url='https://github.com/david-caro/python-foreman',
     install_requires=[
         'requests>=0.14',
+        'six',
     ],
     package_data={
         'foreman': ['definitions/*.json'],
