@@ -25,10 +25,8 @@ else:
     OLD_REQ = False
 
 
-def ver_cmp(ver_a, ver_b):
-    ver_a = ver_a.split('-')[0].split('.')
-    ver_b = ver_b.split('-')[0].split('.')
-    return cmp(ver_a, ver_b)
+def parse_version(version_string):
+    return tuple("{0:0>10}".format(i) for i in version_string.split('.'))
 
 
 def res_to_str(res):
@@ -383,30 +381,46 @@ class Foreman(object):
         :param strict: Use any version that shared major version and has lower
                        minor if no total match found
         """
+        version = parse_version(self.version)
         defs_path = os.path.join(os.path.dirname(__file__), 'definitions')
         files = glob.glob('%s/*-v%s.json' % (defs_path, self.api_version))
+        files = [
+            (fn, parse_version(os.path.basename(fn).split('-')[0]))
+            for fn in files
+        ]
+
         last_major_match = None
-        for f_name in sorted(files):
-            f_ver = os.path.basename(f_name).split('-')[0]
-            if f_ver == self.version:
+        last_lower_version = None
+        for f_name, f_ver in sorted(files, key=lambda x: x[1]):
+            if f_ver == version:
                 return json.loads(open(f_name).read())
-            if f_ver.split('.')[:2] == self.version.split('.')[:2]:
+            if f_ver[:2] == version[:2]:
                 last_major_match = f_name
-            if ver_cmp(f_ver, self.version) < 0:
-                if strict:
-                    raise ForemanVersionException(
-                        "Unable to get suitable json definition for Foreman "
-                        "%s, but found a similar cached version %s/%s, run "
-                        "without strict flag to use it"
-                        % (self.version, self.api_version, last_major_match))
-                else:
-                    logging.warn("Not exact version found, found %s in cache "
-                                 "for Foreman %s", f_ver, self.version)
-                    return json.loads(open(f_name).read())
+            elif f_ver < version:
+                last_lower_version = f_name
+            else:
+                break
+
         if last_major_match:
-            logging.warn("Not exact version found, using %s from cache "
-                         "for Foreman %s", f_ver, self.version)
+            logging.warn(
+                "Not exact version found, using %s from cache for Foreman %s",
+                '.'.join(i.lstrip('0') for i in f_ver), self.version,
+            )
             return json.loads(open(last_major_match).read())
+
+        if last_lower_version:
+            if strict:
+                raise ForemanVersionException(
+                    "Unable to get suitable json definition for Foreman "
+                    "%s, but found a similar cached version %s/%s, run "
+                    "without strict flag to use it"
+                    % (self.version, self.api_version, last_major_match))
+            else:
+                logging.warn(
+                    "Not exact version found, found %s in cache for "
+                    "Foreman %s", last_lower_version, self.version,
+                )
+                return json.loads(open(last_lower_version).read())
         raise ForemanVersionException(
             "No suitable cache found for version=%s api_version=%s."
             "\nAvailable: %s"
@@ -422,6 +436,7 @@ class Foreman(object):
         res = self.session.get(
             '%s/%s' % (self.url, 'apidoc/v%s.json' % self.api_version),
             **self._req_params)
+
         if res.ok:
             data = json.loads(res.text)
             defs_path = os.path.join(os.path.dirname(__file__), 'definitions')
@@ -460,9 +475,11 @@ class Foreman(object):
             try:
                 logging.debug("Getting local cached definitions")
                 data = self._get_local_defs()
-            except ForemanVersionException:
-                logging.debug("Checking remote ang approximated local "
-                              "definitions")
+            except ForemanVersionException as ex:
+                logging.debug(
+                    "Checking remote and approximated local definitions: %s",
+                    ex,
+                )
                 data = self._get_remote_defs()
         else:
             logging.debug("Checking remote definitions only")
