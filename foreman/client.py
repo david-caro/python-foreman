@@ -461,7 +461,7 @@ class Foreman(object):
                 logging.debug("Getting local cached definitions")
                 data = self._get_local_defs()
             except ForemanVersionException:
-                logging.debug("Checking remote ang approximated local "
+                logging.debug("Checking remote and approximated local "
                               "definitions")
                 data = self._get_remote_defs()
         else:
