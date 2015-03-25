@@ -6,6 +6,7 @@ import re
 import json
 import copy
 import types
+import pprint
 import requests
 import logging
 import glob
@@ -90,8 +91,14 @@ class ResourceMeta(type):
     This type composes methods for resource class
     """
     params_reg = re.compile(":[^/]+")
-    multi_api_reg = re.compile(r'/([a-z_]+)s/(:\1_id)/([a-z_]+)(?:/(:id))?')
+    multi_api_reg = re.compile(
+        r'^[^:]*/([a-z_]+)/(:[a-z_]+_id)/([a-z_]+)(?:/(:id))?'
+    )
     exclude_html_reg = re.compile('</?[^>/]+/?>')
+    resource_mapping = {
+        'smart_proxies': 'smart_proxy',
+        'puppetclasses': 'puppetclass',
+    }
 
     def __new__(meta, name, bases, dct):
         if name == 'Resource':  # Skip base class
@@ -101,10 +108,14 @@ class ResourceMeta(type):
         # these classes into own module per each Foreman instance.
         # it could cause problems in case of having more instances
         # connected to different versions of foreman.
-        new_dict = {'__module__': dct.get('__module__', __name__),
-                    '__doc__': dct['full_description'],
-                    '_resource_name': name,
-                    '_foreign_methods': {}}
+        new_dict = {
+            '__module__': dct.get('__module__', __name__),
+            '__doc__': dct['full_description'],
+            '_resource_name': name,
+            '_foreign_methods': {},
+            '_own_methods': [],
+            '_unbound_methods': [],
+        }
 
         for definition in dct['methods']:
             if not new_dict['__doc__'] and len(definition['apis']) == 1:
@@ -114,24 +125,42 @@ class ResourceMeta(type):
                 m = meta.multi_api_reg.search(api['api_url'])
                 if m:
                     # Multi-api match
-                    resource, _, _, _ = m.groups()
+                    resource, ref, _, _ = m.groups()
+                    expected_ref = meta.resources_to_resource(resource)
+                    if ref[1:-3] != expected_ref:
+                        logging.error(
+                            "There is API entry-point which doesn't match "
+                            "expected constraints. Got resource '%s' expected "
+                            "reference '%s': Resource(%s) %s", resource,
+                            expected_ref, name, api,
+                        )
+                        new_dict['_unbound_methods'].append(api)
+                        continue
                     new_definition = copy.deepcopy(definition)
                     new_definition['name'] += "_%s" % name
 
                     resources = new_dict['_foreign_methods']
-                    # NOTE: adding 's' in order to create plural
-                    # WARN: may cause problem with 'es'
-                    functions = resources.setdefault(resource + 's', {})
-
+                    functions = resources.setdefault(resource, {})
                     func = meta.create_func(new_definition, api)
                     functions[new_definition['name']] = func
                 else:
                     func = meta.create_func(definition, api)
-                    new_dict[definition['name']] = func
+                    m_name = definition['name']
+                    if m_name in new_dict['_own_methods']:
+                        logging.debug(
+                            "There is conflicting method(%s): %s\n  %s\n"
+                            "  With %s", name, pprint.pformat(api),
+                            pprint.pformat(definition),
+                            pprint.pformat(new_dict.get(m_name).defs),
+                        )
+                        new_dict['_unbound_methods'].append(api)
+                        continue
+                    new_dict['_own_methods'].append(m_name)
+                    new_dict[m_name] = func
 
         # element_name => ElementName
         cls_name = ''.join([x.capitalize() for x in name.split('_')])
-        return type.__new__(meta, cls_name, bases, new_dict)
+        return type.__new__(meta, str(cls_name), bases, new_dict)
 
     @classmethod
     def create_param_doc(meta, param, prefix=None):
@@ -206,7 +235,17 @@ class ResourceMeta(type):
         code = '\n'.join(code)
 
         exec code
-        return locals()[definition['name']]
+
+        function = locals()[definition['name']]
+        setattr(function, 'defs', api)
+        return function
+
+    @classmethod
+    def resources_to_resource(cls, resources_name):
+        resource = cls.resource_mapping.get(resources_name)
+        if not resource:
+            resource = resources_name[:-1]
+        return resource
 
 
 class Resource(object):
@@ -448,14 +487,7 @@ class Foreman(object):
                 % '%s/%s' % (self.url, 'apidoc/v%s.json' % self.api_version))
         return data
 
-    def _generate_api_defs(self, use_cache=True):
-        """
-        This method populates the class with the api definitions.
-
-        :param use_cache: If set, will try to get the definitions from the
-            local cache first, then from the remote server, and at last will
-            try to get the closest one from the local cached
-        """
+    def _get_defs(self, use_cache):
         if use_cache:
             try:
                 logging.debug("Getting local cached definitions")
@@ -467,6 +499,17 @@ class Foreman(object):
         else:
             logging.debug("Checking remote definitions only")
             data = self._get_remote_defs(use_cache=False)
+        return data
+
+    def _generate_api_defs(self, use_cache=True):
+        """
+        This method populates the class with the api definitions.
+
+        :param use_cache: If set, will try to get the definitions from the
+            local cache first, then from the remote server, and at last will
+            try to get the closest one from the local cached
+        """
+        data = self._get_defs(use_cache)
         resources = {}
         for name, entires in data['docs']["resources"].iteritems():
             new_resource = ResourceMeta.__new__(ResourceMeta, str(name),
@@ -475,10 +518,17 @@ class Foreman(object):
         for name, resource in resources.iteritems():
             for fname, ffunctions in resource._foreign_methods.iteritems():
                 for func_name, func in ffunctions.iteritems():
+                    resources[fname]._own_methods.append(func_name)
                     setattr(resources[fname], func_name, func)
+            if resource._unbound_methods:
+                logging.warning(
+                    "There are unbound methods for '%s'. Please see debug "
+                    "logs for more details", name,
+                )
         for name, resource in resources.iteritems():
             instance = resource(self)
-            setattr(self, resource._resource_name, instance)
+            if instance._own_methods:  # Skip resources without own methods
+                setattr(self, resource._resource_name, instance)
 
     def _process_request_result(self, res):
         """Generic function to process the result of an HTTP request"""
