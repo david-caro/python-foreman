@@ -6,13 +6,15 @@ import re
 import json
 import copy
 import types
-import requests
 import logging
 import glob
+import os.path
+import pkgutil
+
+import requests
+
 try:
     import foreman_plugins
-    import os.path
-    import pkgutil
     pkg_path = os.path.dirname(foreman_plugins.__file__)
     plugins = [name for _, name, _ in pkgutil.iter_modules([pkg_path])]
 except ImportError:
@@ -311,7 +313,7 @@ class Foreman(object):
     __metaclass__ = MetaForeman
 
     def __init__(self, url, auth=None, version=None, api_version=None,
-                 use_cache=True):
+                 use_cache=True, timeout=60):
         """
         :param url: Full url to the foreman server
         :param auth: Tuple with the user and the pass
@@ -321,6 +323,7 @@ class Foreman(object):
             will try to get them from the remote Foreman instance (it needs
             you to have disabled use_cache in the apipie configuration in your
             foreman instance)
+        :param timeout: Timeout in seconds for each httpr request
         """
         if api_version is None:
             api_version = 1
@@ -332,6 +335,7 @@ class Foreman(object):
         self.url = url
         self._req_params = {
             'verify': False,
+            'timeout': timeout,
         }
         self.version = version
         self.api_version = api_version
@@ -349,6 +353,15 @@ class Foreman(object):
         self._generate_api_defs(use_cache)
         # Instantiate plugins
         self.plugins = self._plugins_resources(self)
+
+    def set_timeout(self, timeout):
+        """
+        Set the timeout for any connection, the timeout is the requests module
+        timeout (for conneciton inactivity rather than request total time)
+
+        :param timeout: Timeout in seconds for the connection inactivity
+        """
+        self._req_params['timeout'] = timeout
 
     def get_foreman_version(self):
         """
