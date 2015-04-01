@@ -131,9 +131,34 @@ class ResourceMeta(type):
                     func = meta.create_func(definition, api)
                     new_dict[definition['name']] = func
 
+        func = meta.create_search_func(name)
+        new_dict['search'] = func
+
         # element_name => ElementName
         cls_name = ''.join([x.capitalize() for x in name.split('_')])
         return type.__new__(meta, cls_name, bases, new_dict)
+
+    @classmethod
+    def create_search_func(meta, name):
+        func_head = 'def search(self, *args):'
+        code_body = (
+            '   _vars_ = locals()\n'
+            '   _url = self._fill_url("/api/{0}", _vars_, [])\n'
+            '   _search_url = self._fill_search_url(_url, *args)\n'
+            '   return self._f.do_get(_search_url, dict())')
+        code_body = code_body.format(name)
+
+        code = [func_head,
+                '   """',
+                'Query {} with given args'.format(name),
+                '',
+                ':param args: list of conditions translated to a search line',
+                ' the order will be treated as pipe',
+                '   """',
+                code_body]
+        code = '\n'.join(code)
+        exec code
+        return locals()['search']
 
     @classmethod
     def create_param_doc(meta, param, prefix=None):
@@ -224,7 +249,8 @@ class Resource(object):
         """
         self._f = foreman
         # Preserve backward compatibility with old interface
-        for method_name in ('index', 'show', 'update', 'destroy', 'create'):
+        for method_name in ('index', 'show', 'update', 'destroy', 'create',
+                            'search'):
             method = getattr(self, method_name, None)
             method_name = "%s_%s" % (method_name, self._resource_name)
             if method:
@@ -234,6 +260,11 @@ class Resource(object):
         kwargs = dict((k, vars_[k]) for k in params)
         url = self._params_reg.sub('{\\1}', url)
         return url.format(**kwargs)
+
+    def _fill_search_url(self, url, *args):
+        search = ''.join(['search={}&'.format(arg) for arg in args])
+        url = '{}?{}'.format(url, search)
+        return url
 
 
 class MetaForeman(type):
