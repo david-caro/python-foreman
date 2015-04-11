@@ -313,7 +313,7 @@ class Foreman(object):
     __metaclass__ = MetaForeman
 
     def __init__(self, url, auth=None, version=None, api_version=None,
-                 use_cache=True, timeout=60):
+                 use_cache=True, timeout=60, verify=False):
         """
         :param url: Full url to the foreman server
         :param auth: Tuple with the user and the pass
@@ -324,6 +324,8 @@ class Foreman(object):
             you to have disabled use_cache in the apipie configuration in your
             foreman instance)
         :param timeout: Timeout in seconds for each httpr request
+        :param verify: path to certificates bundle for SSL verification. If
+            False, SSL will not be validated
         """
         if api_version is None:
             api_version = 1
@@ -334,12 +336,12 @@ class Foreman(object):
             )
         self.url = url
         self._req_params = {
-            'verify': False,
             'timeout': timeout,
         }
         self.version = version
         self.api_version = api_version
         self.session = requests.Session()
+        self.session.verify = verify
         if auth is not None:
             self.session.auth = auth
         self.session.headers.update(
