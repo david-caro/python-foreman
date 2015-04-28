@@ -6,6 +6,7 @@ import re
 import json
 import copy
 import types
+import pprint
 import logging
 import glob
 import os.path
@@ -16,9 +17,9 @@ import requests
 try:
     import foreman_plugins
     pkg_path = os.path.dirname(foreman_plugins.__file__)
-    plugins = [name for _, name, _ in pkgutil.iter_modules([pkg_path])]
+    PLUGINS = [name for _, name, _ in pkgutil.iter_modules([pkg_path])]
 except ImportError:
-    plugins = []
+    PLUGINS = []
 
 
 if requests.__version__.split('.', 1)[0] == '0':
@@ -87,62 +88,169 @@ class ForemanVersionException(Exception):
     pass
 
 
-class ResourceMeta(type):
-    """
-    This type composes methods for resource class
-    """
-    params_reg = re.compile(":[^/]+")
-    multi_api_reg = re.compile(r'/([a-z_]+)s/(:\1_id)/([a-z_]+)(?:/(:id))?')
+class MethodAPIDescription(object):
     exclude_html_reg = re.compile('</?[^>/]+/?>')
 
-    def __new__(meta, name, bases, dct):
-        if name == 'Resource':  # Skip base class
-            return type.__new__(meta, name, bases, dct)
+    def __init__(self, resource, method, api):
+        self._method = copy.deepcopy(method)
+        self._api = copy.deepcopy(api)
+        self._apipie_resource = resource
+        self.url = self._api['api_url']
+        self.url_params = re.findall('/:([^/]+)(?:/|$)', self.url)
+        self.params = self._method['params']
+        # special case for the api root
+        if self.url == '/api':
+            self.resource = 'api'
+        else:
+            self.resource = self.url.split('/', 3)[2]
+        self.name = self._get_name()
+        self.http_method = self._api['http_method']
+        self.short_desc = self._api['short_description'] or ''
 
-        # NOTE: regarding to __module__, it will be better to close
-        # these classes into own module per each Foreman instance.
-        # it could cause problems in case of having more instances
-        # connected to different versions of foreman.
-        new_dict = {'__module__': dct.get('__module__', __name__),
-                    '__doc__': dct['full_description'],
-                    '_resource_name': name,
-                    '_foreign_methods': {}}
+    def __repr__(self):
+        return "<resource:%s, name:%s>" % (self.resource, self.name)
 
-        for definition in dct['methods']:
-            if not new_dict['__doc__'] and len(definition['apis']) == 1:
-                new_dict['__doc__'] = \
-                    definition['apis'][0]['short_description']
-            for api in definition['apis']:
-                m = meta.multi_api_reg.search(api['api_url'])
-                if m:
-                    # Multi-api match
-                    resource, _, _, _ = m.groups()
-                    new_definition = copy.deepcopy(definition)
-                    new_definition['name'] += "_%s" % name
+    def _get_name(self):
+        """
+        There are three cases, because apipie definitions can have multiple
+        signatures but python does not
+        For example, the api endpoint:
+           /api/myres/:myres_id/subres/:subres_id/subres2
 
-                    resources = new_dict['_foreign_methods']
-                    # NOTE: adding 's' in order to create plural
-                    # WARN: may cause problem with 'es'
-                    functions = resources.setdefault(resource + 's', {})
+        for method *index* will be translated to the api method name:
+            subres_index_subres2
 
-                    func = meta.create_func(new_definition, api)
-                    functions[new_definition['name']] = func
-                else:
-                    func = meta.create_func(definition, api)
-                    new_dict[definition['name']] = func
+        So when you want to call it from v2 object, you'll have:
 
-        # element_name => ElementName
-        cls_name = ''.join([x.capitalize() for x in name.split('_')])
-        return type.__new__(meta, cls_name, bases, new_dict)
+          myres.subres_index_subres2
+
+        """
+        if self.url.count(':') > 1:
+            # /api/one/two/:three/four -> two_:three_four
+            base_name = self.url.split('/', 3)[-1].replace('/', '_')[1:]
+            # :one_two_three -> two_three
+            if base_name.startswith(':'):
+                base_name = base_name.split('_')[-1]
+            # one_:two_three_:four_five -> one_three_five
+            base_name = re.sub('_:[^/]+', '', base_name)
+            # in case that the last term was a parameter
+            if base_name.endswith('_'):
+                base_name = base_name[:-1]
+            # one_two_three -> one_two_method_three
+            base_name = (
+                '_' + self._method['name']
+            ).join(base_name.rsplit('_', 1))
+        else:
+            base_name = self._method['name']
+        if self._apipie_resource != self.resource:
+            return '%s_%s' % (self._apipie_resource, base_name)
+        else:
+            return base_name
+
+    def get_global_method_name(self):
+        return '%s_%s' % (self.resource, self.name.replace('.', '_'))
+
+    def generate_func(self, as_global=False):
+        """
+        Generate function for specific method and using specific api
+
+        :param as_global: if set, will use the global function name, instead of
+            the class method (usually {resource}_{class_method}) when defining
+            the function
+        """
+        keywords = []
+        params_def = []
+        params_doc = ""
+        original_names = {}
+
+        params = dict(
+            (param['name'], param)
+            for param in self.params
+        )
+
+        # parse the url required params, as sometimes they are skipped in the
+        # parameters list of the definition
+        for param in self.url_params:
+            if param not in params:
+                param = {
+                    'name': param,
+                    'required': True,
+                    'description': '',
+                    'validator': '',
+                }
+                params[param['name']] = param
+            else:
+                params[param]['required'] = True
+
+        # split required and non-required params for the definition
+        req_params = []
+        nonreq_params = []
+        for param in params.itervalues():
+            if param['required']:
+                req_params.append(param)
+            else:
+                nonreq_params.append(param)
+
+        for param in req_params + nonreq_params:
+            params_doc += self.create_param_doc(param) + "\n"
+            local_name = param['name']
+            # some params collide with python keywords, that's why we do
+            # this switch (and undo it inside the function we generate)
+            if param['name'] == 'except':
+                local_name = 'except_'
+            original_names[local_name] = param['name']
+            keywords.append(local_name)
+            if param['required']:
+                params_def.append("%s" % local_name)
+            else:
+                params_def.append("%s=None" % local_name)
+
+        func_head = 'def {0}(self, {1}):'.format(
+            as_global and self.get_global_method_name() or self.name,
+            ', '.join(params_def)
+        )
+        code_body = (
+            '   _vars_ = locals()\n'
+            '   _url = self._fill_url("{url}", _vars_, {url_params})\n'
+            '   _original_names = {original_names}\n'
+            '   _kwargs = dict((_original_names[k], _vars_[k])\n'
+            '                   for k in {keywords} if _vars_[k])\n'
+            '   return self._foreman.do_{http_method}(_url, _kwargs)')
+        code_body = code_body.format(
+            http_method=self.http_method.lower(),
+            url=self.url,
+            url_params=self.url_params,
+            keywords=keywords,
+            original_names=original_names,
+        )
+
+        code = [
+            func_head,
+            '   """',
+            self.short_desc,
+            '',
+            params_doc,
+            '   """',
+            code_body,
+        ]
+
+        code = '\n'.join(code)
+
+        exec code
+
+        function = locals()[self.name]
+        # to ease debugging, all the funcs have the definitions attached
+        setattr(function, 'defs', self)
+        return function
 
     @classmethod
-    def create_param_doc(meta, param, prefix=None):
+    def create_param_doc(cls, param, prefix=None):
         """
         Generate documentation for single parameter of function
         :param param: dict contains info about parameter
         :param sub: prefix string for recursive purposes
         """
-        desc = meta.exclude_html_reg.sub('', param['description']).strip()
+        desc = cls.exclude_html_reg.sub('', param['description']).strip()
         if not desc:
             desc = "<no description>"
         name = param['name']
@@ -154,61 +262,108 @@ class ResourceMeta(type):
         else:
             doc_ += " (OPTIONAL)"
         for param in param.get('params', []):
-            doc_ += "\n" + meta.create_param_doc(param, name)
+            doc_ += "\n" + cls.create_param_doc(param, name)
         return doc_
 
-    @classmethod
-    def create_func(meta, definition, api):
-        """
-        Generate function for specific method and using specific api
-        :param definition: dict contains definition of function
-        :param api: dict contains api URL
-        """
-        params = [x.strip(":")
-                  for x in meta.params_reg.findall(api['api_url'])]
 
-        keywords = []
-        params_def = []
-        params_doc = ""
-        original_names = {}
+def parse_resource_definition(resource_name, resource_dct):
+    """
+    Returns all the info extracted from a resource section of the apipie json
 
-        for param in definition['params']:
-            params_doc += meta.create_param_doc(param) + "\n"
-            if param['name'] not in params:
-                local_name = param['name']
-                if param['name'] == 'except':
-                    local_name = 'except_'
-                original_names[local_name] = param['name']
-                keywords.append(local_name)
-                params_def.append("%s=None" % local_name)
+    :param resource_name: Name of the resource that is defined by the section
+    :param resrouce_dict: Dictionary as generated by apipie of the resource
+        definition
+    """
+    new_dict = {
+        '__module__': resource_dct.get('__module__', __name__),
+        '__doc__': resource_dct['full_description'],
+        '_resource_name': resource_name,
+        '_own_methods': set(),
+        '_conflicting_methods': [],
+    }
 
-        params_def = params + params_def
+    # methods in foreign_methods are ment for other resources,
+    # that is, the url and the resource field do not match /api/{resource}
+    foreign_methods = {}
 
-        func_head = 'def {0}(self, {1}):'.format(definition['name'],
-                                                 ', '.join(params_def))
-        code_body = (
-            '   _vars_ = locals()\n'
-            '   _url = self._fill_url("{1}", _vars_, {2})\n'
-            '   _original_names = {4}\n'
-            '   _kwargs = dict((_original_names[k], _vars_[k])'
-            '                   for k in {3} if _vars_[k])\n'
-            '   return self._f.do_{0}(_url, _kwargs)')
-        code_body = code_body.format(
-            api['http_method'].lower(), api['api_url'], params, keywords,
-            original_names)
+    # as defined per apipie gem, each method can have more than one api,
+    # for example, /api/hosts can have the GET /api/hosts api and the GET
+    # /api/hosts/:id api or DELETE /api/hosts
+    for method in resource_dct['methods']:
+        # set the docstring if it only has one api
+        if not new_dict['__doc__'] and len(method['apis']) == 1:
+            new_dict['__doc__'] = \
+                method['apis'][0]['short_description']
+        for api in method['apis']:
+            api = MethodAPIDescription(resource_name, method, api)
 
-        code = [func_head,
-                '   """',
-                api['short_description'] or '',
-                '',
-                params_doc,
-                '   """',
-                code_body]
+            if api.resource != resource_name:
+                # this means that the json apipie passes says that an
+                # endpoint in the form: /api/{resource}/* belongs to
+                # {different_resource}, we just put it under {resource}
+                # later, storing it under _foreign_methods for now as we
+                # might not have parsed {resource} yet
+                functions = foreign_methods.setdefault(api.resource, {})
+                if api.name in functions:
+                    old_api = functions.get(api.name).defs
+                    logging.warning(
+                        "There is conflict trying to redefine a method "
+                        "for a foreign resource (%s): \n"
+                        "\tresource:\n"
+                        "\tapipie_resource: %s\n"
+                        "\tnew_api: %s\n"
+                        "\tnew_url: %s\n"
+                        "\told_api: %s\n"
+                        "\told_url: %s",
+                        api.name,
+                        resource_name,
+                        pprint.pformat(api),
+                        api.url,
+                        pprint.pformat(old_api),
+                        old_api.url,
+                    )
+                    new_dict['_conflicting_methods'].append(api)
+                    continue
+                functions[api.name] = api.generate_func()
 
-        code = '\n'.join(code)
+            else:
+                # it's an own method, resource and url match
+                if api.name in new_dict['_own_methods']:
+                    old_api = new_dict.get(api.name).defs
+                    logging.warning(
+                        "There is conflict trying to redefine method "
+                        "(%s): \n"
+                        "\tapipie_resource: %s\n"
+                        "\tnew_api: %s\n"
+                        "\tnew_url: %s\n"
+                        "\told_api: %s\n"
+                        "\told_url: %s",
+                        api.name,
+                        resource_name,
+                        pprint.pformat(api),
+                        api.url,
+                        pprint.pformat(old_api),
+                        old_api.url,
+                    )
+                    new_dict['_conflicting_methods'].append(api)
+                    continue
+                new_dict['_own_methods'].add(api.name)
+                new_dict[api.name] = api.generate_func()
 
-        exec code
-        return locals()[definition['name']]
+    return new_dict, foreign_methods
+
+
+class ResourceMeta(type):
+    """
+    This type composes methods for resource class
+    """
+    def __new__(meta, name, bases, data):
+        if name == 'Resource':  # Skip base class
+            return type.__new__(meta, name, bases, data)
+
+        # element_name => ElementName
+        cls_name = ''.join([x.capitalize() for x in name.split('_')])
+        return type.__new__(meta, str(cls_name), bases, data)
 
 
 class Resource(object):
@@ -222,17 +377,21 @@ class Resource(object):
         """
         :param foreman: instance of Foreman class
         """
-        self._f = foreman
-        # Preserve backward compatibility with old interface
+        self._foreman = foreman
+        # Preserve backward compatibility with old interface and declare global
+        # methods to access the common methods
         for method_name in ('index', 'show', 'update', 'destroy', 'create'):
             method = getattr(self, method_name, None)
-            method_name = "%s_%s" % (method_name, self._resource_name)
+            method_name = "%s_%s" % (
+                method_name,
+                self.__class__.__name__.lower(),
+            )
             if method:
-                setattr(self._f, method_name, method)
+                setattr(self._foreman, method_name, method)
 
     def _fill_url(self, url, vars_, params):
         kwargs = dict((k, vars_[k]) for k in params)
-        url = self._params_reg.sub('{\\1}', url)
+        url = self._params_reg.sub(lambda match: '{%s}' % match.groups(), url)
         return url.format(**kwargs)
 
 
@@ -242,64 +401,88 @@ class MetaForeman(type):
         This class is called when defining the Foreman class, and populates it
         with the defined methods.
         :param meta: This metaclass
-        :param cls_name: Name of the class the is going to be created
+        :param cls_name: Name of the class that is going to be created
         :param bases: Bases for the new class
         :param attrs: Attributes of the new class
         """
-        entires = {'name': 'plugins',
-                   'methods': [],
-                   'full_description': "Binds foreman_plugins"}
-        for plugin in (pl for pl in plugins if not pl.startswith('_')):
+        entries = {
+            'name': 'plugins',
+            'methods': [],
+            'full_description': "Binds foreman_plugins",
+        }
+        for plugin in (pl for pl in PLUGINS if not pl.startswith('_')):
             try:
-                myplugin = __import__('foreman_plugins.' + plugin, globals(),
-                                      locals(),
-                                      ['DEFS'])
+                myplugin = __import__(
+                    'foreman_plugins.' + plugin,
+                    globals(),
+                    locals(),
+                    ['DEFS'],
+                )
             except ImportError:
                 logging.error('Unable to import plugin module %s', plugin)
                 continue
-            for mname, funcs in myplugin.DEFS.iteritems():
-                methods = meta.convert_plugin_def(mname, funcs)
-                entires['methods'].extend(methods)
+            for http_method, funcs in myplugin.DEFS.iteritems():
+                methods = MetaForeman.convert_plugin_def(http_method, funcs)
+                entries['methods'].extend(methods)
 
         def _init(self, foreman):
             super(self.__class__, self).__init__(foreman)
             for name, value in self.__class__.__dict__.iteritems():
                 if isinstance(value, types.FunctionType) and name[0] != '_':
-                    setattr(self._f, name, getattr(self, name))
+                    logging.debug(
+                        'Registering plugin method %s',
+                        name,
+                    )
+                    setattr(self._foreman, name, getattr(self, name))
 
-        plugins_cls = ResourceMeta.__new__(ResourceMeta, 'plugins',
-                                           (Resource,), entires)
+        resource_data, foreigns = parse_resource_definition('plugins', entries)
+        # by default, all the methods are detected as foreign, we must manually
+        # add them
+        for mname, method_dict in foreigns.iteritems():
+            resource_data[mname] = method_dict.values()[0]
+            resource_data['_own_methods'].add(mname)
+
+        plugins_cls = ResourceMeta.__new__(
+            ResourceMeta,
+            'plugins',
+            (Resource,),
+            resource_data,
+        )
         plugins_cls.__init__ = _init
         attrs['_plugins_resources'] = plugins_cls
         return type.__new__(meta, cls_name, bases, attrs)
 
-    @classmethod
-    def convert_plugin_def(meta, mname, funcs):
+    @staticmethod
+    def convert_plugin_def(http_method, funcs):
         """
         This function parses one of the elements of the definitions dict for a
         plugin and extracts the relevant information
-        :param meta: This meta class
-        :param mname: HTTP method that uses (GET, POST, DELETE, ...)
+
+        :param http_method: HTTP method that uses (GET, POST, DELETE, ...)
         :param funcs: functions related to that HTTP method
         """
         methods = []
+        if http_method not in ('GET', 'PUT', 'POST', 'DELETE'):
+            logging.error(
+                'Plugin load failure, HTTP method %s unsupported.',
+                http_method,
+            )
+            return methods
         for fname, params in funcs.iteritems():
-            method = {'apis': [{'short_description': 'no-doc'}],
-                      'params': []}
-            if mname in ['GET', 'PUT', 'POST', 'DELETE']:
-                full_fname = fname
-                method['apis'][0]['http_method'] = mname
-            else:
-                full_fname = '%s_%s' % (fname, mname)
-                method['apis'][0]['http_method'] = 'GET'
-            method['apis'][0]['api_url'] = '/api/' + full_fname
-            method['name'] = full_fname
+            method = {
+                'apis': [{'short_description': 'no-doc'}],
+                'params': [],
+            }
+            method['apis'][0]['http_method'] = http_method
+            method['apis'][0]['api_url'] = '/api/' + fname
+            method['name'] = fname
             for pname, pdef in params.iteritems():
-                doc_ = "Must be %s" % pdef['ptype']
-                param = {'name': pname,
-                         'validator': doc_,
-                         'description': doc_,
-                         'required': pdef['required']}
+                param = {
+                    'name': pname,
+                    'validator': "Must be %s" % pdef['ptype'],
+                    'description': '',
+                    'required': pdef['required'],
+                }
                 method['params'].append(param)
             methods.append(method)
         return methods
@@ -463,14 +646,7 @@ class Foreman(object):
                 % '%s/%s' % (self.url, 'apidoc/v%s.json' % self.api_version))
         return data
 
-    def _generate_api_defs(self, use_cache=True):
-        """
-        This method populates the class with the api definitions.
-
-        :param use_cache: If set, will try to get the definitions from the
-            local cache first, then from the remote server, and at last will
-            try to get the closest one from the local cached
-        """
+    def _get_defs(self, use_cache):
         if use_cache:
             try:
                 logging.debug("Getting local cached definitions")
@@ -482,18 +658,88 @@ class Foreman(object):
         else:
             logging.debug("Checking remote definitions only")
             data = self._get_remote_defs(use_cache=False)
-        resources = {}
-        for name, entires in data['docs']["resources"].iteritems():
-            new_resource = ResourceMeta.__new__(ResourceMeta, str(name),
-                                                (Resource,), entires)
-            resources[name] = new_resource
-        for name, resource in resources.iteritems():
-            for fname, ffunctions in resource._foreign_methods.iteritems():
-                for func_name, func in ffunctions.iteritems():
-                    setattr(resources[fname], func_name, func)
-        for name, resource in resources.iteritems():
-            instance = resource(self)
-            setattr(self, resource._resource_name, instance)
+        return data
+
+    def _generate_api_defs(self, use_cache=True):
+        """
+        This method populates the class with the api definitions.
+
+        :param use_cache: If set, will try to get the definitions from the
+            local cache first, then from the remote server, and at last will
+            try to get the closest one from the local cached
+        """
+        data = self._get_defs(use_cache)
+
+        resource_defs = {}
+        # parse all the defs first, as they may define methods cross-resource
+        for res_name, res_dct in data["docs"]["resources"].iteritems():
+            new_resource, extra_foreign_methods = parse_resource_definition(
+                res_name.lower(),
+                res_dct,
+            )
+            # if the resource did already exist (for example, was defined
+            # through a foreign method by enother resource), complain if it
+            # overwrites any methods
+            if res_name in resource_defs:
+                old_res = resource_defs[res_name]
+                for prop_name, prop_val in new_resource.iteritems():
+                    if (
+                        prop_name == '_own_methods' and
+                        prop_name in new_resource
+                    ):
+                        old_res[prop_name].union(prop_val)
+                        continue
+                    # skip internal/private/magic methods
+                    if prop_name.startswith('_'):
+                        continue
+                    if prop_name in old_res:
+                        logging.warning(
+                            "There is conflict trying to redefine method "
+                            "(%s) with foreign method: \n"
+                            "\tapipie_resource: %s\n",
+                            prop_name,
+                            res_name,
+                        )
+                        continue
+                    old_res[prop_name] = prop_val
+            else:
+                resource_defs[res_name] = new_resource
+
+            # update the other resources with the foreign methods, create
+            # the resources if not there yet, merge if it already exists
+            for f_res_name, f_methods in extra_foreign_methods.iteritems():
+                methods = resource_defs.setdefault(
+                    f_res_name,
+                    {'_own_methods': set()},
+                )
+
+                for f_mname, f_method in f_methods.iteritems():
+                    if f_mname in methods:
+                        logging.warning(
+                            "There is conflict trying to redefine method "
+                            "(%s) with foreign method: \n"
+                            "\tapipie_resource: %s\n",
+                            f_mname,
+                            f_res_name,
+                        )
+                        continue
+                    methods[f_mname] = f_method
+                    methods['_own_methods'].add(f_mname)
+
+        # Finally ceate the resource classes for all the collected resources
+        # instantiate and bind them to this class
+        for resource_name, resource_data in resource_defs.iteritems():
+            new_resource = ResourceMeta.__new__(
+                ResourceMeta,
+                str(resource_name),
+                (Resource,),
+                resource_data,
+            )
+            if not resource_data['_own_methods']:
+                logging.debug('Skiping empty resource %s' % resource_name)
+                continue
+            instance = new_resource(self)
+            setattr(self, resource_name, instance)
 
     def _process_request_result(self, res):
         """Generic function to process the result of an HTTP request"""
