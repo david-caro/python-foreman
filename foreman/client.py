@@ -496,7 +496,8 @@ class Foreman(object):
     __metaclass__ = MetaForeman
 
     def __init__(self, url, auth=None, version=None, api_version=None,
-                 use_cache=True, timeout=60, verify=False):
+                 use_cache=True, timeout=60, timeout_post=600,
+                 timeout_delete=600, timeout_put=None, verify=False):
         """
         :param url: Full url to the foreman server
         :param auth: Tuple with the user and the pass
@@ -506,7 +507,18 @@ class Foreman(object):
             will try to get them from the remote Foreman instance (it needs
             you to have disabled use_cache in the apipie configuration in your
             foreman instance)
-        :param timeout: Timeout in seconds for each httpr request
+        :param timeout: Timeout in seconds for each http request (default 60)
+            If None or 0, then no timeout.
+        :param timeout_post: Timeout in seconds for POST requests (eg. host
+            creation, default 600 as it may take a long time depending on
+            compute resource).
+            If None, then global timeout is used, 0 means no timeout.
+        :param timeout_delete: Timeout in seconds for DELETE requests (eg. host
+            deletion, default 600 as it may take a long time depending on
+            compute resource)
+            If None, then global timeout is used, 0 means no timeout.
+        :param timeout_put: Timeout in seconds for PUT requests
+            If None, then global timeout is used, 0 means no timeout.
         :param verify: path to certificates bundle for SSL verification. If
             False, SSL will not be validated
         """
@@ -518,9 +530,16 @@ class Foreman(object):
                 "it. Though we recommend using the new and improved version 2"
             )
         self.url = url
-        self._req_params = {
-            'timeout': timeout,
-        }
+        self._req_params = {}
+        self.timeout = {'DEFAULT': timeout}
+
+        if timeout_post is not None:
+            self.set_timeout(timeout_post, 'POST')
+        if timeout_delete is not None:
+            self.set_timeout(timeout_delete, 'DELETE')
+        if timeout_put is not None:
+            self.set_timeout(timeout_put, 'PUT')
+
         self.version = version
         self.api_version = api_version
         self.session = requests.Session()
@@ -539,14 +558,36 @@ class Foreman(object):
         # Instantiate plugins
         self.plugins = self._plugins_resources(self)
 
-    def set_timeout(self, timeout):
+    def get_timeout(self, method=None):
+        """
+        Get timeout for given request method
+
+        :param method: Request method (eg. GET, POST, ..). If None, return
+            default timeout.
+        """
+        return self.timeout.get(method, self.timeout['DEFAULT'])
+
+    def set_timeout(self, timeout, method='DEFAULT'):
         """
         Set the timeout for any connection, the timeout is the requests module
         timeout (for conneciton inactivity rather than request total time)
 
         :param timeout: Timeout in seconds for the connection inactivity
+        :param method: Request method (eg. GET, POST, ..). By default, set
+            default timeout.
         """
-        self._req_params['timeout'] = timeout
+        self.timeout[method] = timeout or None
+
+    def unset_timeout(self, method):
+        """
+        Ensure timeout for given method is not set.
+
+        :param method: Request method (eg. GET, POST, ..)
+        """
+        try:
+            self.timeout.pop(method)
+        except KeyError:
+            pass
 
     def get_foreman_version(self):
         """
@@ -763,7 +804,8 @@ class Foreman(object):
         :param kwargs: parameters for the api call
         """
         res = self.session.get('%s%s' % (self.url, url),
-                               params=kwargs, **self._req_params)
+                               params=kwargs, timeout=self.get_timeout('GET'),
+                               **self._req_params)
         return self._process_request_result(res)
 
     def do_post(self, url, kwargs):
@@ -773,7 +815,8 @@ class Foreman(object):
         """
         data = json.dumps(kwargs)
         res = self.session.post('%s%s' % (self.url, url),
-                                data=data, **self._req_params)
+                                data=data, timeout=self.get_timeout('POST'),
+                                **self._req_params)
         return self._process_request_result(res)
 
     def do_put(self, url, kwargs):
@@ -783,7 +826,8 @@ class Foreman(object):
         """
         data = json.dumps(kwargs)
         res = self.session.put('%s%s' % (self.url, url),
-                               data=data, **self._req_params)
+                               data=data, timeout=self.get_timeout('PUT'),
+                               **self._req_params)
         return self._process_request_result(res)
 
     def do_delete(self, url, kwargs):
@@ -792,5 +836,6 @@ class Foreman(object):
         :param kwargs: parameters for the api call
         """
         res = self.session.delete('%s%s' % (self.url, url),
+                                  timeout=self.get_timeout('DELETE'),
                                   **self._req_params)
         return self._process_request_result(res)
