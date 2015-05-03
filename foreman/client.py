@@ -8,16 +8,16 @@ import copy
 import types
 import pprint
 import logging
-import glob
 import os.path
 import pkgutil
+import glob
 
 import requests
 
 try:
     import foreman_plugins
-    pkg_path = os.path.dirname(foreman_plugins.__file__)
-    PLUGINS = [name for _, name, _ in pkgutil.iter_modules([pkg_path])]
+    PKG_PATH = os.path.dirname(foreman_plugins.__file__)
+    PLUGINS = [name for _, name, _ in pkgutil.iter_modules([PKG_PATH])]
 except ImportError:
     PLUGINS = []
 
@@ -28,10 +28,25 @@ else:
     OLD_REQ = False
 
 
-def ver_cmp(ver_a, ver_b):
-    ver_a = ver_a.split('-')[0].split('.')
-    ver_b = ver_b.split('-')[0].split('.')
-    return cmp(ver_a, ver_b)
+def try_int(what):
+    try:
+        return int(what)
+    except ValueError:
+        return what
+
+
+def parse_version(version_string):
+    """
+    :param version_string: Version string to parse, like '1.2.3'
+
+    Passing to int as many of the elements as possible to support comparing
+    ints of different number of chars (2<10 but '2'>'10'). So we just accept
+    that any element with chars will be considered lesser to any int element.
+    """
+    return tuple(
+        try_int(token)
+        for token in version_string.replace('-', '.', 1).split('.')
+    )
 
 
 def res_to_str(res):
@@ -496,8 +511,9 @@ class Foreman(object):
     __metaclass__ = MetaForeman
 
     def __init__(self, url, auth=None, version=None, api_version=None,
-                 use_cache=True, timeout=60, timeout_post=600,
-                 timeout_delete=600, timeout_put=None, verify=False):
+                 use_cache=True, strict_cache=True, timeout=60,
+                 timeout_post=600, timeout_delete=600, timeout_put=None,
+                 verify=False):
         """
         :param url: Full url to the foreman server
         :param auth: Tuple with the user and the pass
@@ -507,6 +523,8 @@ class Foreman(object):
             will try to get them from the remote Foreman instance (it needs
             you to have disabled use_cache in the apipie configuration in your
             foreman instance)
+        :param sctrict_cache: If True, will not use a similar version
+            definitions file
         :param timeout: Timeout in seconds for each http request (default 60)
             If None or 0, then no timeout.
         :param timeout_post: Timeout in seconds for POST requests (eg. host
@@ -554,7 +572,7 @@ class Foreman(object):
         if self.version is None:
             self.version = self.get_foreman_version()
 
-        self._generate_api_defs(use_cache)
+        self._generate_api_defs(use_cache, strict_cache)
         # Instantiate plugins
         self.plugins = self._plugins_resources(self)
 
@@ -620,96 +638,111 @@ class Foreman(object):
         version if not strict passed.
 
         :param strict: Use any version that shared major version and has lower
-                       minor if no total match found
+             minor version if no total match found
         """
+        version = parse_version(self.version)
         defs_path = os.path.join(os.path.dirname(__file__), 'definitions')
         files = glob.glob('%s/*-v%s.json' % (defs_path, self.api_version))
-        last_major_match = None
-        for f_name in sorted(files):
-            f_ver = os.path.basename(f_name).split('-')[0]
-            if f_ver == self.version:
-                return json.loads(open(f_name).read())
-            if f_ver.split('.')[:2] == self.version.split('.')[:2]:
-                last_major_match = f_name
-            if ver_cmp(f_ver, self.version) < 0:
-                if strict:
-                    raise ForemanVersionException(
-                        "Unable to get suitable json definition for Foreman "
-                        "%s, but found a similar cached version %s/%s, run "
-                        "without strict flag to use it"
-                        % (self.version, self.api_version, last_major_match))
-                else:
-                    logging.warn("Not exact version found, found %s in cache "
-                                 "for Foreman %s", f_ver, self.version)
-                    return json.loads(open(f_name).read())
-        if last_major_match:
-            logging.warn("Not exact version found, using %s from cache "
-                         "for Foreman %s", f_ver, self.version)
-            return json.loads(open(last_major_match).read())
-        raise ForemanVersionException(
-            "No suitable cache found for version=%s api_version=%s."
-            "\nAvailable: %s"
-            % (self.version, self.api_version, '\n\t' + '\n\t'.join(files)))
+        files_version = [
+            (fn, parse_version(os.path.basename(fn).rsplit('-', 1)[0]))
+            for fn in files
+        ]
 
-    def _get_remote_defs(self, use_cache=True):
+        last_major_match = None
+        for f_name, f_ver in sorted(files_version, key=lambda x: x[1]):
+            if f_ver == version:
+                logging.debug('Found local cached version %s' % f_name)
+                return json.loads(open(f_name).read())
+            if f_ver[:2] == version[:2]:
+                last_major_match = f_name
+            if f_ver[0] > version[0]:
+                break
+
+        if last_major_match:
+            if strict:
+                raise ForemanVersionException(
+                    "Unable to get suitable json definition for Foreman "
+                    "%s, but found a similar cached version %s, run "
+                    "without strict flag to use it"
+                    % (self.version, last_major_match))
+            else:
+                logging.warn(
+                    "Not exact version found, got cached %s for Foreman %s",
+                    last_major_match,
+                    self.version,
+                )
+                return json.loads(open(last_major_match).read())
+        raise ForemanVersionException(
+            "No suitable cache found for version=%s api_version=%s strict=%s."
+            "\nAvailable: %s"
+            % (
+                self.version,
+                self.api_version,
+                strict,
+                '\n\t' + '\n\t'.join(files)
+            )
+        )
+
+    def _get_remote_defs(self):
         """
-        Retrieves the json definitions from remote foreman if able, and fall
-        back to local ones if not (by default).
-        :param use_cache: if set, will load a local definition if it's unable
-        to retrieve them from the remote host'
+        Retrieves the json definitions from remote forem
         """
         res = self.session.get(
             '%s/%s' % (self.url, 'apidoc/v%s.json' % self.api_version),
-            **self._req_params)
+            **self._req_params
+        )
+
         if res.ok:
             data = json.loads(res.text)
             defs_path = os.path.join(os.path.dirname(__file__), 'definitions')
-            cache_fn = '%s/%s-v%s.json' % (defs_path, self.version,
-                                           self.api_version)
+            cache_fn = '%s/%s-v%s.json' % (
+                defs_path, self.version,
+                self.api_version,
+            )
             try:
                 with open(cache_fn, 'w') as cache_fd:
                     cache_fd.write(json.dumps(data, indent=4, default=str))
             except:
                 logging.debug('Unable to write cache file %s', cache_fn)
-        elif res.status_code == 404 and use_cache:
-            logging.warn(
-                "Unable to get api definition from live foreman instance "
-                "at '%s', trying cache.\nNOTE: Make sure that you have "
-                "set the config.use_cache parameter to false in apipie "
-                "initializer (usually "
-                "FOREMAN_HOME/config/initializers/apipie.rb).",
-                res.url)
-            # fallback to cache if not found
-            data = self._get_local_defs(strict=False)
         else:
+            if res.status_code == 404:
+                logging.warn(
+                    "Unable to get api definition from live Foreman instance "
+                    "at '%s', you might want to set the strict_cache to False."
+                    "\nNOTE: Make sure that you have set the config.use_cache "
+                    "parameter to false in apipie initializer (usually "
+                    "FOREMAN_HOME/config/initializers/apipie.rb).",
+                    res.url,
+                )
             raise ForemanVersionException(
-                "There was an error trying to get api definition from %s"
-                % '%s/%s' % (self.url, 'apidoc/v%s.json' % self.api_version))
+                "There was an error trying to get api definition from %s/%s"
+                % (self.url, 'apidoc/v%s.json' % self.api_version)
+            )
         return data
 
-    def _get_defs(self, use_cache):
+    def _get_defs(self, use_cache, strict_cache):
         if use_cache:
             try:
-                logging.debug("Getting local cached definitions")
-                data = self._get_local_defs()
-            except ForemanVersionException:
-                logging.debug("Checking remote and approximated local "
-                              "definitions")
-                data = self._get_remote_defs()
-        else:
-            logging.debug("Checking remote definitions only")
-            data = self._get_remote_defs(use_cache=False)
+                logging.debug("Trying local cached definitions first")
+                data = self._get_local_defs(strict=strict_cache)
+            except ForemanVersionException as exc:
+                logging.debug(exc)
+        if not data:
+            logging.debug("Checking remote server for definitions")
+            data = self._get_remote_defs()
         return data
 
-    def _generate_api_defs(self, use_cache=True):
+    def _generate_api_defs(self, use_cache=True, strict_cache=True):
         """
         This method populates the class with the api definitions.
 
         :param use_cache: If set, will try to get the definitions from the
             local cache first, then from the remote server, and at last will
             try to get the closest one from the local cached
+        :param strict_cache: If True, will not accept a similar version cached
+            definitions file as valid
         """
-        data = self._get_defs(use_cache)
+        data = self._get_defs(use_cache, strict_cache=strict_cache)
 
         resource_defs = {}
         # parse all the defs first, as they may define methods cross-resource
@@ -803,9 +836,12 @@ class Foreman(object):
         :param url: relative url to resource
         :param kwargs: parameters for the api call
         """
-        res = self.session.get('%s%s' % (self.url, url),
-                               params=kwargs, timeout=self.get_timeout('GET'),
-                               **self._req_params)
+        res = self.session.get(
+            '%s%s' % (self.url, url),
+            params=kwargs,
+            timeout=self.get_timeout('GET'),
+            **self._req_params
+        )
         return self._process_request_result(res)
 
     def do_post(self, url, kwargs):
@@ -814,9 +850,12 @@ class Foreman(object):
         :param kwargs: parameters for the api call
         """
         data = json.dumps(kwargs)
-        res = self.session.post('%s%s' % (self.url, url),
-                                data=data, timeout=self.get_timeout('POST'),
-                                **self._req_params)
+        res = self.session.post(
+            '%s%s' % (self.url, url),
+            data=data,
+            timeout=self.get_timeout('POST'),
+            **self._req_params
+        )
         return self._process_request_result(res)
 
     def do_put(self, url, kwargs):
@@ -825,9 +864,12 @@ class Foreman(object):
         :param kwargs: parameters for the api call
         """
         data = json.dumps(kwargs)
-        res = self.session.put('%s%s' % (self.url, url),
-                               data=data, timeout=self.get_timeout('PUT'),
-                               **self._req_params)
+        res = self.session.put(
+            '%s%s' % (self.url, url),
+            data=data,
+            timeout=self.get_timeout('PUT'),
+            **self._req_params
+        )
         return self._process_request_result(res)
 
     def do_delete(self, url, kwargs):
@@ -835,7 +877,9 @@ class Foreman(object):
         :param url: relative url to resource
         :param kwargs: parameters for the api call
         """
-        res = self.session.delete('%s%s' % (self.url, url),
-                                  timeout=self.get_timeout('DELETE'),
-                                  **self._req_params)
+        res = self.session.delete(
+            '%s%s' % (self.url, url),
+            timeout=self.get_timeout('DELETE'),
+            **self._req_params
+        )
         return self._process_request_result(res)
