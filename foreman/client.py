@@ -113,11 +113,7 @@ class MethodAPIDescription(object):
         self.url = self._api['api_url']
         self.url_params = re.findall('/:([^/]+)(?:/|$)', self.url)
         self.params = self._method['params']
-        # special case for the api root
-        if self.url == '/api':
-            self.resource = 'api'
-        else:
-            self.resource = self.url.split('/', 3)[2]
+        self.resource = parse_resource_from_url(self.url) or ''
         self.name = self._get_name()
         self.http_method = self._api['http_method']
         self.short_desc = self._api['short_description'] or ''
@@ -366,6 +362,25 @@ def parse_resource_definition(resource_name, resource_dct):
                 new_dict[api.name] = api.generate_func()
 
     return new_dict, foreign_methods
+
+
+resource_pattern = re.compile(r'^/api(/v[12])?/(?P<resource>\w+).*')
+
+
+def parse_resource_from_url(url):
+    """
+    Returns the appropriate resource name for the given URL.
+
+    :param url:  API URL stub, like: '/api/hosts'
+    :return: Resource name, like 'hosts', or None if not found
+    """
+    # special case for the api root
+    if url == '/api':
+        return 'api'
+
+    match = resource_pattern.match(url)
+    if match:
+        return match.groupdict().get('resource', None)
 
 
 class ResourceMeta(type):
