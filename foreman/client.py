@@ -721,6 +721,7 @@ class Foreman(object):
         return data
 
     def _get_defs(self, use_cache, strict_cache):
+        data = None
         if use_cache:
             try:
                 logging.debug("Trying local cached definitions first")
