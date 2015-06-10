@@ -613,14 +613,13 @@ class Foreman(object):
         the version first to know its path, so instead of that we get the
         main page and extract the version from the footer.
         """
-        params = dict(self._req_params)
-        home_page = self.session.get(self.url, **params)
+        home_page = self.do_get('/', None)
         match = re.search(r'Version\s+(?P<version>\S+)', home_page.text)
         if match:
             return match.groupdict()['version']
         else:
             # on newer versions the version can be taken from the status page
-            res = self.session.get(self.url + '/api/status', **params)
+            res = self.do_get('/api/status', None)
             if res.status_code < 200 or res.status_code >= 300:
                 raise ForemanException(
                     res,
@@ -687,9 +686,9 @@ class Foreman(object):
         """
         Retrieves the json definitions from remote forem
         """
-        res = self.session.get(
-            '%s/%s' % (self.url, 'apidoc/v%s.json' % self.api_version),
-            **self._req_params
+        res = self.do_get(
+            'apidoc/v%s.json' % self.api_version,
+            None
         )
 
         if res.ok:
