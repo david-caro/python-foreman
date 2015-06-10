@@ -614,13 +614,21 @@ class Foreman(object):
         main page and extract the version from the footer.
         """
         params = dict(self._req_params)
-        home_page = self.session.get(self.url, **params)
+        home_page = self.session.get(
+            self.url,
+            timeout=self.get_timeout('GET'),
+            **params
+        )
         match = re.search(r'Version\s+(?P<version>\S+)', home_page.text)
         if match:
             return match.groupdict()['version']
         else:
             # on newer versions the version can be taken from the status page
-            res = self.session.get(self.url + '/api/status', **params)
+            res = self.session.get(
+                self.url + '/api/status',
+                timeout=self.get_timeout('GET'),
+                **params
+            )
             if res.status_code < 200 or res.status_code >= 300:
                 raise ForemanException(
                     res,
@@ -689,6 +697,7 @@ class Foreman(object):
         """
         res = self.session.get(
             '%s/%s' % (self.url, 'apidoc/v%s.json' % self.api_version),
+            timeout=self.get_timeout('GET'),
             **self._req_params
         )
 
