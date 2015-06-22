@@ -523,7 +523,7 @@ class Foreman(object):
             will try to get them from the remote Foreman instance (it needs
             you to have disabled use_cache in the apipie configuration in your
             foreman instance)
-        :param sctrict_cache: If True, will not use a similar version
+        :param strict_cache: If True, will not use a similar version
             definitions file
         :param timeout: Timeout in seconds for each http request (default 60)
             If None or 0, then no timeout.
@@ -684,7 +684,7 @@ class Foreman(object):
 
     def _get_remote_defs(self):
         """
-        Retrieves the json definitions from remote forem
+        Retrieves the json definitions from remote foreman instance.
         """
         res = self.do_get(
             'apidoc/v%s.json' % self.api_version,
@@ -810,7 +810,7 @@ class Foreman(object):
                 resource_data,
             )
             if not resource_data['_own_methods']:
-                logging.debug('Skiping empty resource %s' % resource_name)
+                logging.debug('Skipping empty resource %s' % resource_name)
                 continue
             instance = new_resource(self)
             setattr(self, resource_name, instance)
