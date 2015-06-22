@@ -685,7 +685,7 @@ class Foreman(object):
 
     def _get_remote_defs(self):
         """
-        Retrieves the json definitions from remote forem
+        Retrieves the json definitions from remote foreman instance.
         """
         res = self.session.get(
             '%s/%s' % (self.url, 'apidoc/v%s.json' % self.api_version),
@@ -811,7 +811,7 @@ class Foreman(object):
                 resource_data,
             )
             if not resource_data['_own_methods']:
-                logging.debug('Skiping empty resource %s' % resource_name)
+                logging.debug('Skipping empty resource %s' % resource_name)
                 continue
             instance = new_resource(self)
             setattr(self, resource_name, instance)
