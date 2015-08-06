@@ -321,6 +321,11 @@ def parse_resource_definition(resource_name, resource_dct):
                 functions = foreign_methods.setdefault(api.resource, {})
                 if api.name in functions:
                     old_api = functions.get(api.name).defs
+
+                    # ignore repeated but identical definitions
+                    if api.url == old_api.url:
+                        continue
+
                     logging.warning(
                         "There is conflict trying to redefine a method "
                         "for a foreign resource (%s): \n"
@@ -345,6 +350,11 @@ def parse_resource_definition(resource_name, resource_dct):
                 # it's an own method, resource and url match
                 if api.name in new_dict['_own_methods']:
                     old_api = new_dict.get(api.name).defs
+
+                    # ignore repeated but identical definitions
+                    if api.url == old_api.url:
+                        continue
+
                     logging.warning(
                         "There is conflict trying to redefine method "
                         "(%s): \n"
