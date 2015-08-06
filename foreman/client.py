@@ -297,7 +297,7 @@ def parse_resource_definition(resource_name, resource_dct):
         '_conflicting_methods': [],
     }
 
-    # methods in foreign_methods are ment for other resources,
+    # methods in foreign_methods are meant for other resources,
     # that is, the url and the resource field do not match /api/{resource}
     foreign_methods = {}
 
