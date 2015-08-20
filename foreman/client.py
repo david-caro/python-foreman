@@ -297,7 +297,7 @@ def parse_resource_definition(resource_name, resource_dct):
         '_conflicting_methods': [],
     }
 
-    # methods in foreign_methods are ment for other resources,
+    # methods in foreign_methods are meant for other resources,
     # that is, the url and the resource field do not match /api/{resource}
     foreign_methods = {}
 
@@ -313,7 +313,7 @@ def parse_resource_definition(resource_name, resource_dct):
             api = MethodAPIDescription(resource_name, method, api)
 
             if api.resource != resource_name:
-                # this means that the json apipie passes says that an
+                # this means that the json apipie passed says that an
                 # endpoint in the form: /api/{resource}/* belongs to
                 # {different_resource}, we just put it under {resource}
                 # later, storing it under _foreign_methods for now as we
@@ -322,7 +322,7 @@ def parse_resource_definition(resource_name, resource_dct):
                 if api.name in functions:
                     old_api = functions.get(api.name).defs
                     logging.warning(
-                        "There is conflict trying to redefine a method "
+                        "There is a conflict trying to redefine a method "
                         "for a foreign resource (%s): \n"
                         "\tresource:\n"
                         "\tapipie_resource: %s\n"
@@ -346,7 +346,7 @@ def parse_resource_definition(resource_name, resource_dct):
                 if api.name in new_dict['_own_methods']:
                     old_api = new_dict.get(api.name).defs
                     logging.warning(
-                        "There is conflict trying to redefine method "
+                        "There is a conflict trying to redefine method "
                         "(%s): \n"
                         "\tapipie_resource: %s\n"
                         "\tnew_api: %s\n"
