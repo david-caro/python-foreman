@@ -561,7 +561,7 @@ class Foreman(object):
             )
         self.url = url
         self._req_params = {}
-        self.timeout = {'DEFAULT': timeout}
+        self.timeout = {'DEFAULT': timeout or None}
 
         if timeout_post is not None:
             self.set_timeout(timeout_post, 'POST')
@@ -629,6 +629,7 @@ class Foreman(object):
         home_page = requests.get(
             self.url,
             verify=self.session.verify,
+            timeout=self.get_timeout('GET'),
             **params
         )
 
@@ -640,7 +641,11 @@ class Foreman(object):
             return match.groupdict()['version']
         else:
             # on newer versions the version can be taken from the status page
-            res = self.session.get(self.url + '/api/status', **params)
+            res = self.session.get(
+                self.url + '/api/status',
+                timeout=self.get_timeout('GET'),
+                **params
+            )
             if res.status_code < 200 or res.status_code >= 300:
                 raise ForemanException(
                     res,
@@ -709,6 +714,7 @@ class Foreman(object):
         """
         res = self.session.get(
             '%s/%s' % (self.url, 'apidoc/v%s.json' % self.api_version),
+            timeout=self.get_timeout('GET'),
             **self._req_params
         )
 
