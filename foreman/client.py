@@ -105,6 +105,7 @@ class ForemanVersionException(Exception):
 
 class MethodAPIDescription(object):
     exclude_html_reg = re.compile('</?[^>/]+/?>')
+    resource_pattern = re.compile(r'^/api(/v[12])?/(?P<resource>\w+).*')
 
     def __init__(self, resource, method, api):
         self._method = copy.deepcopy(method)
@@ -113,17 +114,28 @@ class MethodAPIDescription(object):
         self.url = self._api['api_url']
         self.url_params = re.findall('/:([^/]+)(?:/|$)', self.url)
         self.params = self._method['params']
-        # special case for the api root
-        if self.url == '/api':
-            self.resource = 'api'
-        else:
-            self.resource = self.url.split('/', 3)[2]
+        self.resource = self.parse_resource_from_url(self.url) or ''
         self.name = self._get_name()
         self.http_method = self._api['http_method']
         self.short_desc = self._api['short_description'] or ''
 
     def __repr__(self):
         return "<resource:%s, name:%s>" % (self.resource, self.name)
+
+    def parse_resource_from_url(self, url):
+        """
+        Returns the appropriate resource name for the given URL.
+
+        :param url:  API URL stub, like: '/api/hosts'
+        :return: Resource name, like 'hosts', or None if not found
+        """
+        # special case for the api root
+        if url == '/api':
+            return 'api'
+
+        match = self.resource_pattern.match(url)
+        if match:
+            return match.groupdict().get('resource', None)
 
     def _get_name(self):
         """
