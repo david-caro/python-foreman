@@ -26,6 +26,7 @@ if requests.__version__.split('.', 1)[0] == '0':
     OLD_REQ = True
 else:
     OLD_REQ = False
+logger = logging.getLogger(__name__)
 
 
 def try_int(what):
@@ -333,7 +334,12 @@ def parse_resource_definition(resource_name, resource_dct):
                 functions = foreign_methods.setdefault(api.resource, {})
                 if api.name in functions:
                     old_api = functions.get(api.name).defs
-                    logging.warning(
+                    # show only in debug the repeated but identical definitions
+                    log_method = logger.warning
+                    if api.url == old_api.url:
+                        log_method = logger.debug
+
+                    log_method(
                         "There is a conflict trying to redefine a method "
                         "for a foreign resource (%s): \n"
                         "\tresource:\n"
@@ -357,7 +363,12 @@ def parse_resource_definition(resource_name, resource_dct):
                 # it's an own method, resource and url match
                 if api.name in new_dict['_own_methods']:
                     old_api = new_dict.get(api.name).defs
-                    logging.warning(
+                    log_method = logger.warning
+                    # show only in debug the repeated but identical definitions
+                    if api.url == old_api.url:
+                        log_method = logger.debug
+
+                    log_method(
                         "There is a conflict trying to redefine method "
                         "(%s): \n"
                         "\tapipie_resource: %s\n"
@@ -446,7 +457,7 @@ class MetaForeman(type):
                     ['DEFS'],
                 )
             except ImportError:
-                logging.error('Unable to import plugin module %s', plugin)
+                logger.error('Unable to import plugin module %s', plugin)
                 continue
             for http_method, funcs in myplugin.DEFS.iteritems():
                 methods = MetaForeman.convert_plugin_def(http_method, funcs)
@@ -456,7 +467,7 @@ class MetaForeman(type):
             super(self.__class__, self).__init__(foreman)
             for name, value in self.__class__.__dict__.iteritems():
                 if isinstance(value, types.FunctionType) and name[0] != '_':
-                    logging.debug(
+                    logger.debug(
                         'Registering plugin method %s',
                         name,
                     )
@@ -490,7 +501,7 @@ class MetaForeman(type):
         """
         methods = []
         if http_method not in ('GET', 'PUT', 'POST', 'DELETE'):
-            logging.error(
+            logger.error(
                 'Plugin load failure, HTTP method %s unsupported.',
                 http_method,
             )
@@ -554,7 +565,7 @@ class Foreman(object):
         """
         if api_version is None:
             api_version = 1
-            logging.warning(
+            logger.warning(
                 "Api v1 will not be the default in the next version, if you "
                 "still want to use it, change the call to explicitly ask for "
                 "it. Though we recommend using the new and improved version 2"
@@ -676,7 +687,7 @@ class Foreman(object):
         last_major_match = None
         for f_name, f_ver in sorted(files_version, key=lambda x: x[1]):
             if f_ver == version:
-                logging.debug('Found local cached version %s' % f_name)
+                logger.debug('Found local cached version %s' % f_name)
                 return json.loads(open(f_name).read())
             if f_ver[:2] == version[:2]:
                 last_major_match = f_name
@@ -691,7 +702,7 @@ class Foreman(object):
                     "without strict flag to use it"
                     % (self.version, last_major_match))
             else:
-                logging.warn(
+                logger.warn(
                     "Not exact version found, got cached %s for Foreman %s",
                     last_major_match,
                     self.version,
@@ -729,10 +740,10 @@ class Foreman(object):
                 with open(cache_fn, 'w') as cache_fd:
                     cache_fd.write(json.dumps(data, indent=4, default=str))
             except:
-                logging.debug('Unable to write cache file %s', cache_fn)
+                logger.debug('Unable to write cache file %s', cache_fn)
         else:
             if res.status_code == 404:
-                logging.warn(
+                logger.warn(
                     "Unable to get api definition from live Foreman instance "
                     "at '%s', you might want to set the strict_cache to False."
                     "\nNOTE: Make sure that you have set the config.use_cache "
@@ -750,12 +761,12 @@ class Foreman(object):
         data = None
         if use_cache:
             try:
-                logging.debug("Trying local cached definitions first")
+                logger.debug("Trying local cached definitions first")
                 data = self._get_local_defs(strict=strict_cache)
             except ForemanVersionException as exc:
-                logging.debug(exc)
+                logger.debug(exc)
         if not data:
-            logging.debug("Checking remote server for definitions")
+            logger.debug("Checking remote server for definitions")
             data = self._get_remote_defs()
         return data
 
@@ -794,7 +805,7 @@ class Foreman(object):
                     if prop_name.startswith('_'):
                         continue
                     if prop_name in old_res:
-                        logging.warning(
+                        logger.warning(
                             "There is conflict trying to redefine method "
                             "(%s) with foreign method: \n"
                             "\tapipie_resource: %s\n",
@@ -816,7 +827,7 @@ class Foreman(object):
 
                 for f_mname, f_method in f_methods.iteritems():
                     if f_mname in methods:
-                        logging.warning(
+                        logger.warning(
                             "There is conflict trying to redefine method "
                             "(%s) with foreign method: \n"
                             "\tapipie_resource: %s\n",
@@ -837,7 +848,7 @@ class Foreman(object):
                 resource_data,
             )
             if not resource_data['_own_methods']:
-                logging.debug('Skipping empty resource %s' % resource_name)
+                logger.debug('Skipping empty resource %s' % resource_name)
                 continue
             instance = new_resource(self)
             setattr(self, resource_name, instance)
