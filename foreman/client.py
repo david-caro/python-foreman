@@ -561,7 +561,7 @@ class Foreman(object):
             )
         self.url = url
         self._req_params = {}
-        self.timeout = {'DEFAULT': timeout}
+        self.timeout = {'DEFAULT': timeout or None}
 
         if timeout_post is not None:
             self.set_timeout(timeout_post, 'POST')
