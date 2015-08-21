@@ -614,8 +614,16 @@ class Foreman(object):
         main page and extract the version from the footer.
         """
         params = dict(self._req_params)
-        home_page = self.session.get(self.url, **params)
-        match = re.search(r'Version\s+(?P<version>\S+)', home_page.text)
+        home_page = requests.get(
+            self.url,
+            verify=self.session.verify,
+            **params
+        )
+
+        match = re.search(
+            r'Version\s+(?P<version>[^\s<]+)?',
+            home_page.text,
+        )
         if match:
             return match.groupdict()['version']
         else:
