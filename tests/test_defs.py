@@ -1,7 +1,8 @@
 import os
+import six
 import logging
 from foreman.client import Foreman, Resource, requests
-from mocks import SessionMock
+from .mocks import SessionMock
 
 
 class DefsGen(object):
@@ -17,7 +18,7 @@ class DefsGen(object):
 
     def check_api(self):
         f = self.generate_api()
-        for value in f.__dict__.itervalues():
+        for value in six.itervalues(f.__dict__):
             if not isinstance(value, Resource):
                 continue
             self.check_resource(value)
