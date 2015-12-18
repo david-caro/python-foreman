@@ -6,7 +6,7 @@ long_desc = open('README.rst').read()
 
 setup(
     name="python-foreman",
-    version="0.3.2",
+    version="0.3.3",
     description="Simple low-level client library to access the Foreman API",
     long_description=long_desc,
     author="David Caro",

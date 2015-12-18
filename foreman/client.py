@@ -667,22 +667,26 @@ class Foreman(object):
              minor version if no total match found
         """
         version = parse_version(self.version)
-        defs_path = os.path.join(os.path.dirname(__file__), 'definitions')
-        files = glob.glob('%s/*-v%s.json' % (defs_path, self.api_version))
-        files_version = [
-            (fn, parse_version(os.path.basename(fn).rsplit('-', 1)[0]))
-            for fn in files
-        ]
+        for cache_dir in [
+            os.path.join(os.path.expanduser('~'), '.python-foreman'),
+            os.path.dirname(__file__)
+        ]:
+            defs_path = os.path.join(cache_dir, 'definitions')
+            files = glob.glob('%s/*-v%s.json' % (defs_path, self.api_version))
+            files_version = [
+                (fn, parse_version(os.path.basename(fn).rsplit('-', 1)[0]))
+                for fn in files
+            ]
 
-        last_major_match = None
-        for f_name, f_ver in sorted(files_version, key=lambda x: x[1]):
-            if f_ver == version:
-                logging.debug('Found local cached version %s' % f_name)
-                return json.loads(open(f_name).read())
-            if f_ver[:2] == version[:2]:
-                last_major_match = f_name
-            if f_ver[0] > version[0]:
-                break
+            last_major_match = None
+            for f_name, f_ver in sorted(files_version, key=lambda x: x[1]):
+                if f_ver == version:
+                    logging.debug('Found local cached version %s' % f_name)
+                    return json.loads(open(f_name).read())
+                if f_ver[:2] == version[:2]:
+                    last_major_match = f_name
+                if f_ver[0] > version[0]:
+                    break
 
         if last_major_match:
             if strict:
@@ -721,7 +725,17 @@ class Foreman(object):
 
         if res.ok:
             data = json.loads(res.text)
-            defs_path = os.path.join(os.path.dirname(__file__), 'definitions')
+            defs_path = os.path.join(
+                os.path.expanduser('~'),
+                '.python-foreman',
+                'definitions'
+            )
+            if not os.path.exists(defs_path):
+                try:
+                    os.makedirs(defs_path)
+                except:
+                    logging.debug('Unable to create cache dir %s', defs_path)
+                    return
             cache_fn = '%s/%s-v%s.json' % (
                 defs_path, self.version,
                 self.api_version,
@@ -729,6 +743,7 @@ class Foreman(object):
             try:
                 with open(cache_fn, 'w') as cache_fd:
                     cache_fd.write(json.dumps(data, indent=4, default=str))
+                    logging.debug('Wrote cache file %s', cache_fn)
             except:
                 logging.debug('Unable to write cache file %s', cache_fn)
         else:
