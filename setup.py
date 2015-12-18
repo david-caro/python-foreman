@@ -1,22 +1,40 @@
 #!/usr/bin/env python
-
+import os
 from setuptools import setup
+from subprocess import check_output
 
-long_desc = open('README.rst').read()
+
+def get_version():
+    """
+    Retrieves the version of the package, from the PKG-INFO file or generates
+    it with the version script
+
+    Returns:
+        str: Version for the package
+
+    Raises:
+        RuntimeError: If the version could not be retrieved
+    """
+    version = None
+    if os.path.exists('PKG-INFO'):
+        with open('PKG-INFO') as info_fd:
+            for line in info_fd.readlines():
+                if line.startswith('Version: '):
+                    version = line.split(' ', 1)[-1]
+
+    elif os.path.exists('scripts/generate_version.sh'):
+        version = check_output(['scripts/generate_version.sh'])
+
+    if version is None:
+        raise RuntimeError('Failed to get package version')
+
+    return version
+
+
+os.environ['PBR_VERSION'] = get_version()
+
 
 setup(
-    name="python-foreman",
-    version="0.3.3",
-    description="Simple low-level client library to access the Foreman API",
-    long_description=long_desc,
-    author="David Caro",
-    author_email="dcaroest@redhat.com",
-    packages=['foreman', 'foreman_plugins'],
-    url='https://github.com/david-caro/python-foreman',
-    install_requires=[
-        'requests>=0.14',
-    ],
-    package_data={
-        'foreman': ['definitions/*.json'],
-    },
+    setup_requires=['pbr'],
+    pbr=True,
 )
