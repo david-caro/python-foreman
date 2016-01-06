@@ -23,7 +23,7 @@ def get_version():
                     version = line.split(' ', 1)[-1]
 
     elif os.path.exists('scripts/generate_version.sh'):
-        version = check_output(['scripts/generate_version.sh'])
+        version = check_output(['scripts/generate_version.sh']).strip()
 
     if version is None:
         raise RuntimeError('Failed to get package version')
