@@ -1,7 +1,24 @@
 #!/usr/bin/env python
 import os
 from setuptools import setup
-from subprocess import check_output
+import subprocess
+
+
+def check_output(args):
+    proc = subprocess.Popen(
+        args,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    )
+    stdout, stderr = proc.communicate()
+
+    if proc.returncode:
+        raise RuntimeError(
+            'Failed to run %s\nrc=%s\nstdout=\n%sstderr=%s'
+            % (args, proc.returncode, stdout, stderr)
+        )
+
+    return stdout
 
 
 def get_version():
