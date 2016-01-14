@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import os
-from setuptools import setup
 import subprocess
+from setuptools import setup
 
 
 def check_output(args):
@@ -44,6 +44,10 @@ def get_version():
 
     if version is None:
         raise RuntimeError('Failed to get package version')
+
+    # py3 compatibility step
+    if not isinstance(version, str) and isinstance(version, bytes):
+        version = version.decode()
 
     return version
 
