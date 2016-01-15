@@ -1,7 +1,24 @@
 #!/usr/bin/env python
 import os
+import subprocess
 from setuptools import setup
-from subprocess import check_output
+
+
+def check_output(args):
+    proc = subprocess.Popen(
+        args,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    )
+    stdout, stderr = proc.communicate()
+
+    if proc.returncode:
+        raise RuntimeError(
+            'Failed to run %s\nrc=%s\nstdout=\n%sstderr=%s'
+            % (args, proc.returncode, stdout, stderr)
+        )
+
+    return stdout
 
 
 def get_version():
@@ -27,6 +44,10 @@ def get_version():
 
     if version is None:
         raise RuntimeError('Failed to get package version')
+
+    # py3 compatibility step
+    if not isinstance(version, str) and isinstance(version, bytes):
+        version = version.decode()
 
     return version
 
