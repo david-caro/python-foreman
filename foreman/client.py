@@ -745,7 +745,7 @@ class Foreman(object):
                 try:
                     os.makedirs(defs_path)
                 except:
-                    logging.debug('Unable to create cache dir %s', defs_path)
+                    logger.debug('Unable to create cache dir %s', defs_path)
                     return
             cache_fn = '%s/%s-v%s.json' % (
                 defs_path, self.version,
@@ -754,7 +754,7 @@ class Foreman(object):
             try:
                 with open(cache_fn, 'w') as cache_fd:
                     cache_fd.write(json.dumps(data, indent=4, default=str))
-                    logging.debug('Wrote cache file %s', cache_fn)
+                    logger.debug('Wrote cache file %s', cache_fn)
             except:
                 logger.debug('Unable to write cache file %s', cache_fn)
         else:
