@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 This module provides access to the API of a foreman server
 """
