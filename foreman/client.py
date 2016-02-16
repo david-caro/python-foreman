@@ -26,7 +26,17 @@ if requests.__version__.split('.', 1)[0] == '0':
     OLD_REQ = True
 else:
     OLD_REQ = False
+
 logger = logging.getLogger(__name__)
+
+
+def set_loglevel(level):
+    """
+    Sets the loglevel for the python-foreman module.
+
+    :param loglevel: a loglevel constant from the logging module.
+    """
+    logger.setLevel(level)
 
 
 def try_int(what):
