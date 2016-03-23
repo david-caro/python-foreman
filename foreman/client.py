@@ -745,7 +745,7 @@ class Foreman(object):
                     os.makedirs(defs_path)
                 except:
                     logger.debug('Unable to create cache dir %s', defs_path)
-                    return
+                    return data
             cache_fn = '%s/%s-v%s.json' % (
                 defs_path, self.version,
                 self.api_version,
