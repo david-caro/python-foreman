@@ -891,7 +891,7 @@ class Foreman(object):
             )
         try:
             return OLD_REQ and res.json or res.json()
-        except requests.JSONDecodeError:
+        except ValueError:
             return res.text
 
     def do_get(self, url, kwargs):
