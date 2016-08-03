@@ -21,6 +21,14 @@ try:
 except ImportError:
     PLUGINS = []
 
+try:
+    from requests.packages.urllib3.util.retry import Retry
+    RETRIES = 5
+    BACKOFF_FACTOR = 0.5
+    with_retry = True
+except ImportError:
+    with_retry = False
+
 
 if requests.__version__.split('.', 1)[0] == '0':
     OLD_REQ = True
@@ -594,6 +602,13 @@ class Foreman(object):
         self.version = version
         self.api_version = api_version
         self.session = requests.Session()
+        if with_retry:
+            retries = Retry(total=RETRIES,
+                            backoff_factor=BACKOFF_FACTOR)
+            self.session.mount('http://',
+                               requests.adapters.HTTPAdapter(retries))
+            self.session.mount('https://',
+                               requests.adapters.HTTPAdapter(retries))
         self.session.verify = verify
         if auth is not None:
             self.session.auth = auth

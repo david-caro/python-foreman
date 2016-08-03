@@ -51,3 +51,6 @@ class SessionMock(object):
 
     def delete(self, url, **kwargs):
         return self.mapping('DELETE', url)
+
+    def mount(self, url, adapter):
+        return True
