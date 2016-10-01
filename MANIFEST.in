@@ -2,3 +2,5 @@ include *.rst
 include LICENSE
 include *.py
 include foreman/definitions/*.json
+include CHANGELOG
+include AUTHORS

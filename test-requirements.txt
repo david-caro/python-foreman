@@ -1,1 +1,3 @@
 pytest
+tox
+-r bulid-requirements.txt

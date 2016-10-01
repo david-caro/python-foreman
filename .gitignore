@@ -40,3 +40,6 @@ nosetests.xml
 
 # Vim files
 .*.sw?
+
+AUTHORS
+CHANGELOG
