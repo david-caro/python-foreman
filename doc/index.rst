@@ -4,7 +4,7 @@
    contain the root `toctree` directive.
 
 Welcome to Python Foreman's documentation!
-=======================================
+==========================================
 
 .. toctree::
    :maxdepth: 2
@@ -12,6 +12,13 @@ Welcome to Python Foreman's documentation!
    client
    tutorial
 
+
+Changelog
+==========
+Here you can find the `full changelog for this version`_
+
+
+.. _full changelog for this version: _static/CHANGELOG.txt
 
 Indices and tables
 ==================

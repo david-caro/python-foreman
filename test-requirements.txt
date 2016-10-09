@@ -1,3 +1,4 @@
 pytest
 tox
+flake8
 -r bulid-requirements.txt

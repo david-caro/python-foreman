@@ -43,3 +43,5 @@ nosetests.xml
 
 AUTHORS
 CHANGELOG
+
+doc/_build

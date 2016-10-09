@@ -1,0 +1,2 @@
+autosemver
+sphinx>=1.4.8
