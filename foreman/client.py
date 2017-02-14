@@ -116,7 +116,8 @@ class ForemanVersionException(Exception):
 
 class MethodAPIDescription(object):
     exclude_html_reg = re.compile('</?[^>/]+/?>')
-    resource_pattern = re.compile(r'^/api(/v[12])?/(?P<resource>\w+).*')
+    resource_pattern = re.compile(
+        r'^/(\bapi\b|\bkatello/api\b)(/v[12])?/(?P<resource>\w+).*')
 
     def __init__(self, resource, method, api):
         self._method = copy.deepcopy(method)
@@ -143,6 +144,8 @@ class MethodAPIDescription(object):
         # special case for the api root
         if url == '/api':
             return 'api'
+        elif url == '/katello':
+            return 'katello'
 
         match = self.resource_pattern.match(url)
         if match:
