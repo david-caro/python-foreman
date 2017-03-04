@@ -493,6 +493,7 @@ class MetaForeman(type):
             resource_data[mname] = tuple(method_dict.values())[0]
             resource_data['_own_methods'].add(mname)
 
+        logger.info(resource_data)
         plugins_cls = ResourceMeta.__new__(
             ResourceMeta,
             'plugins',
