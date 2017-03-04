@@ -1,8 +1,17 @@
 language: python
 python:
-    - "2.7"
-    - "3.5"
+  - '2.7'
+  - '3.5'
 install:
-    - pip install -r test-requirements.txt
+  - pip install -r test-requirements.txt
 script:
-    - tox
+  - tox
+deploy:
+  provider: pypi
+  user: dcaro
+  distribution: sdist
+  password:
+    secure: PZ0DEiZJqqKct+PzhHf828DEj8yFEW13rJ18ZywwMUtYjNtSoxEa/2mMommbDkIWQxAT0N3t0QoQu71tzf6Aw3zuFaumxuqMCI+3NZo/ZztY9hBWlwkTu4LzWQi9G116GmPnXvcagTLWpqgB2YXnS4QmEHcz6QyH2heHaEt6rQY=
+  on:
+    branch: master
+    python: '2.7'
