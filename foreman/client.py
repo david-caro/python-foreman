@@ -550,7 +550,7 @@ class Foreman(object):
     def __init__(self, url, auth=None, version=None, api_version=None,
                  use_cache=True, strict_cache=True, timeout=60,
                  timeout_post=600, timeout_delete=600, timeout_put=None,
-                 verify=False):
+                 verify=False, cache_dir=None):
         """
         :param url: Full url to the foreman server
         :param auth: Tuple with the user and the pass
@@ -576,6 +576,8 @@ class Foreman(object):
             If None, then global timeout is used, 0 means no timeout.
         :param verify: path to certificates bundle for SSL verification. If
             False, SSL will not be validated
+        :param cache_dir: path to directory used as cache for api definition
+            files.
         """
         if api_version is None:
             api_version = 1
@@ -599,6 +601,8 @@ class Foreman(object):
         self.api_version = api_version
         self.session = requests.Session()
         self.session.verify = verify
+        self.cache_dir = cache_dir or \
+            os.path.join(os.path.expanduser('~'), '.python-foreman')
         if auth is not None:
             self.session.auth = auth
         self.session.headers.update(
@@ -692,6 +696,7 @@ class Foreman(object):
         """
         version = parse_version(self.version)
         for cache_dir in [
+            self.cache_dir,
             os.path.join(os.path.expanduser('~'), '.python-foreman'),
             os.path.dirname(__file__)
         ]:
@@ -749,11 +754,8 @@ class Foreman(object):
 
         if res.ok:
             data = json.loads(res.text)
-            defs_path = os.path.join(
-                os.path.expanduser('~'),
-                '.python-foreman',
-                'definitions'
-            )
+            defs_path = os.path.join(self.cache_dir, 'definitions')
+
             if not os.path.exists(defs_path):
                 try:
                     os.makedirs(defs_path)
