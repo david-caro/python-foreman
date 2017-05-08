@@ -183,6 +183,8 @@ class MethodAPIDescription(object):
             ).join(base_name.rsplit('_', 1))
         else:
             base_name = self._method['name']
+        if base_name == 'import':
+            base_name = 'import_'
         if self._apipie_resource != self.resource:
             return '%s_%s' % (self._apipie_resource, base_name)
         else:
