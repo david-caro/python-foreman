@@ -45,3 +45,10 @@ AUTHORS
 CHANGELOG
 
 doc/_build
+
+# Rope
+.ropeproject
+
+# tests artifacts
+.eggs
+.cache
