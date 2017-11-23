@@ -92,6 +92,50 @@ reason = %s
        res.text)
 
 
+def req_to_str(req, method, *args, **kwargs):
+    """
+    :param req: :class:`requests.Request` or :class:`requests.Session` object
+    :param method: string with the name of the method.
+
+    Parse the given request and generate an informative string from it
+    """
+    data = 'no data'
+    if 'data' in kwargs:
+        data = kwargs['data']
+        try:
+            data = json.loads(data)
+        except:
+            pass
+
+    req_str =  (
+        "\n####################################\n"
+        "url = %s\n"
+        "args = %s\n"
+        "headers = %s\n"
+        "with_auth = %s\n"
+        "method = %s\n"
+        "-------------- kwargs --------------\n"
+        "%s\n"
+        "--------------- data ---------------\n"
+        "%s\n"
+        "####################################\n" % (
+            args[0],
+            args[1:] if len(args) > 1 else 'no other args',
+            str(req.headers),
+            'true' if req.auth else 'false',
+            method,
+            pprint.pformat(
+                dict(
+                    (key, val) for key, val in kwargs.items() if key != 'data'
+                ),
+            ),
+            json.dumps(data, indent=4),
+        )
+    )
+
+    return req_str
+
+
 class ForemanException(Exception):
     def __init__(self, res, msg):
         """
@@ -112,6 +156,32 @@ class Unacceptable(ForemanException):
 
 class ForemanVersionException(Exception):
     pass
+
+
+class VerboseSession(requests.Session):
+    def get(self, *args, **kwargs):
+        logger.debug(
+            req_to_str(self, 'get', *args, **kwargs)
+        )
+        return super(self.__class__, self).get(*args, **kwargs)
+
+    def put(self, *args, **kwargs):
+        logger.debug(
+            req_to_str(self, 'put', *args, **kwargs)
+        )
+        return super(self.__class__, self).put(*args, **kwargs)
+
+    def post(self, *args, **kwargs):
+        logger.debug(
+            req_to_str(self, 'post', *args, **kwargs)
+        )
+        return super(self.__class__, self).post(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        logger.debug(
+            req_to_str(self, 'delete', *args, **kwargs)
+        )
+        return super(self.__class__, self).delete(*args, **kwargs)
 
 
 class MethodAPIDescription(object):
@@ -601,7 +671,7 @@ class Foreman(object):
 
         self.version = version
         self.api_version = api_version
-        self.session = requests.Session()
+        self.session = VerboseSession()
         self.session.verify = verify
         self.cache_dir = cache_dir or \
             os.path.join(os.path.expanduser('~'), '.python-foreman')
