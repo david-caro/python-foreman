@@ -603,6 +603,7 @@ class Foreman(object):
         self.api_version = api_version
         self.session = requests.Session()
         self.session.verify = verify
+        self._req_params['verify'] = verify
         self.cache_dir = cache_dir or \
             os.path.join(os.path.expanduser('~'), '.python-foreman')
         if auth is not None:
@@ -656,12 +657,10 @@ class Foreman(object):
         the version first to know its path, so instead of that we get the
         main page and extract the version from the footer.
         """
-        params = dict(self._req_params)
         home_page = requests.get(
             self.url,
-            verify=self.session.verify,
             timeout=self.get_timeout('GET'),
-            **params
+            **self._req_params
         )
 
         match = re.search(
@@ -675,7 +674,7 @@ class Foreman(object):
             res = self.session.get(
                 self.url + '/api/status',
                 timeout=self.get_timeout('GET'),
-                **params
+                **self._req_params
             )
             if res.status_code < 200 or res.status_code >= 300:
                 raise ForemanException(
