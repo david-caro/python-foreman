@@ -760,7 +760,7 @@ class Foreman(object):
             if not os.path.exists(defs_path):
                 try:
                     os.makedirs(defs_path)
-                except:
+                except Exception:
                     logger.debug('Unable to create cache dir %s', defs_path)
                     return data
             cache_fn = '%s/%s-v%s.json' % (
@@ -771,7 +771,7 @@ class Foreman(object):
                 with open(cache_fn, 'w') as cache_fd:
                     cache_fd.write(json.dumps(data, indent=4, default=str))
                     logger.debug('Wrote cache file %s', cache_fn)
-            except:
+            except Exception:
                 logger.debug('Unable to write cache file %s', cache_fn)
         else:
             if res.status_code == 404:

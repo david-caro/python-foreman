@@ -60,7 +60,7 @@ MAJOR_INVENIO = re.compile(r'\n\* INCOMPATIBLE')
 def get_repo_object(repo, object_name):
     try:
         object_name = object_name.encode()
-    except:
+    except Exception:
         pass
 
     return repo.get_object(object_name)
