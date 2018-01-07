@@ -1,11 +1,15 @@
 language: python
-python:
-  - '2.7'
-  - '3.5'
+matrix:
+  include:
+    - python: 2.7
+      env: TOXENV=py27
+    - python: 3.6
+      env: TOXENV=py36
+    - env: TOXENV=pep8
 install:
   - pip install -r test-requirements.txt
 script:
-  - tox
+  - tox -e "$TOXENV"
 deploy:
   provider: pypi
   user: dcaro
