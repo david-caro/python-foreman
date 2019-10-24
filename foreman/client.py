@@ -241,6 +241,8 @@ class MethodAPIDescription(object):
             # this switch (and undo it inside the function we generate)
             if param['name'] == 'except':
                 local_name = 'except_'
+            if param['name'] == 'async':
+                local_name = 'async_'
             original_names[local_name] = param['name']
             keywords.append(local_name)
             if param['required']:
