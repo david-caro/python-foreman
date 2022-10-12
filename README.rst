@@ -1,3 +1,5 @@
+NOTE: this library is not being maintained anymore, if anyone is willing to continue please open an issue/discussion.
+
 python-foreman
 ==============
 |pypi-ver| |travis-status| |downloads-count| |python-ver| |license|
