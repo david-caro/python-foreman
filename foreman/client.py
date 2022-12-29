@@ -889,7 +889,9 @@ class Foreman(object):
         """Generic function to process the result of an HTTP request"""
         if res.status_code < 200 or res.status_code >= 300:
             if res.status_code == 404:
-                return []
+                if res.request.method == 'GET':
+                    return []
+                raise ObjectNotFound(res, None)
             elif res.status_code == 406:
                 raise Unacceptable(res, None)
             raise ForemanException(
